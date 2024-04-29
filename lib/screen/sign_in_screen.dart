@@ -327,7 +327,7 @@ class _SignInScreenState extends State<SignInScreen> with RestorationMixin {
                 InkWell(
                   child: TextFormFieldStyle(
                     context: context,
-                    hint: "special date",
+                    hint: "Birthday",
                     // ignore: prefer_const_constructors
                     icon: Icon(
                       Icons.calendar_month,
@@ -379,23 +379,6 @@ class _SignInScreenState extends State<SignInScreen> with RestorationMixin {
                         );
                       } else {
                         signUpUser();
-                        // signInFireBase();
-                        // AuthMethods authMethods = AuthMethods();
-                        // authMethods.createUserWithEmailAndPassword(
-                        //   email: _emailController.text,
-                        //   password: _passwordController.text,
-                        //   context: context,
-                        //   onSuccess: () async {
-                        //     // Navigate to MainScreen and show success message
-                        //     await signInFireBase();
-                        //   },
-                        //   onError: (String errorMessage) {
-                        //     // Handle errors such as weak password or email already in use
-                        //     ScaffoldMessenger.of(context).showSnackBar(
-                        //       SnackBar(content: Text(errorMessage)),
-                        //     );
-                        //   },
-                        // );
                       }
                     },
                     style: ElevatedButton.styleFrom(
