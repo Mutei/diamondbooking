@@ -67,14 +67,49 @@ class _SignInScreenState extends State<SignInScreen> with RestorationMixin {
     super.dispose();
   }
 
-  void signInWithOTP(String smsCode) async {
+  void signUpUser() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    String? typeUser = sharedPreferences.getString("TypeUser");
+    String res = await AuthMethods().signUpUser(
+      userName: _nameController.text,
+      email: _emailController.text,
+      phoneNumber: _phoneController.text,
+      password: _passwordController.text,
+      countryCode: countryCodePhone,
+      countryValue: countryValue,
+      stateValue: stateValue!,
+      cityValue: cityValue!,
+      bod: _bodController.text,
+      typeAccount: type!,
+      typeUser: typeUser!,
+    );
+    print(res);
+  }
+
+  signInFireBase() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    String? id = FirebaseAuth.instance.currentUser?.uid;
+    String? typeUser = sharedPreferences.getString("TypeUser");
     try {
-      final credential = PhoneAuthProvider.credential(
-          verificationId: verificationID!, smsCode: smsCode);
-      await _auth.signInWithCredential(credential);
-      print("Successfully signed in.");
+      debugPrint(
+          'HERE ARE THE >>>>>> countryValue: $countryValue, stateValue: $stateValue, cityValue: $cityValue');
+      _showMyDialog();
+      sharedPreferences.setString("TypeAccount", type!);
+      sharedPreferences.setString("Name", _nameController.text);
+      sharedPreferences.setString("Birth of Date", _bodController.text);
+      sharedPreferences.setString("Special Date", _specialDateController.text);
+      sharedPreferences.setString("Email", _emailController.text);
+      sharedPreferences.setString("Phone", _phoneController.text);
+      sharedPreferences.setString("Email", _emailController.text);
+      sharedPreferences.setString("Pass", _passwordController.text);
+      sharedPreferences.setString("cityValue", cityValue ?? "default_city");
+      sharedPreferences.setString("stateValue", stateValue ?? "default_state");
+      sharedPreferences.setString(
+          "countryValue", countryValue ?? "default_country");
+      sharedPreferences.setString("ID", id!);
+      sharedPreferences.setString("TypeUser", typeUser ?? "default_type");
     } catch (e) {
-      print("Failed to sign in: ${e.toString()}");
+      print("Error saving data to Firebase Realtime Database: $e");
     }
   }
 
@@ -130,7 +165,7 @@ class _SignInScreenState extends State<SignInScreen> with RestorationMixin {
                 Navigator.of(context).push(MaterialPageRoute(
                     builder: (context) => VerificationPhone(
                           verificationId: "",
-                          CountryCodePhone: countryCodePhone,
+                          countryCodePhone: countryCodePhone,
                           phone: _phoneController.text,
                         )));
               },
@@ -156,33 +191,6 @@ class _SignInScreenState extends State<SignInScreen> with RestorationMixin {
         );
       },
     );
-  }
-
-  signInFireBase() async {
-    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    String? id = FirebaseAuth.instance.currentUser?.uid;
-    String? typeUser = sharedPreferences.getString("TypeUser");
-    try {
-      debugPrint(
-          'HERE ARE THE >>>>>> countryValue: $countryValue, stateValue: $stateValue, cityValue: $cityValue');
-      _showMyDialog();
-      sharedPreferences.setString("TypeAccount", type!);
-      sharedPreferences.setString("Name", _nameController.text);
-      sharedPreferences.setString("Birth of Date", _bodController.text);
-      sharedPreferences.setString("Special Date", _specialDateController.text);
-      sharedPreferences.setString("Email", _emailController.text);
-      sharedPreferences.setString("Phone", _phoneController.text);
-      sharedPreferences.setString("Email", _emailController.text);
-      sharedPreferences.setString("Pass", _passwordController.text);
-      sharedPreferences.setString("cityValue", cityValue ?? "default_city");
-      sharedPreferences.setString("stateValue", stateValue ?? "default_state");
-      sharedPreferences.setString(
-          "countryValue", countryValue ?? "default_country");
-      sharedPreferences.setString("ID", id!);
-      sharedPreferences.setString("TypeUser", typeUser ?? "default_type");
-    } catch (e) {
-      print("Error saving data to Firebase Realtime Database: $e");
-    }
   }
 
   static Route<DateTime> _datePickerRoute(
@@ -231,31 +239,11 @@ class _SignInScreenState extends State<SignInScreen> with RestorationMixin {
       );
     },
   );
-  late final RestorableRouteFuture<DateTime?> _restorableDatePickerRouteFuture =
-      RestorableRouteFuture<DateTime?>(
-    onComplete: _selectBirthOfDate,
-    onPresent: (NavigatorState navigator, Object? arguments) {
-      return navigator.restorablePush(
-        _datePickerRoute,
-        arguments: _selectedDate.value.millisecondsSinceEpoch,
-      );
-    },
-  );
   void restoreState(RestorationBucket? oldBucket, bool initialRestore) {
     registerForRestoration(_selectedDate, 'selected_date');
     registerForRestoration(
         _restorableBODDatePickerRouteFuture, 'date_picker_route_future');
   }
-
-  // void _selectSpecialDate(DateTime? newSelectedDate) {
-  //   if (newSelectedDate != null) {
-  //     setState(() {
-  //       _selectedDate.value = newSelectedDate;
-  //       _specialDateController.text =
-  //           '${_selectedDate.value.day}/${_selectedDate.value.month}/${_selectedDate.value.year}';
-  //     });
-  //   }
-  // }
 
   void _selectBirthOfDate(DateTime? newSelectedDate) {
     if (newSelectedDate != null) {
@@ -339,7 +327,7 @@ class _SignInScreenState extends State<SignInScreen> with RestorationMixin {
                 InkWell(
                   child: TextFormFieldStyle(
                     context: context,
-                    hint: "Birthday",
+                    hint: "special date",
                     // ignore: prefer_const_constructors
                     icon: Icon(
                       Icons.calendar_month,
@@ -347,31 +335,13 @@ class _SignInScreenState extends State<SignInScreen> with RestorationMixin {
                     ),
                     control: _bodController,
                     isObsecured: false,
-                    validate: validateBOD,
+                    validate: validateSpecialDate,
                     textInputType: TextInputType.text,
                   ),
                   onTap: () {
                     _restorableBODDatePickerRouteFuture.present();
                   },
                 ),
-                // InkWell(
-                //   child: TextFormFieldStyle(
-                //     context: context,
-                //     hint: "special date",
-                //     // ignore: prefer_const_constructors
-                //     icon: Icon(
-                //       Icons.calendar_month,
-                //       color: kPrimaryColor,
-                //     ),
-                //     control: _specialDateController,
-                //     isObsecured: false,
-                //     validate: validateSpecialDate,
-                //     textInputType: TextInputType.text,
-                //   ),
-                //   onTap: () {
-                //     _restorableBODDatePickerRouteFuture.present();
-                //   },
-                // ),
                 TextFormFieldStyle(
                   context: context,
                   hint: "Password",
@@ -408,7 +378,8 @@ class _SignInScreenState extends State<SignInScreen> with RestorationMixin {
                               'All Fields must be filled', context),
                         );
                       } else {
-                        signInFireBase();
+                        signUpUser();
+                        // signInFireBase();
                         // AuthMethods authMethods = AuthMethods();
                         // authMethods.createUserWithEmailAndPassword(
                         //   email: _emailController.text,
