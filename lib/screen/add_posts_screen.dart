@@ -1,6 +1,9 @@
+import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 class AddPostScreen extends StatefulWidget {
   final Map<dynamic, dynamic>? post;
@@ -16,6 +19,8 @@ class _AddPostScreenState extends State<AddPostScreen> {
   final _titleController = TextEditingController();
   final _textController = TextEditingController();
   String _postId = '';
+  File? _imageFile;
+  final ImagePicker _picker = ImagePicker();
 
   @override
   void initState() {
@@ -24,6 +29,15 @@ class _AddPostScreenState extends State<AddPostScreen> {
       _postId = widget.post!['postId'];
       _titleController.text = widget.post!['NameEn'];
       _textController.text = widget.post!['Text'];
+    }
+  }
+
+  Future<void> _pickImage() async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _imageFile = File(pickedFile.path);
+      });
     }
   }
 
@@ -58,6 +72,17 @@ class _AddPostScreenState extends State<AddPostScreen> {
           _postId = postsRef.push().key!;
         }
 
+        String? imageUrl;
+        if (_imageFile != null) {
+          UploadTask uploadTask = FirebaseStorage.instance
+              .ref()
+              .child('post_images')
+              .child('$_postId.jpg')
+              .putFile(_imageFile!);
+          TaskSnapshot snapshot = await uploadTask;
+          imageUrl = await snapshot.ref.getDownloadURL();
+        }
+
         await postsRef.child(_postId).set({
           'NameEn': _titleController.text,
           'Text': _textController.text,
@@ -65,6 +90,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
           'UserName': userName,
           'ProfileImageUrl': profileImageUrl,
           'userId': userId,
+          'ImageUrl': imageUrl ?? '',
         });
 
         print('Post saved successfully');
@@ -106,6 +132,14 @@ class _AddPostScreenState extends State<AddPostScreen> {
                   }
                   return null;
                 },
+              ),
+              SizedBox(height: 20),
+              _imageFile == null
+                  ? Text("No image selected.")
+                  : Image.file(_imageFile!),
+              ElevatedButton(
+                onPressed: _pickImage,
+                child: Text("Pick Image"),
               ),
               ElevatedButton(
                 onPressed: _savePost,

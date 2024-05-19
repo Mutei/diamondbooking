@@ -1,3 +1,4 @@
 language
 resources/auth_methods.dart
 resources/firebase_services.dart
+private.dart

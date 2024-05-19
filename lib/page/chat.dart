@@ -2,6 +2,7 @@
 
 import 'dart:io';
 import 'package:diamond_booking/constants/colors.dart';
+import 'package:diamond_booking/private.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/ui/firebase_animated_list.dart';
@@ -57,7 +58,7 @@ class _State extends State<Chat> {
         .child(id!);
 
     DatabaseReference refChatList =
-    FirebaseDatabase.instance.ref("App").child("ChatList").child(id!);
+        FirebaseDatabase.instance.ref("App").child("ChatList").child(id!);
 
     void sendNotification(
         String? recipientToken, String title, String body) async {
@@ -73,8 +74,7 @@ class _State extends State<Chat> {
         var response = await http.post(url,
             headers: {
               HttpHeaders.contentTypeHeader: 'application/json',
-              HttpHeaders.authorizationHeader:
-              'key=AAAAzq_Non8:APA91bHuc2TOrD5Tca_Pyb5AfZ6fCkd4Rz0642C2g3DJFnSQX6cpf4lFH65WjWOUEESJH5qqO_VGJ_c-1de48lk5NQ8MofERtPQX1qzobWoi4Xc8W0DTvk5YWxt7b8zUqnPJ4ELP5-X5'
+              HttpHeaders.authorizationHeader: 'key=$chatApiKey'
             },
             body: jsonEncode(body));
 

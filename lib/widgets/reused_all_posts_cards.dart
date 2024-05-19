@@ -31,6 +31,11 @@ class ReusedAllPostsCards extends StatelessWidget {
               ),
               trailing: Text(post['RelativeDate'] ?? 'Unknown Date'),
             ),
+            if (post['ImageUrl'] != null && post['ImageUrl'].isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Image.network(post['ImageUrl']),
+              ),
           ],
         ),
       ),
