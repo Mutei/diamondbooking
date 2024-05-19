@@ -17,6 +17,7 @@ class _AllPostsScreenState extends State<AllPostsScreen> {
   final DatabaseReference _postsRef =
       FirebaseDatabase.instance.ref("App").child("AllPosts");
   String userType = "2";
+  String? currentUserId;
   List<Map<dynamic, dynamic>> _posts = [];
 
   @override
@@ -24,6 +25,7 @@ class _AllPostsScreenState extends State<AllPostsScreen> {
     super.initState();
     _fetchPosts();
     _loadUserType();
+    _loadCurrentUser();
   }
 
   void _loadUserType() async {
@@ -31,6 +33,13 @@ class _AllPostsScreenState extends State<AllPostsScreen> {
     setState(() {
       userType = prefs.getString("TypeUser") ?? "2";
       print("Loaded User Type: $userType");
+    });
+  }
+
+  void _loadCurrentUser() {
+    User? user = FirebaseAuth.instance.currentUser;
+    setState(() {
+      currentUserId = user?.uid;
     });
   }
 
@@ -92,26 +101,18 @@ class _AllPostsScreenState extends State<AllPostsScreen> {
               itemCount: _posts.length,
               itemBuilder: (context, index) {
                 Map<dynamic, dynamic> post = _posts[index];
-                return Column(
-                  children: [
-                    ReusedAllPostsCards(
-                      post: post,
-                    ),
-                    if (post['userId'] ==
-                        FirebaseAuth.instance.currentUser?.uid)
-                      TextButton(
-                        onPressed: () async {
-                          await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => AddPostScreen(post: post),
-                            ),
-                          );
-                          _fetchPosts();
-                        },
-                        child: Text("Edit"),
+                return ReusedAllPostsCards(
+                  post: post,
+                  currentUserId: currentUserId,
+                  onEdit: () async {
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => AddPostScreen(post: post),
                       ),
-                  ],
+                    );
+                    _fetchPosts();
+                  },
                 );
               },
             ),

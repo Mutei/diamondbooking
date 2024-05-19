@@ -107,45 +107,41 @@ class _AddPostScreenState extends State<AddPostScreen> {
       appBar: AppBar(
         title: Text(widget.post == null ? "Add Post" : "Edit Post"),
       ),
-      body: Form(
-        key: _formKey,
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              TextFormField(
-                controller: _titleController,
-                decoration: InputDecoration(labelText: "Title"),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a title';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _textController,
-                decoration: InputDecoration(labelText: "Text"),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter text';
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: 20),
-              _imageFile == null
-                  ? Text("No image selected.")
-                  : Image.file(_imageFile!),
-              ElevatedButton(
-                onPressed: _pickImage,
-                child: Text("Pick Image"),
-              ),
-              ElevatedButton(
-                onPressed: _savePost,
-                child: Text(widget.post == null ? "Save" : "Update"),
-              ),
-            ],
+      body: SingleChildScrollView(
+        child: Form(
+          key: _formKey,
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: [
+                TextFormField(
+                  controller: _titleController,
+                  decoration: InputDecoration(labelText: "Title"),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter a title';
+                    }
+                    return null;
+                  },
+                ),
+                TextFormField(
+                  controller: _textController,
+                  decoration: InputDecoration(labelText: "Text"),
+                ),
+                SizedBox(height: 20),
+                _imageFile == null
+                    ? Text("No image selected.")
+                    : Image.file(_imageFile!),
+                ElevatedButton(
+                  onPressed: _pickImage,
+                  child: Text("Pick Image"),
+                ),
+                ElevatedButton(
+                  onPressed: _savePost,
+                  child: Text(widget.post == null ? "Save" : "Update"),
+                ),
+              ],
+            ),
           ),
         ),
       ),
