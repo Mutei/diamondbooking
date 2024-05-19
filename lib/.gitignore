@@ -1,2 +1,3 @@
 language
-resources
+resources/auth_methods.dart
+resources/firebase_services.dart
