@@ -8,16 +8,16 @@ import 'package:page_view_indicators/step_page_indicator.dart';
 import 'package:sizer/sizer.dart';
 
 class GuidePager extends StatefulWidget {
-  String type;
+  String userType;
 
-  GuidePager({super.key, required this.type});
+  GuidePager({super.key, required this.userType});
   @override
-  _State createState() => _State(type);
+  _State createState() => _State(userType);
 }
 
 class _State extends State<GuidePager> {
-  String type;
-  _State(this.type);
+  String userType;
+  _State(this.userType);
 
   final GlobalKey<ScaffoldState> _scaffoldKey1 = new GlobalKey<ScaffoldState>();
   List<CustomerType> LstCustomerType = [];
@@ -40,9 +40,9 @@ class _State extends State<GuidePager> {
         CustomerType(Image: "assets/images/p2.png", Name: "p5", Type: "2"));
     TmpLstCustomerType.add(
         CustomerType(Image: "assets/images/p3.png", Name: "p6", Type: "2"));
-    if (type == "1") {
+    if (userType == "1") {
       OrgLstCustomerType = LstCustomerType;
-    } else if (type == "2") {
+    } else if (userType == "2") {
       OrgLstCustomerType = TmpLstCustomerType;
     }
     super.initState();
@@ -122,10 +122,14 @@ class _State extends State<GuidePager> {
                       ),
                     ),
                     onTap: () {
-                      Navigator.of(context).push(MaterialPageRoute(
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
                           builder: (context) => LoginScreen(
-                                title: '',
-                              )));
+                            title: '',
+                            userType: userType,
+                          ),
+                        ),
+                      );
                     },
                   ),
                 ),

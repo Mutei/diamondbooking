@@ -85,7 +85,7 @@ class _State extends State<TypeAccount> {
                       TextSpan(
                         text: getTranslated(
                             context, 'choose the type of account you want'),
-                        style: kGoogleFontsStyle,
+                        style: kPrimaryGoogleFontsStyle,
                       ),
                       TextSpan(
                           text: getTranslated(context, 'please!'),
@@ -133,7 +133,7 @@ class _State extends State<TypeAccount> {
       onTap: () {
         Navigator.of(context).push(MaterialPageRoute(
             builder: (context) => SignInScreen(
-                  type: obj.ID,
+                  typeAccount: obj.ID,
                 )));
       },
     );

@@ -43,13 +43,6 @@ class _State extends State<ChooseTypeUser> {
         body: SizedBox(
           width: MediaQuery.of(context).size.width,
           height: MediaQuery.of(context).size.height,
-          // decoration: BoxDecoration(
-          //     image: DecorationImage(
-          //         image: AssetImage(objProvider.CheckLangValue
-          //             ? "assets/images/login.png"
-          //             : "assets/images/login2.png"),
-          //         fit: BoxFit.fill),
-          //     ),
           child: SafeArea(
               child: Center(
             child: Column(
@@ -57,8 +50,6 @@ class _State extends State<ChooseTypeUser> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  // margin: const EdgeInsets.only(
-                  //     top: 15, bottom: 20, left: 30, right: 70),
                   margin: const EdgeInsets.only(
                     top: 100,
                   ),
@@ -66,7 +57,7 @@ class _State extends State<ChooseTypeUser> {
                     // ignore: prefer_const_constructors
                     text: TextSpan(
                       text: getTranslated(context, "Are you a"),
-                      style: kGoogleFontsStyle,
+                      style: kPrimaryGoogleFontsStyle,
                       // ignore: prefer_const_literals_to_create_immutables
                       children: <TextSpan>[
                         TextSpan(
@@ -76,7 +67,7 @@ class _State extends State<ChooseTypeUser> {
                         TextSpan(
                           text: getTranslated(context, 'or a'),
                           // ignore: unnecessary_const
-                          style: kGoogleFontsStyle,
+                          style: kPrimaryGoogleFontsStyle,
                         ),
                         TextSpan(
                           text: "\n" '${getTranslated(context, 'Provider')}?',
@@ -154,7 +145,7 @@ class _State extends State<ChooseTypeUser> {
         // ignore: use_build_context_synchronously
         Navigator.of(context).push(
           MaterialPageRoute(
-            builder: (context) => GuidePager(type: obj.type),
+            builder: (context) => GuidePager(userType: obj.type),
           ),
         );
       },

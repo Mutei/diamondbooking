@@ -6,5 +6,6 @@ import 'package:sizer/sizer.dart';
 const kPrimaryColor = Colors.teal;
 const kSecondaryColor = Colors.black;
 const kTypeUserTextColor = Colors.white;
-const kConfirmTextColor=Colors.green;
-const kCloseTextColor=Colors.red;
+const kConfirmTextColor = Colors.green;
+const kCloseTextColor = Colors.red;
+const kTextButtonColor = Colors.blue;

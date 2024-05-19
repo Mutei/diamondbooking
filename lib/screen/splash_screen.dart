@@ -34,7 +34,7 @@ class _State extends State<Splashscreen> {
     await Future.delayed(const Duration(seconds: 5)).then((value) {
       if (autoLogin == "1" && (id != null || id!.isNotEmpty)) {
         Navigator.of(context)
-            .push(MaterialPageRoute(builder: (context) => const MainScreen()));
+            .push(MaterialPageRoute(builder: (context) => MainScreen()));
       } else if (check) {
         Navigator.of(context).push(MaterialPageRoute(
             builder: (context) => LoginScreen(
@@ -75,8 +75,8 @@ class _State extends State<Splashscreen> {
                 image: AssetImage("assets/images/logo.png"),
               )),
           onTap: (() {
-            Navigator.of(context).push(
-                MaterialPageRoute(builder: (context) => const MainScreen()));
+            Navigator.of(context)
+                .push(MaterialPageRoute(builder: (context) => MainScreen()));
           }),
         )),
       ),

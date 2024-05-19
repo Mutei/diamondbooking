@@ -10,6 +10,7 @@ class User {
   final String cityValue;
   final String typeAccount;
   final String typeUser;
+
   const User({
     required this.email,
     required this.uid,
@@ -21,19 +22,20 @@ class User {
     required this.countryValue,
     required this.stateValue,
     required this.typeAccount,
-    required this.typeUser
+    required this.typeUser,
   });
+
   Map<String, dynamic> toJson() => {
-        'username': userName,
-        'uid': uid,
-        'email': email,
-        'phoneNumber': phoneNumber,
-        'password': password,
-        'birthOfDate': birthOfDate,
-        'countryValue': countryValue,
-        'cityValue': cityValue,
-        'stateValue': stateValue,
-        'typeAccount': typeAccount,
-    'typeUser': typeUser,
+        'Name': userName,
+        'ID': uid,
+        'Email': email,
+        'Phone': phoneNumber,
+        'Password': password,
+        'Date of Birth': birthOfDate,
+        'CountryValue': countryValue,
+        'CityValue': cityValue,
+        'StateValue': stateValue,
+        'TypeAccount': typeAccount,
+        'TypeUser': typeUser,
       };
 }

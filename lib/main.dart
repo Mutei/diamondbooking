@@ -1,3 +1,4 @@
+import 'package:diamond_booking/constants/colors.dart';
 import 'package:diamond_booking/screen/splash_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -70,7 +71,8 @@ class _MyAppState extends State<MyApp> {
       return const Center(
         // ignore: prefer_const_constructors
         child: CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),),
+          valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+        ),
       );
     } else {
       return Sizer(
@@ -78,8 +80,10 @@ class _MyAppState extends State<MyApp> {
           return MaterialApp(
             debugShowCheckedModeBanner: false,
             title: "Flutter Localization Demo",
+
             theme: ThemeData(
-                primarySwatch: Colors.blue,
+                useMaterial3: true,
+                colorScheme: ColorScheme.fromSeed(seedColor: kPrimaryColor),
                 fontFamily: 'CODE_Light',
                 textTheme:
                     GoogleFonts.lailaTextTheme(Theme.of(context).textTheme)),
