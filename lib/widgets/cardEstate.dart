@@ -69,250 +69,6 @@ class _State extends State<CardEstate> {
     }
   }
 
-  // Widget build(BuildContext context) {
-  //   final objProvider = Provider.of<GeneralProvider>(context, listen: false);
-  //
-  //   return InkWell(
-  //     child: Container(
-  //       width: MediaQuery.of(context).size.width - 100,
-  //       margin: const EdgeInsets.only(left: 10, right: 10, top: 5),
-  //       child: Column(
-  //         children: [
-  //           Visibility(
-  //             visible: Visimage,
-  //             child: FutureBuilder<String>(
-  //               future: getimages(obj['IDEstate'].toString()),
-  //               builder: (context, snapshot) {
-  //                 if (snapshot.hasData &&
-  //                     snapshot.connectionState == ConnectionState.done &&
-  //                     snapshot.data!.isNotEmpty) {
-  //                   // Check if snapshot.data is not empty
-  //                   return Container(
-  //                     height: 120,
-  //                     width: MediaQuery.of(context).size.width,
-  //                     child: Image(
-  //                       image: NetworkImage(snapshot.data!),
-  //                       fit: BoxFit.cover,
-  //                     ),
-  //                   );
-  //                 }
-  //
-  //                 return Center(
-  //                   child: const CircularProgressIndicator(),
-  //                 );
-  //               },
-  //             ),
-  //           ),
-  //           Container(
-  //             margin: const EdgeInsets.only(left: 10, right: 10),
-  //             child: ListTile(
-  //               title: Text(
-  //                   objProvider.CheckLangValue ? obj['NameEn'] : obj['NameAr']),
-  //               subtitle: !Visimage
-  //                   ? Wrap(
-  //                       runSpacing: 5.0,
-  //                       spacing: 5.0,
-  //                       children: [
-  //                         Expanded(
-  //                             child: Text(
-  //                           obj['State'],
-  //                           style: TextStyle(fontSize: 12),
-  //                         )),
-  //                         Expanded(
-  //                             child: Visibility(
-  //                                 visible: obj["Type"] == 1 ? false : true,
-  //                                 child: Text(
-  //                                   obj["Sessions"].toString().isNotEmpty
-  //                                       ? obj["Sessions"].toString()
-  //                                       : " ",
-  //                                   style: TextStyle(fontSize: 12),
-  //                                 ))),
-  //                         Expanded(
-  //                             child: Visibility(
-  //                                 visible: obj["Type"] == 1 ? false : true,
-  //                                 child: Text(
-  //                                   obj["TypeofRestaurant"]
-  //                                           .toString()
-  //                                           .isNotEmpty
-  //                                       ? obj["TypeofRestaurant"].toString()
-  //                                       : " ",
-  //                                   style: TextStyle(fontSize: 12),
-  //                                 )))
-  //                       ],
-  //                     )
-  //                   : Text(
-  //                       obj['State'],
-  //                       style: TextStyle(fontSize: 12),
-  //                     ),
-  //               trailing: !Visimage
-  //                   ? SizedBox(
-  //                       width: 75,
-  //                       height: 100,
-  //                       child: FutureBuilder<String>(
-  //                         future: getimages(obj['IDEstate'].toString()),
-  //                         builder: (context, snapshot) {
-  //                           if (snapshot.hasData &&
-  //                               snapshot.connectionState ==
-  //                                   ConnectionState.done) {
-  //                             return snapshot.data != ""
-  //                                 ? Image(
-  //                                     image: NetworkImage(snapshot.data!),
-  //                                     fit: BoxFit.fill,
-  //                                   )
-  //                                 : Container();
-  //                           }
-  //                           // ignore: prefer_const_constructors
-  //                           return Center(
-  //                             // ignore: prefer_const_constructors
-  //                             child: CircularProgressIndicator(),
-  //                           );
-  //                         },
-  //                       ),
-  //                     )
-  //                   : Container(
-  //                       width: 35,
-  //                       height: 35,
-  //                       child: Text(""),
-  //                     ),
-  //             ),
-  //           ),
-  //           Visibility(visible: !Visimage, child: Divider())
-  //         ],
-  //       ),
-  //     ),
-  //     onTap: () {
-  //       Navigator.of(context).push(MaterialPageRoute(
-  //           builder: (context) => ProfileEstate(
-  //                 estate: obj,
-  //                 icon: icon,
-  //                 VisEdit: VisEdit,
-  //               )));
-  //     },
-  //   );
-  // }
-  // Widget build(BuildContext context) {
-  //   final objProvider = Provider.of<GeneralProvider>(context, listen: false);
-  //
-  //   return InkWell(
-  //     child: Container(
-  //       width: MediaQuery.of(context).size.width - 100,
-  //       margin: const EdgeInsets.only(left: 10, right: 10, top: 5),
-  //       child: Column(
-  //         children: [
-  //           Visibility(
-  //             visible: Visimage,
-  //             child: FutureBuilder<String>(
-  //               future: obj['IDEstate'] != null
-  //                   ? getimages(obj['IDEstate'].toString())
-  //                   : Future.value(""),
-  //               builder: (context, snapshot) {
-  //                 if (snapshot.hasData &&
-  //                     snapshot.connectionState == ConnectionState.done &&
-  //                     snapshot.data!.isNotEmpty) {
-  //                   return Container(
-  //                     height: 120,
-  //                     width: MediaQuery.of(context).size.width,
-  //                     child: Image(
-  //                       image: NetworkImage(snapshot.data!),
-  //                       fit: BoxFit.cover,
-  //                     ),
-  //                   );
-  //                 } else {
-  //                   return Center(
-  //                     child: Text(
-  //                         "No image available"), // Display a placeholder or message
-  //                   );
-  //                 }
-  //               },
-  //             ),
-  //           ),
-  //           Container(
-  //             margin: const EdgeInsets.only(left: 10, right: 10),
-  //             child: ListTile(
-  //               title: Text(
-  //                   objProvider.CheckLangValue ? obj['NameEn'] : obj['NameAr']),
-  //               subtitle: !Visimage
-  //                   ? Wrap(
-  //                       runSpacing: 5.0,
-  //                       spacing: 5.0,
-  //                       children: [
-  //                         Expanded(
-  //                             child: Text(
-  //                           obj['State'],
-  //                           style: TextStyle(fontSize: 12),
-  //                         )),
-  //                         Expanded(
-  //                             child: Visibility(
-  //                                 visible: obj["Type"] == 1 ? false : true,
-  //                                 child: Text(
-  //                                   obj["Sessions"].toString().isNotEmpty
-  //                                       ? obj["Sessions"].toString()
-  //                                       : " ",
-  //                                   style: TextStyle(fontSize: 12),
-  //                                 ))),
-  //                         Expanded(
-  //                             child: Visibility(
-  //                                 visible: obj["Type"] == 1 ? false : true,
-  //                                 child: Text(
-  //                                   obj["TypeofRestaurant"]
-  //                                           .toString()
-  //                                           .isNotEmpty
-  //                                       ? obj["TypeofRestaurant"].toString()
-  //                                       : " ",
-  //                                   style: TextStyle(fontSize: 12),
-  //                                 )))
-  //                       ],
-  //                     )
-  //                   : Text(
-  //                       obj['State'],
-  //                       style: TextStyle(fontSize: 12),
-  //                     ),
-  //               trailing: !Visimage
-  //                   ? SizedBox(
-  //                       width: 75,
-  //                       height: 100,
-  //                       child: FutureBuilder<String>(
-  //                         future: obj['IDEstate'] != null
-  //                             ? getimages(obj['IDEstate'].toString())
-  //                             : Future.value(""),
-  //                         builder: (context, snapshot) {
-  //                           if (snapshot.hasData &&
-  //                               snapshot.connectionState ==
-  //                                   ConnectionState.done) {
-  //                             return snapshot.data != ""
-  //                                 ? Image(
-  //                                     image: NetworkImage(snapshot.data!),
-  //                                     fit: BoxFit.fill,
-  //                                   )
-  //                                 : Container();
-  //                           }
-  //                           return Center(
-  //                             child: CircularProgressIndicator(),
-  //                           );
-  //                         },
-  //                       ),
-  //                     )
-  //                   : Container(
-  //                       width: 35,
-  //                       height: 35,
-  //                       child: Text(""),
-  //                     ),
-  //             ),
-  //           ),
-  //           Visibility(visible: !Visimage, child: Divider())
-  //         ],
-  //       ),
-  //     ),
-  //     onTap: () {
-  //       Navigator.of(context).push(MaterialPageRoute(
-  //           builder: (context) => ProfileEstate(
-  //                 estate: obj,
-  //                 icon: icon,
-  //                 VisEdit: VisEdit,
-  //               )));
-  //     },
-  //   );
-  // }
   Widget build(BuildContext context) {
     final objProvider = Provider.of<GeneralProvider>(context, listen: false);
 
@@ -357,85 +113,87 @@ class _State extends State<CardEstate> {
                 },
               ),
             ),
-            Container(
-              margin: const EdgeInsets.only(left: 10, right: 10),
-              child: ListTile(
-                title: Text(
-                  objProvider.CheckLangValue
-                      ? (obj['NameEn'] ??
-                          'Unknown') // Handle null value for NameEn
-                      : (obj['NameAr'] ??
-                          'Unknown'), // Handle null value for NameAr
-                ),
-                subtitle: !Visimage
-                    ? Wrap(
-                        runSpacing: 5.0,
-                        spacing: 5.0,
-                        children: [
-                          Expanded(
-                            child: Text(
-                              obj['State'] ??
-                                  'Unknown', // Handle null value for State
-                              style: TextStyle(fontSize: 12),
-                            ),
-                          ),
-                          Expanded(
-                            child: Visibility(
-                              visible: obj["Type"] == 1 ? false : true,
+            Expanded(
+              child: Container(
+                margin: const EdgeInsets.only(left: 10, right: 10),
+                child: ListTile(
+                  title: Text(
+                    objProvider.CheckLangValue
+                        ? (obj['NameEn'] ??
+                            'Unknown') // Handle null value for NameEn
+                        : (obj['NameAr'] ??
+                            'Unknown'), // Handle null value for NameAr
+                  ),
+                  subtitle: !Visimage
+                      ? Wrap(
+                          runSpacing: 5.0,
+                          spacing: 5.0,
+                          children: [
+                            Expanded(
                               child: Text(
-                                obj["Sessions"]?.toString() ??
-                                    " ", // Handle null value for Sessions
+                                obj['State'] ??
+                                    'Unknown', // Handle null value for State
                                 style: TextStyle(fontSize: 12),
                               ),
                             ),
-                          ),
-                          Expanded(
-                            child: Visibility(
-                              visible: obj["Type"] == 1 ? false : true,
-                              child: Text(
-                                obj["TypeofRestaurant"]?.toString() ??
-                                    " ", // Handle null value for TypeofRestaurant
-                                style: TextStyle(fontSize: 12),
+                            Expanded(
+                              child: Visibility(
+                                visible: obj["Type"] == 1 ? false : true,
+                                child: Text(
+                                  obj["Sessions"]?.toString() ??
+                                      " ", // Handle null value for Sessions
+                                  style: TextStyle(fontSize: 12),
+                                ),
                               ),
                             ),
-                          )
-                        ],
-                      )
-                    : Text(
-                        obj['State'] ??
-                            'Unknown', // Handle null value for State
-                        style: TextStyle(fontSize: 12),
-                      ),
-                trailing: !Visimage
-                    ? SizedBox(
-                        width: 75,
-                        height: 100,
-                        child: FutureBuilder<String>(
-                          future: obj['IDEstate'] != null
-                              ? getimages(obj['IDEstate'].toString())
-                              : Future.value(""),
-                          builder: (context, snapshot) {
-                            if (snapshot.hasData &&
-                                snapshot.connectionState ==
-                                    ConnectionState.done) {
-                              return snapshot.data != ""
-                                  ? Image(
-                                      image: NetworkImage(snapshot.data!),
-                                      fit: BoxFit.fill,
-                                    )
-                                  : Container();
-                            }
-                            return Center(
-                              child: CircularProgressIndicator(),
-                            );
-                          },
+                            Expanded(
+                              child: Visibility(
+                                visible: obj["Type"] == 1 ? false : true,
+                                child: Text(
+                                  obj["TypeofRestaurant"]?.toString() ??
+                                      " ", // Handle null value for TypeofRestaurant
+                                  style: TextStyle(fontSize: 12),
+                                ),
+                              ),
+                            )
+                          ],
+                        )
+                      : Text(
+                          obj['State'] ??
+                              'Unknown', // Handle null value for State
+                          style: TextStyle(fontSize: 12),
                         ),
-                      )
-                    : Container(
-                        width: 35,
-                        height: 35,
-                        child: Text(""),
-                      ),
+                  trailing: !Visimage
+                      ? SizedBox(
+                          width: 75,
+                          height: 100,
+                          child: FutureBuilder<String>(
+                            future: obj['IDEstate'] != null
+                                ? getimages(obj['IDEstate'].toString())
+                                : Future.value(""),
+                            builder: (context, snapshot) {
+                              if (snapshot.hasData &&
+                                  snapshot.connectionState ==
+                                      ConnectionState.done) {
+                                return snapshot.data != ""
+                                    ? Image(
+                                        image: NetworkImage(snapshot.data!),
+                                        fit: BoxFit.fill,
+                                      )
+                                    : Container();
+                              }
+                              return Center(
+                                child: CircularProgressIndicator(),
+                              );
+                            },
+                          ),
+                        )
+                      : Container(
+                          width: 35,
+                          height: 35,
+                          child: Text(""),
+                        ),
+                ),
               ),
             ),
             Visibility(visible: !Visimage, child: Divider())

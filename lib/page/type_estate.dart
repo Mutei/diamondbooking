@@ -54,8 +54,9 @@ class _State extends State<TypeEstate> {
                             if (Check == "Add") {
                               Navigator.of(context).push(MaterialPageRoute(
                                   builder: (context) => AddEstatesScreen(
-                                        type: objProvider.TypeService()[index]
-                                            .type,
+                                        userType:
+                                            objProvider.TypeService()[index]
+                                                .type,
                                       )));
                             } else if (Check == "chat") {
                               Navigator.of(context).push(MaterialPageRoute(

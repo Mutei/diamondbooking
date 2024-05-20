@@ -403,254 +403,254 @@ class _MainScreenState extends State<MainScreen> {
   }
 
 // @override
-  // Widget build(BuildContext context) {
-  //   final objProvider = Provider.of<GeneralProvider>(context, listen: false);
-  //   objProvider.CheckLogin();
-  //   String Estate = getTranslated(context, "My Estate");
-  //   String request = getTranslated(context, "Request");
-  //   String chat = getTranslated(context, "Chat for Estate");
-  //
-  //   String Notification = getTranslated(context, "Notification");
-  //   String upgrade = getTranslated(context, "upgrade account");
-  //   String chatU = getTranslated(context, "Chat for U");
-  //   String Posts = getTranslated(context, "Posts");
-  //
-  //   return Scaffold(
-  //     bottomNavigationBar: userType == "1"
-  //         ? BottomNavigationBar(
-  //             onTap: _onItemTapped2,
-  //             unselectedItemColor: Colors.grey,
-  //             fixedColor: Colors.grey,
-  //             showSelectedLabels: true,
-  //             showUnselectedLabels: true,
-  //             items: <BottomNavigationBarItem>[
-  //               BottomNavigationBarItem(
-  //                 icon: const Icon(
-  //                   Icons.home,
-  //                   color: kPrimaryColor,
-  //                 ),
-  //                 label: Notification,
-  //               ),
-  //               BottomNavigationBarItem(
-  //                 icon: const Icon(
-  //                   Icons.account_box,
-  //                   color: kPrimaryColor,
-  //                 ),
-  //                 label: upgrade,
-  //               ),
-  //               BottomNavigationBarItem(
-  //                 icon: const Icon(
-  //                   Icons.chat,
-  //                   color: kPrimaryColor,
-  //                 ),
-  //                 label: chatU,
-  //               ),
-  //               BottomNavigationBarItem(
-  //                 icon: const Icon(
-  //                   Icons.circle,
-  //                   color: kPrimaryColor,
-  //                 ),
-  //                 label: Posts,
-  //               ),
-  //             ],
-  //           )
-  //         : BottomNavigationBar(
-  //             onTap: _onItemTapped,
-  //             unselectedItemColor: Colors.grey,
-  //             selectedItemColor: Colors.blue,
-  //             showSelectedLabels: true,
-  //             showUnselectedLabels: true,
-  //             type: BottomNavigationBarType.fixed,
-  //             items: <BottomNavigationBarItem>[
-  //               BottomNavigationBarItem(
-  //                 icon: const Icon(
-  //                   Icons.home,
-  //                   color: kPrimaryColor,
-  //                 ),
-  //                 label: Estate,
-  //               ),
-  //               BottomNavigationBarItem(
-  //                 icon: const Icon(
-  //                   Icons.account_box,
-  //                   color: kPrimaryColor,
-  //                 ),
-  //                 label: request,
-  //               ),
-  //               BottomNavigationBarItem(
-  //                 icon: const Icon(
-  //                   Icons.chat,
-  //                   color: kPrimaryColor,
-  //                 ),
-  //                 label: chat,
-  //               ),
-  //               BottomNavigationBarItem(
-  //                 icon: const Icon(
-  //                   Icons.circle,
-  //                   color: kPrimaryColor,
-  //                 ),
-  //                 label: getTranslated(context, "Posts"),
-  //               ),
-  //             ],
-  //           ),
-  //     appBar: AppBar(
-  //       elevation: 0,
-  //       title: Text(
-  //         getTranslated(context, "Diamond Booking"),
-  //         style: const TextStyle(color: Colors.white),
-  //       ),
-  //       centerTitle: true,
-  //       backgroundColor: kPrimaryColor,
-  //     ),
-  //     drawer: CustomDrawer(dataUser: dataUser, id: ID),
-  //     body: Container(
-  //       margin: const EdgeInsets.only(top: 5, bottom: 20, left: 10, right: 10),
-  //       child: ListView(
-  //         children: [
-  //           Container(height: 20),
-  //           Container(
-  //             padding: const EdgeInsets.only(bottom: 10),
-  //             height: 13.h,
-  //             child: ListView.builder(
-  //                 itemCount: objProvider.TypeService().length,
-  //                 scrollDirection: Axis.horizontal,
-  //                 itemBuilder: (BuildContext context, int index) {
-  //                   return CardType(
-  //                     context: context,
-  //                     obj: objProvider.TypeService()[index],
-  //                   );
-  //                 }),
-  //           ),
-  //           Divider(),
-  //           Container(
-  //             margin: const EdgeInsets.only(top: 10),
-  //             child: Text(
-  //               getTranslated(context, 'Hotel'),
-  //               style: TextStyle(fontSize: 6.w, color: Colors.black),
-  //             ),
-  //           ),
-  //           Container(
-  //             height: 200,
-  //             child: FirebaseAnimatedList(
-  //               shrinkWrap: true,
-  //               defaultChild: const Center(child: CircularProgressIndicator()),
-  //               scrollDirection: Axis.horizontal,
-  //               itemBuilder: (context, snapshot, animation, index) {
-  //                 Map map = snapshot.value as Map;
-  //                 map['Key'] = snapshot.key;
-  //                 return FutureBuilder<String>(
-  //                   future: _firebaseServices.getImages(map['Key']),
-  //                   builder: (context, snapshot) {
-  //                     if (snapshot.connectionState == ConnectionState.waiting) {
-  //                       return Center(child: CircularProgressIndicator());
-  //                     } else if (snapshot.hasError) {
-  //                       return Text('Error: ${snapshot.error}');
-  //                     } else {
-  //                       String imageUrl =
-  //                           snapshot.data ?? 'assets/images/default_image.png';
-  //                       return CardEstate(
-  //                         context: context,
-  //                         obj: map,
-  //                         icon: "assets/images/hotel.png",
-  //                         VisEdit: false,
-  //                         image: imageUrl,
-  //                         Visimage: true,
-  //                       );
-  //                     }
-  //                   },
-  //                 );
-  //               },
-  //               query: queryHotel,
-  //             ),
-  //           ),
-  //           Divider(),
-  //           Container(
-  //             margin: const EdgeInsets.only(top: 10),
-  //             child: Text(
-  //               getTranslated(context, 'Coffee'),
-  //               style: TextStyle(fontSize: 6.w, color: Colors.black),
-  //             ),
-  //           ),
-  //           Container(
-  //             height: 200,
-  //             child: FirebaseAnimatedList(
-  //               shrinkWrap: true,
-  //               defaultChild: const Center(child: CircularProgressIndicator()),
-  //               scrollDirection: Axis.horizontal,
-  //               itemBuilder: (context, snapshot, animation, index) {
-  //                 Map map = snapshot.value as Map;
-  //                 map['Key'] = snapshot.key;
-  //                 return FutureBuilder<String>(
-  //                   future: _firebaseServices.getImages(map['Key']),
-  //                   builder: (context, snapshot) {
-  //                     if (snapshot.connectionState == ConnectionState.waiting) {
-  //                       return Center(child: CircularProgressIndicator());
-  //                     } else if (snapshot.hasError) {
-  //                       return Text('Error: ${snapshot.error}');
-  //                     } else {
-  //                       String imageUrl =
-  //                           snapshot.data ?? 'assets/images/default_image.png';
-  //                       return CardEstate(
-  //                         context: context,
-  //                         obj: map,
-  //                         icon: "assets/images/coffee.png",
-  //                         VisEdit: false,
-  //                         image: imageUrl,
-  //                         Visimage: true,
-  //                       );
-  //                     }
-  //                   },
-  //                 );
-  //               },
-  //               query: queryCoffee,
-  //             ),
-  //           ),
-  //           Divider(),
-  //           Container(
-  //             margin: const EdgeInsets.only(top: 10),
-  //             child: Text(
-  //               getTranslated(context, 'Restaurant'),
-  //               style: TextStyle(fontSize: 5.w, color: Colors.black),
-  //             ),
-  //           ),
-  //           Container(
-  //             height: 200,
-  //             child: FirebaseAnimatedList(
-  //               shrinkWrap: true,
-  //               defaultChild: const Center(child: CircularProgressIndicator()),
-  //               scrollDirection: Axis.horizontal,
-  //               itemBuilder: (context, snapshot, animation, index) {
-  //                 Map map = snapshot.value as Map;
-  //                 map['Key'] = snapshot.key;
-  //                 return FutureBuilder<String>(
-  //                   future: _firebaseServices.getImages(map['Key']),
-  //                   builder: (context, snapshot) {
-  //                     if (snapshot.connectionState == ConnectionState.waiting) {
-  //                       return Center(child: CircularProgressIndicator());
-  //                     } else if (snapshot.hasError) {
-  //                       return Text('Error: ${snapshot.error}');
-  //                     } else {
-  //                       String imageUrl =
-  //                           snapshot.data ?? 'assets/images/default_image.png';
-  //                       return CardEstate(
-  //                         context: context,
-  //                         obj: map,
-  //                         icon: "assets/images/restaurant.png",
-  //                         VisEdit: false,
-  //                         image: imageUrl,
-  //                         Visimage: true,
-  //                       );
-  //                     }
-  //                   },
-  //                 );
-  //               },
-  //               query: queryRestaurant,
-  //             ),
-  //           ),
-  //         ],
-  //       ),
-  //     ),
-  //   );
-  // }
+// Widget build(BuildContext context) {
+//   final objProvider = Provider.of<GeneralProvider>(context, listen: false);
+//   objProvider.CheckLogin();
+//   String Estate = getTranslated(context, "My Estate");
+//   String request = getTranslated(context, "Request");
+//   String chat = getTranslated(context, "Chat for Estate");
+//
+//   String Notification = getTranslated(context, "Notification");
+//   String upgrade = getTranslated(context, "upgrade account");
+//   String chatU = getTranslated(context, "Chat for U");
+//   String Posts = getTranslated(context, "Posts");
+//
+//   return Scaffold(
+//     bottomNavigationBar: userType == "1"
+//         ? BottomNavigationBar(
+//             onTap: _onItemTapped2,
+//             unselectedItemColor: Colors.grey,
+//             fixedColor: Colors.grey,
+//             showSelectedLabels: true,
+//             showUnselectedLabels: true,
+//             items: <BottomNavigationBarItem>[
+//               BottomNavigationBarItem(
+//                 icon: const Icon(
+//                   Icons.home,
+//                   color: kPrimaryColor,
+//                 ),
+//                 label: Notification,
+//               ),
+//               BottomNavigationBarItem(
+//                 icon: const Icon(
+//                   Icons.account_box,
+//                   color: kPrimaryColor,
+//                 ),
+//                 label: upgrade,
+//               ),
+//               BottomNavigationBarItem(
+//                 icon: const Icon(
+//                   Icons.chat,
+//                   color: kPrimaryColor,
+//                 ),
+//                 label: chatU,
+//               ),
+//               BottomNavigationBarItem(
+//                 icon: const Icon(
+//                   Icons.circle,
+//                   color: kPrimaryColor,
+//                 ),
+//                 label: Posts,
+//               ),
+//             ],
+//           )
+//         : BottomNavigationBar(
+//             onTap: _onItemTapped,
+//             unselectedItemColor: Colors.grey,
+//             selectedItemColor: Colors.blue,
+//             showSelectedLabels: true,
+//             showUnselectedLabels: true,
+//             type: BottomNavigationBarType.fixed,
+//             items: <BottomNavigationBarItem>[
+//               BottomNavigationBarItem(
+//                 icon: const Icon(
+//                   Icons.home,
+//                   color: kPrimaryColor,
+//                 ),
+//                 label: Estate,
+//               ),
+//               BottomNavigationBarItem(
+//                 icon: const Icon(
+//                   Icons.account_box,
+//                   color: kPrimaryColor,
+//                 ),
+//                 label: request,
+//               ),
+//               BottomNavigationBarItem(
+//                 icon: const Icon(
+//                   Icons.chat,
+//                   color: kPrimaryColor,
+//                 ),
+//                 label: chat,
+//               ),
+//               BottomNavigationBarItem(
+//                 icon: const Icon(
+//                   Icons.circle,
+//                   color: kPrimaryColor,
+//                 ),
+//                 label: getTranslated(context, "Posts"),
+//               ),
+//             ],
+//           ),
+//     appBar: AppBar(
+//       elevation: 0,
+//       title: Text(
+//         getTranslated(context, "Diamond Booking"),
+//         style: const TextStyle(color: Colors.white),
+//       ),
+//       centerTitle: true,
+//       backgroundColor: kPrimaryColor,
+//     ),
+//     drawer: CustomDrawer(dataUser: dataUser, id: ID),
+//     body: Container(
+//       margin: const EdgeInsets.only(top: 5, bottom: 20, left: 10, right: 10),
+//       child: ListView(
+//         children: [
+//           Container(height: 20),
+//           Container(
+//             padding: const EdgeInsets.only(bottom: 10),
+//             height: 13.h,
+//             child: ListView.builder(
+//                 itemCount: objProvider.TypeService().length,
+//                 scrollDirection: Axis.horizontal,
+//                 itemBuilder: (BuildContext context, int index) {
+//                   return CardType(
+//                     context: context,
+//                     obj: objProvider.TypeService()[index],
+//                   );
+//                 }),
+//           ),
+//           Divider(),
+//           Container(
+//             margin: const EdgeInsets.only(top: 10),
+//             child: Text(
+//               getTranslated(context, 'Hotel'),
+//               style: TextStyle(fontSize: 6.w, color: Colors.black),
+//             ),
+//           ),
+//           Container(
+//             height: 200,
+//             child: FirebaseAnimatedList(
+//               shrinkWrap: true,
+//               defaultChild: const Center(child: CircularProgressIndicator()),
+//               scrollDirection: Axis.horizontal,
+//               itemBuilder: (context, snapshot, animation, index) {
+//                 Map map = snapshot.value as Map;
+//                 map['Key'] = snapshot.key;
+//                 return FutureBuilder<String>(
+//                   future: _firebaseServices.getImages(map['Key']),
+//                   builder: (context, snapshot) {
+//                     if (snapshot.connectionState == ConnectionState.waiting) {
+//                       return Center(child: CircularProgressIndicator());
+//                     } else if (snapshot.hasError) {
+//                       return Text('Error: ${snapshot.error}');
+//                     } else {
+//                       String imageUrl =
+//                           snapshot.data ?? 'assets/images/default_image.png';
+//                       return CardEstate(
+//                         context: context,
+//                         obj: map,
+//                         icon: "assets/images/hotel.png",
+//                         VisEdit: false,
+//                         image: imageUrl,
+//                         Visimage: true,
+//                       );
+//                     }
+//                   },
+//                 );
+//               },
+//               query: queryHotel,
+//             ),
+//           ),
+//           Divider(),
+//           Container(
+//             margin: const EdgeInsets.only(top: 10),
+//             child: Text(
+//               getTranslated(context, 'Coffee'),
+//               style: TextStyle(fontSize: 6.w, color: Colors.black),
+//             ),
+//           ),
+//           Container(
+//             height: 200,
+//             child: FirebaseAnimatedList(
+//               shrinkWrap: true,
+//               defaultChild: const Center(child: CircularProgressIndicator()),
+//               scrollDirection: Axis.horizontal,
+//               itemBuilder: (context, snapshot, animation, index) {
+//                 Map map = snapshot.value as Map;
+//                 map['Key'] = snapshot.key;
+//                 return FutureBuilder<String>(
+//                   future: _firebaseServices.getImages(map['Key']),
+//                   builder: (context, snapshot) {
+//                     if (snapshot.connectionState == ConnectionState.waiting) {
+//                       return Center(child: CircularProgressIndicator());
+//                     } else if (snapshot.hasError) {
+//                       return Text('Error: ${snapshot.error}');
+//                     } else {
+//                       String imageUrl =
+//                           snapshot.data ?? 'assets/images/default_image.png';
+//                       return CardEstate(
+//                         context: context,
+//                         obj: map,
+//                         icon: "assets/images/coffee.png",
+//                         VisEdit: false,
+//                         image: imageUrl,
+//                         Visimage: true,
+//                       );
+//                     }
+//                   },
+//                 );
+//               },
+//               query: queryCoffee,
+//             ),
+//           ),
+//           Divider(),
+//           Container(
+//             margin: const EdgeInsets.only(top: 10),
+//             child: Text(
+//               getTranslated(context, 'Restaurant'),
+//               style: TextStyle(fontSize: 5.w, color: Colors.black),
+//             ),
+//           ),
+//           Container(
+//             height: 200,
+//             child: FirebaseAnimatedList(
+//               shrinkWrap: true,
+//               defaultChild: const Center(child: CircularProgressIndicator()),
+//               scrollDirection: Axis.horizontal,
+//               itemBuilder: (context, snapshot, animation, index) {
+//                 Map map = snapshot.value as Map;
+//                 map['Key'] = snapshot.key;
+//                 return FutureBuilder<String>(
+//                   future: _firebaseServices.getImages(map['Key']),
+//                   builder: (context, snapshot) {
+//                     if (snapshot.connectionState == ConnectionState.waiting) {
+//                       return Center(child: CircularProgressIndicator());
+//                     } else if (snapshot.hasError) {
+//                       return Text('Error: ${snapshot.error}');
+//                     } else {
+//                       String imageUrl =
+//                           snapshot.data ?? 'assets/images/default_image.png';
+//                       return CardEstate(
+//                         context: context,
+//                         obj: map,
+//                         icon: "assets/images/restaurant.png",
+//                         VisEdit: false,
+//                         image: imageUrl,
+//                         Visimage: true,
+//                       );
+//                     }
+//                   },
+//                 );
+//               },
+//               query: queryRestaurant,
+//             ),
+//           ),
+//         ],
+//       ),
+//     ),
+//   );
+// }
 }
 
 // // ignore_for_file: non_constant_identifier_names

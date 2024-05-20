@@ -1,5 +1,6 @@
 {
     "UserName": "Username",
+    "Name": "Name",
     "salesmanNo": "Salesman No", 
     "CompNN":"Company No",
     "LAN":"Server IP(LAN) ",

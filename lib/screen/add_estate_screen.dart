@@ -17,10 +17,10 @@ import '../widgets/text_form_style.dart';
 import 'maps_screen.dart';
 
 class AddEstatesScreen extends StatefulWidget {
-  String type;
+  String userType;
   AddEstatesScreen({
     super.key,
-    required this.type,
+    required this.userType,
   });
 
   @override
@@ -55,8 +55,6 @@ class _AddEstatesScreenState extends State<AddEstatesScreen> {
       FirebaseDatabase.instance.ref("App").child("EstateID");
   TextEditingController enNameController = TextEditingController();
   TextEditingController enBioController = TextEditingController();
-  TextEditingController countryController = TextEditingController();
-  TextEditingController cityController = TextEditingController();
   TextEditingController taxNumberController = TextEditingController();
   TextEditingController estateNumberController = TextEditingController();
   TextEditingController singleController = TextEditingController();
@@ -249,14 +247,14 @@ class _AddEstatesScreenState extends State<AddEstatesScreen> {
 
                   40.kH,
                   Visibility(
-                    visible: widget.type == "3" ? true : false,
+                    visible: widget.userType == "3" ? true : false,
                     child: const ReusedProviderEstateContainer(
                       hint: "Type of Restaurant",
                     ),
                   ),
                   Visibility(
                     // type of Restaurant
-                    visible: widget.type == "3" ? true : false,
+                    visible: widget.userType == "3" ? true : false,
                     child: Container(
                       margin: const EdgeInsets.only(left: 20, right: 20),
                       child: Column(
@@ -459,14 +457,15 @@ class _AddEstatesScreenState extends State<AddEstatesScreen> {
                   ),
                   15.kH,
                   Visibility(
-                    visible:
-                        widget.type == "3" || widget.type == "2" ? true : false,
+                    visible: widget.userType == "3" || widget.userType == "2"
+                        ? true
+                        : false,
                     child: const ReusedProviderEstateContainer(
                       hint: "Entry allowed",
                     ),
                   ),
                   Visibility(
-                      visible: widget.type == "3" || widget.type == "2"
+                      visible: widget.userType == "3" || widget.userType == "2"
                           ? true
                           : false,
                       child: Container(
@@ -549,15 +548,17 @@ class _AddEstatesScreenState extends State<AddEstatesScreen> {
                         ),
                       )),
                   Visibility(
-                    visible:
-                        widget.type == "3" || widget.type == "2" ? true : false,
+                    visible: widget.userType == "3" || widget.userType == "2"
+                        ? true
+                        : false,
                     child: const ReusedProviderEstateContainer(
                       hint: 'Sessions type',
                     ),
                   ),
                   Visibility(
-                    visible:
-                        widget.type == "3" || widget.type == "2" ? true : false,
+                    visible: widget.userType == "3" || widget.userType == "2"
+                        ? true
+                        : false,
                     child: Container(
                       margin: const EdgeInsets.only(left: 20, right: 20),
                       child: Column(
@@ -619,7 +620,7 @@ class _AddEstatesScreenState extends State<AddEstatesScreen> {
                   40.kH,
                   // const Divider(),
                   Visibility(
-                      visible: widget.type == "3" || widget.type == "2"
+                      visible: widget.userType == "3" || widget.userType == "2"
                           ? true
                           : false,
                       child: Container(
@@ -638,7 +639,8 @@ class _AddEstatesScreenState extends State<AddEstatesScreen> {
                                     onChanged: (bool? value) {
                                       setState(() {
                                         checkMusic = value!;
-                                        if (checkMusic && widget.type == "2") {
+                                        if (checkMusic &&
+                                            widget.userType == "2") {
                                           haveMusic = true;
                                         } else {
                                           haveMusic = false;
@@ -656,7 +658,8 @@ class _AddEstatesScreenState extends State<AddEstatesScreen> {
                         ),
                       )),
                   Visibility(
-                      visible: haveMusic && widget.type == "2" ? true : false,
+                      visible:
+                          haveMusic && widget.userType == "2" ? true : false,
                       child: Container(
                         margin: const EdgeInsets.only(left: 20, right: 20),
                         child: Column(
@@ -755,12 +758,12 @@ class _AddEstatesScreenState extends State<AddEstatesScreen> {
                   ),
                   40.kH,
                   Visibility(
-                    visible: widget.type == "1" ? true : false,
+                    visible: widget.userType == "1" ? true : false,
                     child: const ReusedProviderEstateContainer(
                         hint: "What We have ?"),
                   ),
                   Visibility(
-                    visible: widget.type == "1" ? true : false,
+                    visible: widget.userType == "1" ? true : false,
                     child: Column(
                       children: [
                         Visibility(
@@ -1175,9 +1178,9 @@ class _AddEstatesScreenState extends State<AddEstatesScreen> {
                         });
                         SharedPreferences sharedPreferences =
                             await SharedPreferences.getInstance();
-                        if (widget.type == "1") {
+                        if (widget.userType == "1") {
                           childType = "Hottel";
-                        } else if (widget.type == "2") {
+                        } else if (widget.userType == "2") {
                           childType = "Coffee";
                         } else {
                           childType = "Restaurant";
@@ -1199,7 +1202,7 @@ class _AddEstatesScreenState extends State<AddEstatesScreen> {
                           "Country": countryValue,
                           "City": cityValue,
                           "State": stateValue,
-                          "Type": widget.type,
+                          "Type": widget.userType,
                           "IDUser": sharedPreferences.getString("ID")!,
                           "IDEstate": idEstate,
                           "TypeAccount": TypeAccount,
