@@ -137,6 +137,18 @@ class _AddEstatesScreenState extends State<AddEstatesScreen> {
     }
   }
 
+  Future<String?> getTypeAccount() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    String userId = sharedPreferences.getString("ID")!;
+    DatabaseReference ref = FirebaseDatabase.instance
+        .ref("App")
+        .child("Users")
+        .child(userId)
+        .child("TypeUser");
+    DataSnapshot snapshot = await ref.get();
+    return snapshot.value as String?;
+  }
+
   @override
   Widget build(BuildContext context) {
     btnLogin = Text(
@@ -1189,8 +1201,8 @@ class _AddEstatesScreenState extends State<AddEstatesScreen> {
                         if (checkMusic) {
                           music = "1";
                         }
-                        String? TypeAccount =
-                            sharedPreferences.getString("TypeAccount") ?? "2";
+                        String? TypeAccount = await getTypeAccount() ?? "2";
+
                         await ref
                             .child(childType)
                             .child(idEstate.toString())
