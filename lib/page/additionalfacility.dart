@@ -12,13 +12,13 @@ import '../widgets/text_form_style.dart';
 import 'addImage.dart';
 import 'dateBooking.dart';
 
-class AditionalFasilty extends StatefulWidget {
+class AdditionalFacility extends StatefulWidget {
   String CheckState;
   String IDEstate;
   Map estate;
   bool CheckIsBooking;
   List<Rooms>? Lstroom;
-  AditionalFasilty(
+  AdditionalFacility(
       {required this.CheckState,
       required this.CheckIsBooking,
       required this.estate,
@@ -29,7 +29,7 @@ class AditionalFasilty extends StatefulWidget {
       new _State(CheckState, CheckIsBooking, IDEstate, Lstroom, estate);
 }
 
-class _State extends State<AditionalFasilty> {
+class _State extends State<AdditionalFacility> {
   final GlobalKey<ScaffoldState> _scaffoldKey1 = new GlobalKey<ScaffoldState>();
   String CheckState;
   bool CheckIsBooking;

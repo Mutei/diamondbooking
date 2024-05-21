@@ -657,7 +657,7 @@ class _State extends State<EditEstate> {
                             onTap: () async {
                               Map e = Map();
                               Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (context) => AditionalFasilty(
+                                  builder: (context) => AdditionalFacility(
                                         CheckState: "Edit",
                                         CheckIsBooking: false,
                                         estate: e,
@@ -691,7 +691,7 @@ class _State extends State<EditEstate> {
                           Update();
                           if (objEstate['Type'] == "1") {
                             Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) => AditionalFasilty(
+                                builder: (context) => AdditionalFacility(
                                       CheckState: "Edit",
                                       CheckIsBooking: false,
                                       estate: e,

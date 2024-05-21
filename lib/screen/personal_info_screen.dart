@@ -80,6 +80,7 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen>
         'City': cityValue,
         'TypeUser': widget.typeUser,
         'TypeAccount': widget.typeAccount,
+        'userId': user.uid,
       };
 
       DatabaseReference ref =

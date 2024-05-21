@@ -106,7 +106,7 @@ class _State extends State<Maps> {
               if (TypeEstate == "Hottel") {
                 Map e = Map();
                 Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => AditionalFasilty(
+                    builder: (context) => AdditionalFacility(
                           CheckState: "add",
                           CheckIsBooking: false,
                           IDEstate: ID,

@@ -710,7 +710,7 @@ class _State extends State<ProfileEstate> {
                                   "Choees Room Befor", context);
                             } else {
                               Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (context) => AditionalFasilty(
+                                  builder: (context) => AdditionalFacility(
                                         CheckState: "",
                                         CheckIsBooking: true,
                                         estate: estate,

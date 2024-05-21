@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 
-class CloseButtonWidget extends StatelessWidget {
-  final VoidCallback onTap;
+class CloseTextFormFieldStyle extends StatelessWidget {
+  final Function() onTap;
 
-  const CloseButtonWidget({Key? key, required this.onTap}) : super(key: key);
+  const CloseTextFormFieldStyle({
+    super.key,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -14,7 +17,7 @@ class CloseButtonWidget extends StatelessWidget {
           color: Colors.white,
           shape: BoxShape.circle,
           boxShadow: [
-            BoxShadow(blurRadius: 10, color: Colors.grey, spreadRadius: 1)
+            BoxShadow(blurRadius: 10, color: Colors.grey, spreadRadius: 1),
           ],
         ),
         child: const CircleAvatar(

@@ -98,7 +98,7 @@ class _MapsScreenState extends State<MapsScreen> {
                 if (widget.typeEstate == "Hottel") {
                   Map e = Map();
                   Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => AditionalFasilty(
+                      builder: (context) => AdditionalFacility(
                             CheckState: "add",
                             CheckIsBooking: false,
                             IDEstate: widget.id,
@@ -122,7 +122,12 @@ class _MapsScreenState extends State<MapsScreen> {
                 ),
                 // ignore: prefer_const_constructors
                 child: Center(
-                  child: Text(getTranslated(context, "Next")),
+                  child: Text(
+                    getTranslated(context, "Next"),
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
                 ),
               ),
             ),
