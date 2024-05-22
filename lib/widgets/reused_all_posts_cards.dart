@@ -55,12 +55,12 @@ class _ReusedAllPostsCardsState extends State<ReusedAllPostsCards> {
                     ? Icon(Icons.person)
                     : null,
               ),
-              title: Text(widget.post['UserName'] ?? 'Unknown User'),
+              title: Text(widget.post['EstateName'] ?? 'Unknown User'),
               subtitle: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(widget.post['Text'] ?? 'No Text Available'),
-                  Text(widget.post['NameEn'] ?? 'Unknown Name'),
+                  Text(widget.post['Text'] ?? 'Text is Empty'),
+                  Text(widget.post['Description'] ?? 'Description is Empty'),
                 ],
               ),
               trailing: Text(widget.post['RelativeDate'] ?? 'Unknown Date'),

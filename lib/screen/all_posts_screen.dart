@@ -82,6 +82,30 @@ class _AllPostsScreenState extends State<AllPostsScreen> {
     }
   }
 
+  Widget _buildPostsList() {
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: NeverScrollableScrollPhysics(),
+      itemCount: _posts.length,
+      itemBuilder: (context, index) {
+        Map<dynamic, dynamic> post = _posts[index];
+        return ReusedAllPostsCards(
+          post: post,
+          currentUserId: currentUserId,
+          onEdit: () async {
+            await Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => AddPostScreen(post: post),
+              ),
+            );
+            _fetchPosts();
+          },
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -177,30 +201,6 @@ class _AllPostsScreenState extends State<AllPostsScreen> {
   Future<String> _getImages(String key) async {
     // Implement your image fetching logic here
     return 'assets/images/default_image.png';
-  }
-
-  Widget _buildPostsList() {
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: NeverScrollableScrollPhysics(),
-      itemCount: _posts.length,
-      itemBuilder: (context, index) {
-        Map<dynamic, dynamic> post = _posts[index];
-        return ReusedAllPostsCards(
-          post: post,
-          currentUserId: currentUserId,
-          onEdit: () async {
-            await Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => AddPostScreen(post: post),
-              ),
-            );
-            _fetchPosts();
-          },
-        );
-      },
-    );
   }
 }
 
