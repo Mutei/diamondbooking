@@ -3,8 +3,10 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timeago/timeago.dart' as timeago;
+import '../widgets/cardEstate.dart';
 import '../widgets/reused_all_posts_cards.dart';
 import 'add_posts_screen.dart';
+import 'package:firebase_database/ui/firebase_animated_list.dart';
 
 class AllPostsScreen extends StatefulWidget {
   const AllPostsScreen({super.key});
@@ -16,6 +18,13 @@ class AllPostsScreen extends StatefulWidget {
 class _AllPostsScreenState extends State<AllPostsScreen> {
   final DatabaseReference _postsRef =
       FirebaseDatabase.instance.ref("App").child("AllPosts");
+  final DatabaseReference _hotelRef =
+      FirebaseDatabase.instance.ref("App").child("Estate").child("Hottel");
+  final DatabaseReference _coffeeRef =
+      FirebaseDatabase.instance.ref("App").child("Estate").child("Coffee");
+  final DatabaseReference _restaurantRef =
+      FirebaseDatabase.instance.ref("App").child("Estate").child("Restaurant");
+
   String userType = "2";
   String? currentUserId;
   List<Map<dynamic, dynamic>> _posts = [];
@@ -97,25 +106,100 @@ class _AllPostsScreenState extends State<AllPostsScreen> {
             ),
       body: _posts.isEmpty
           ? Center(child: CircularProgressIndicator())
-          : ListView.builder(
-              itemCount: _posts.length,
-              itemBuilder: (context, index) {
-                Map<dynamic, dynamic> post = _posts[index];
-                return ReusedAllPostsCards(
-                  post: post,
-                  currentUserId: currentUserId,
-                  onEdit: () async {
-                    await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => AddPostScreen(post: post),
-                      ),
-                    );
-                    _fetchPosts();
-                  },
-                );
-              },
+          : ListView(
+              children: [
+                Container(height: 20),
+                _buildSectionTitle(context, 'Hotel'),
+                _buildFirebaseAnimatedList(
+                    _hotelRef, 'assets/images/hotel.png'),
+                Divider(),
+                _buildSectionTitle(context, 'Coffee'),
+                _buildFirebaseAnimatedList(
+                    _coffeeRef, 'assets/images/coffee.png'),
+                Divider(),
+                _buildSectionTitle(context, 'Restaurant'),
+                _buildFirebaseAnimatedList(
+                    _restaurantRef, 'assets/images/restaurant.png'),
+                Divider(),
+                _buildPostsList(),
+              ],
             ),
+    );
+  }
+
+  Widget _buildSectionTitle(BuildContext context, String title) {
+    return Container(
+      margin: const EdgeInsets.only(top: 20),
+      child: Text(
+        title,
+        style: TextStyle(fontSize: 24, color: Colors.black),
+      ),
+    );
+  }
+
+  Widget _buildFirebaseAnimatedList(Query query, String icon) {
+    return Container(
+      height: 200,
+      child: FirebaseAnimatedList(
+        shrinkWrap: true,
+        defaultChild: const Center(child: CircularProgressIndicator()),
+        scrollDirection: Axis.horizontal,
+        itemBuilder: (context, snapshot, animation, index) {
+          Map map = snapshot.value as Map;
+          map['Key'] = snapshot.key;
+          return FutureBuilder<String>(
+            future: _getImages(map['Key']),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Center(child: CircularProgressIndicator());
+              } else if (snapshot.hasError) {
+                return Text('Error: ${snapshot.error}');
+              } else {
+                String imageUrl =
+                    snapshot.data ?? 'assets/images/default_image.png';
+                return CardEstate(
+                  context: context,
+                  obj: map,
+                  icon: icon,
+                  VisEdit: false,
+                  image: imageUrl,
+                  Visimage: true,
+                );
+              }
+            },
+          );
+        },
+        query: query,
+      ),
+    );
+  }
+
+  Future<String> _getImages(String key) async {
+    // Implement your image fetching logic here
+    return 'assets/images/default_image.png';
+  }
+
+  Widget _buildPostsList() {
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: NeverScrollableScrollPhysics(),
+      itemCount: _posts.length,
+      itemBuilder: (context, index) {
+        Map<dynamic, dynamic> post = _posts[index];
+        return ReusedAllPostsCards(
+          post: post,
+          currentUserId: currentUserId,
+          onEdit: () async {
+            await Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => AddPostScreen(post: post),
+              ),
+            );
+            _fetchPosts();
+          },
+        );
+      },
     );
   }
 }
