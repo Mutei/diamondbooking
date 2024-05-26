@@ -1,6 +1,7 @@
 import 'package:diamond_booking/constants/colors.dart';
 import 'package:diamond_booking/page/qrViewScan.dart';
 import 'package:diamond_booking/page/qr_image.dart';
+import 'package:diamond_booking/widgets/text_header.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_database/ui/firebase_animated_list.dart';
@@ -45,6 +46,12 @@ class _ProfileEstateState extends State<ProfileEstate> {
 
   _ProfileEstateState(this.estate, this.icon, this.VisEdit);
   int count = 0;
+  String ID = "";
+  String TypUser = "";
+  String checkGroup = "";
+  final storageRef = FirebaseStorage.instance.ref();
+  bool flagDate = false;
+  bool flagTime = false;
   final GlobalKey<ScaffoldState> _scaffoldKey1 = new GlobalKey<ScaffoldState>();
 
   @override
@@ -53,10 +60,33 @@ class _ProfileEstateState extends State<ProfileEstate> {
     super.initState();
   }
 
-  String ID = "";
-  String TypUser = "";
-  String checkGroup = "";
-  final storageRef = FirebaseStorage.instance.ref();
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: selectedDate,
+      firstDate: DateTime.now(),
+      lastDate: DateTime(2101),
+    );
+    if (picked != null && picked != selectedDate) {
+      setState(() {
+        selectedDate = picked;
+        flagDate = true;
+      });
+    }
+  }
+
+  Future<void> selectTime(BuildContext context) async {
+    final selectedTime = await showTimePicker(
+      initialTime: sTime!,
+      context: context,
+    );
+    if (selectedTime != null && selectedTime != sTime) {
+      setState(() {
+        sTime = selectedTime;
+        flagTime = true;
+      });
+    }
+  }
 
   getData() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
@@ -302,7 +332,7 @@ class _ProfileEstateState extends State<ProfileEstate> {
                       ),
                       subtitle: Text(
                         estate["Country"] + " \\ " + estate["State"],
-                        style: TextStyle(
+                        style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 12,
                             color: Colors.black),
@@ -310,7 +340,7 @@ class _ProfileEstateState extends State<ProfileEstate> {
                       leading: Container(
                         width: 60,
                         height: 60,
-                        decoration: BoxDecoration(
+                        decoration: const BoxDecoration(
                           color: Colors.white,
                           shape: BoxShape.circle,
                           boxShadow: [
@@ -341,8 +371,9 @@ class _ProfileEstateState extends State<ProfileEstate> {
                     ),
                   ),
                   Visibility(
-                      visible: estate["Type"] == "1" ? true : false,
-                      child: TextHedar("Rooms")),
+                    visible: estate["Type"] == "1" ? true : false,
+                    child: TextHeader("Rooms", context),
+                  ),
                   Visibility(
                     visible: estate["Type"] == "1",
                     child: Container(
@@ -376,19 +407,19 @@ class _ProfileEstateState extends State<ProfileEstate> {
                               subtitle: Text(objProvider.CheckLangValue
                                   ? LstRooms[index].bioEn
                                   : LstRooms[index].bio),
-                              leading: Icon(
+                              leading: const Icon(
                                 Icons.single_bed,
                                 color: Color(0xFF84A5FA),
                               ),
                               trailing: Text(
                                 LstRooms[index].price,
-                                style: TextStyle(
+                                style: const TextStyle(
                                     color: Colors.green, fontSize: 18),
                               ),
                               onTap: () async {
-                                int indx = LstRoomsSelected.indexWhere(
+                                int index = LstRoomsSelected.indexWhere(
                                     (element) => element.name == map['Name']);
-                                if (indx == -1) {
+                                if (index == -1) {
                                   LstRoomsSelected.add(Rooms(
                                       id: map['ID'],
                                       name: map['Name'],
@@ -402,7 +433,7 @@ class _ProfileEstateState extends State<ProfileEstate> {
                                     count++;
                                   });
                                 } else {
-                                  LstRoomsSelected.removeAt(indx);
+                                  LstRoomsSelected.removeAt(index);
                                   setState(() {
                                     LstRooms[index].color = Colors.white;
                                     count--;
@@ -786,48 +817,6 @@ class _ProfileEstateState extends State<ProfileEstate> {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  bool flagDate = false;
-  bool flagTime = false;
-
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: selectedDate,
-      firstDate: DateTime.now(),
-      lastDate: DateTime(2101),
-    );
-    if (picked != null && picked != selectedDate) {
-      setState(() {
-        selectedDate = picked;
-        flagDate = true;
-      });
-    }
-  }
-
-  Future<void> selectTime(BuildContext context) async {
-    final selectedTime = await showTimePicker(
-      initialTime: sTime!,
-      context: context,
-    );
-    if (selectedTime != null && selectedTime != sTime) {
-      setState(() {
-        sTime = selectedTime;
-        flagTime = true;
-      });
-    }
-  }
-
-  TextHedar(String text) {
-    return Container(
-      margin: const EdgeInsets.only(left: 30, right: 30, bottom: 10, top: 10),
-      child: Text(
-        getTranslated(context, text),
-        style: TextStyle(
-            fontWeight: FontWeight.bold, fontSize: 16, color: Colors.black),
       ),
     );
   }
