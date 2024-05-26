@@ -92,9 +92,10 @@ class _State extends State<Request> {
                               children: [
                                 Expanded(
                                   child: ItemInCard(
-                                      Icon(Icons.person),
-                                      value['NameUser'] ?? "",
-                                      getTranslated(context, "UserName")),
+                                    Icon(Icons.person),
+                                    value['FirstName'] ?? "",
+                                    getTranslated(context, "UserName"),
+                                  ),
                                 ),
                                 Expanded(
                                     child:
@@ -445,7 +446,7 @@ class _State extends State<Request> {
     return Container(
         child: ListTile(
       leading: icon,
-      iconColor: Color(0xFF84A5FA),
+      iconColor: kPrimaryColor,
       title: Text(
         labe,
         style: TextStyle(fontSize: 12),

@@ -1,5 +1,6 @@
 // ignore_for_file: non_constant_identifier_names
 
+import 'package:diamond_booking/constants/colors.dart';
 import 'package:diamond_booking/page/qrViewScan.dart';
 import 'package:diamond_booking/page/qr_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -21,15 +22,33 @@ import 'additionalfacility.dart';
 import 'chat_group.dart';
 import 'editEstate.dart';
 
+// import 'package:flutter/material.dart';
+// class ProfileEstate extends StatefulWidget {
+//   const ProfileEstate({super.key});
+//
+//   @override
+//   State<ProfileEstate> createState() => _ProfileEstateState();
+// }
+//
+// class _ProfileEstateState extends State<ProfileEstate> {
+//   @override
+//   Widget build(BuildContext context) {
+//     return const Placeholder();
+//   }
+// }
+
 class ProfileEstate extends StatefulWidget {
   Map estate;
   String icon;
   bool VisEdit;
 
   ProfileEstate(
-      {required this.estate, required this.icon, required this.VisEdit});
+      {super.key,
+      required this.estate,
+      required this.icon,
+      required this.VisEdit});
   @override
-  _State createState() => new _State(estate, icon, VisEdit);
+  _State createState() => _State(estate, icon, VisEdit);
 }
 
 class _State extends State<ProfileEstate> {
@@ -127,26 +146,37 @@ class _State extends State<ProfileEstate> {
     final objProvider = Provider.of<GeneralProvider>(context, listen: true);
     return Scaffold(
         key: _scaffoldKey1,
-        floatingActionButton: Visibility(
-          // ignore: sort_child_properties_last
-          child: FloatingActionButton(
-            onPressed: () {
-              print(LstRooms.length.toString());
-              Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => EditEstate(
-                        objEstate: estate,
-                        LstRooms: LstRooms,
-                      )));
-            },
-            backgroundColor: const Color(0xFF84A5FA),
-            child: const Icon(Icons.edit),
-          ),
-          visible: VisEdit,
-        ),
+        // floatingActionButton: Visibility(
+        //   // ignore: sort_child_properties_last
+        //   child: FloatingActionButton(
+        //     onPressed: () {
+        //       print(LstRooms.length.toString());
+        //       Navigator.of(context).push(MaterialPageRoute(
+        //           builder: (context) => EditEstate(
+        //                 objEstate: estate,
+        //                 LstRooms: LstRooms,
+        //               )));
+        //     },
+        //     backgroundColor: kPrimaryColor,
+        //     child: const Icon(Icons.edit),
+        //   ),
+        //   visible: VisEdit,
+        // ),
         appBar: AppBar(
           elevation: 0,
-          backgroundColor: const Color(0xFF84A5FA),
+          backgroundColor: kPrimaryColor,
           actions: [
+            InkWell(
+              child: const Icon(Icons.edit),
+              onTap: () {
+                print(LstRooms.length.toString());
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => EditEstate(
+                          objEstate: estate,
+                          LstRooms: LstRooms,
+                        )));
+              },
+            ),
             Container(
               width: 25,
             ),
@@ -275,7 +305,7 @@ class _State extends State<ProfileEstate> {
                       },
                     ),
 
-                    color: const Color(0xFF84A5FA),
+                    color: kPrimaryColor,
                   ),
                   Container(
                     margin: const EdgeInsets.only(left: 10, right: 10),
@@ -695,12 +725,17 @@ class _State extends State<ProfileEstate> {
                         margin: const EdgeInsets.only(
                             right: 40, left: 40, bottom: 20),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF84A5FA),
+                          color: kPrimaryColor,
                           borderRadius: BorderRadius.circular(12),
                         ),
                         // ignore: prefer_const_constructors
-                        child:
-                            Center(child: Text(getTranslated(context, "Next"))),
+                        child: Center(
+                            child: Text(
+                          getTranslated(context, "Next"),
+                          style: const TextStyle(
+                            color: Colors.white,
+                          ),
+                        )),
                       ),
                       onTap: () async {
                         if (ID != "null") {
@@ -753,7 +788,7 @@ class _State extends State<ProfileEstate> {
                                 "Country": estate["Country"],
                                 "State": estate["State"],
                                 "City": estate["City"],
-                                "NameUser": sharedPreferences.getString("Name"),
+                                "NameUser": estate["FirstName"],
                               });
                               // ignore: use_build_context_synchronously
                               objProvider.FunSnackBarPage(
