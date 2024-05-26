@@ -88,6 +88,29 @@ class _ProfileEstateState extends State<ProfileEstate> {
     }
   }
 
+  // getData() async {
+  //   SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+  //   setState(() {
+  //     ID = sharedPreferences.getString("ID") ?? "";
+  //     TypUser = sharedPreferences.getString("Typ") ?? "";
+  //     checkGroup =
+  //         sharedPreferences.getString(estate['IDEstate'].toString()) ?? "0";
+  //   });
+  //   if (ID.isNotEmpty) {
+  //     DatabaseReference userRef = FirebaseDatabase.instance
+  //         .ref("App")
+  //         .child("User")
+  //         .child(ID)
+  //         .child("FirstName");
+  //     DataSnapshot snapshot = await userRef.get();
+  //     if (snapshot.exists) {
+  //       setState(() {
+  //         estate["FirstName"] =
+  //             snapshot.value as String; // Add this field to the estate map
+  //       });
+  //     }
+  //   }
+  // }
   getData() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     setState(() {
@@ -96,17 +119,20 @@ class _ProfileEstateState extends State<ProfileEstate> {
       checkGroup =
           sharedPreferences.getString(estate['IDEstate'].toString()) ?? "0";
     });
+
     if (ID.isNotEmpty) {
-      DatabaseReference userRef = FirebaseDatabase.instance
-          .ref("App")
-          .child("User")
-          .child(ID)
-          .child("FirstName");
+      DatabaseReference userRef =
+          FirebaseDatabase.instance.ref("App").child("User").child(ID);
       DataSnapshot snapshot = await userRef.get();
+
       if (snapshot.exists) {
         setState(() {
           estate["FirstName"] =
-              snapshot.value as String; // Add this field to the estate map
+              snapshot.child("FirstName").value as String? ?? "";
+          estate["SecondName"] =
+              snapshot.child("SecondName").value as String? ?? "";
+          estate["LastName"] =
+              snapshot.child("LastName").value as String? ?? "";
         });
       }
     }
@@ -798,7 +824,8 @@ class _ProfileEstateState extends State<ProfileEstate> {
                               "Country": estate["Country"],
                               "State": estate["State"],
                               "City": estate["City"],
-                              "NameUser": estate["FirstName"],
+                              "NameUser":
+                                  "${estate['FirstName']} ${estate['SecondName']} ${estate['LastName']}",
                             });
                             objProvider.FunSnackBarPage(
                                 getTranslated(context, "Successfully"),
