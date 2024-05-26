@@ -1,5 +1,3 @@
-// ignore_for_file: non_constant_identifier_names
-
 import 'package:diamond_booking/constants/colors.dart';
 import 'package:diamond_booking/page/qrViewScan.dart';
 import 'package:diamond_booking/page/qr_image.dart';
@@ -22,21 +20,6 @@ import 'additionalfacility.dart';
 import 'chat_group.dart';
 import 'editEstate.dart';
 
-// import 'package:flutter/material.dart';
-// class ProfileEstate extends StatefulWidget {
-//   const ProfileEstate({super.key});
-//
-//   @override
-//   State<ProfileEstate> createState() => _ProfileEstateState();
-// }
-//
-// class _ProfileEstateState extends State<ProfileEstate> {
-//   @override
-//   Widget build(BuildContext context) {
-//     return const Placeholder();
-//   }
-// }
-
 class ProfileEstate extends StatefulWidget {
   Map estate;
   String icon;
@@ -48,10 +31,11 @@ class ProfileEstate extends StatefulWidget {
       required this.icon,
       required this.VisEdit});
   @override
-  _State createState() => _State(estate, icon, VisEdit);
+  _ProfileEstateState createState() =>
+      _ProfileEstateState(estate, icon, VisEdit);
 }
 
-class _State extends State<ProfileEstate> {
+class _ProfileEstateState extends State<ProfileEstate> {
   Map estate;
   String icon;
   bool VisEdit;
@@ -59,9 +43,10 @@ class _State extends State<ProfileEstate> {
   List<Rooms> LstRooms = [];
   List<Rooms> LstRoomsSelected = [];
 
-  _State(this.estate, this.icon, this.VisEdit);
+  _ProfileEstateState(this.estate, this.icon, this.VisEdit);
   int count = 0;
   final GlobalKey<ScaffoldState> _scaffoldKey1 = new GlobalKey<ScaffoldState>();
+
   @override
   void initState() {
     getData();
@@ -72,14 +57,29 @@ class _State extends State<ProfileEstate> {
   String TypUser = "";
   String checkGroup = "";
   final storageRef = FirebaseStorage.instance.ref();
+
   getData() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     setState(() {
-      ID = sharedPreferences.getString("ID")!;
-      TypUser = sharedPreferences.getString("Typ")!;
+      ID = sharedPreferences.getString("ID") ?? "";
+      TypUser = sharedPreferences.getString("Typ") ?? "";
       checkGroup =
           sharedPreferences.getString(estate['IDEstate'].toString()) ?? "0";
     });
+    if (ID.isNotEmpty) {
+      DatabaseReference userRef = FirebaseDatabase.instance
+          .ref("App")
+          .child("User")
+          .child(ID)
+          .child("FirstName");
+      DataSnapshot snapshot = await userRef.get();
+      if (snapshot.exists) {
+        setState(() {
+          estate["FirstName"] =
+              snapshot.value as String; // Add this field to the estate map
+        });
+      }
+    }
   }
 
   _launchMaps() async {
@@ -125,6 +125,7 @@ class _State extends State<ProfileEstate> {
   }
 
   Query query = FirebaseDatabase.instance.ref("App").child("Rooms");
+
   Future<String> getimages(String EID, String id) async {
     try {
       String imageUrl;
@@ -142,50 +143,100 @@ class _State extends State<ProfileEstate> {
     }
   }
 
+  @override
   Widget build(BuildContext context) {
     final objProvider = Provider.of<GeneralProvider>(context, listen: true);
     return Scaffold(
-        key: _scaffoldKey1,
-        // floatingActionButton: Visibility(
-        //   // ignore: sort_child_properties_last
-        //   child: FloatingActionButton(
-        //     onPressed: () {
-        //       print(LstRooms.length.toString());
-        //       Navigator.of(context).push(MaterialPageRoute(
-        //           builder: (context) => EditEstate(
-        //                 objEstate: estate,
-        //                 LstRooms: LstRooms,
-        //               )));
-        //     },
-        //     backgroundColor: kPrimaryColor,
-        //     child: const Icon(Icons.edit),
-        //   ),
-        //   visible: VisEdit,
-        // ),
-        appBar: AppBar(
-          elevation: 0,
-          backgroundColor: kPrimaryColor,
-          actions: [
-            InkWell(
-              child: const Icon(Icons.edit),
-              onTap: () {
-                print(LstRooms.length.toString());
+      key: _scaffoldKey1,
+      appBar: AppBar(
+        elevation: 0,
+        backgroundColor: kPrimaryColor,
+        actions: [
+          InkWell(
+            child: const Icon(Icons.edit),
+            onTap: () {
+              print(LstRooms.length.toString());
+              Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => EditEstate(
+                        objEstate: estate,
+                        LstRooms: LstRooms,
+                      )));
+            },
+          ),
+          Container(
+            width: 25,
+          ),
+          InkWell(
+            child: Icon(Icons.message),
+            onTap: () {
+              if (ID != "null") {
                 Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => EditEstate(
-                          objEstate: estate,
-                          LstRooms: LstRooms,
+                    builder: (context) => Chat(
+                          idEstate: estate['IDEstate'].toString(),
+                          Name: estate['NameEn'],
+                          Key: estate['IDUser'],
                         )));
+              } else {
+                objProvider.FunSnackBarPage(
+                    getTranslated(context, "Please login first"), context);
+              }
+            },
+          ),
+          Container(
+            width: 25,
+          ),
+          InkWell(
+            child: Icon(Icons.map_outlined),
+            onTap: () {
+              if (ID != "null") {
+                _launchMaps();
+              } else {
+                objProvider.FunSnackBarPage(
+                    getTranslated(context, "Please login first"), context);
+              }
+            },
+          ),
+          Container(
+            width: 25,
+          ),
+          Visibility(
+            visible: TypUser == "3" || TypUser == "4",
+            child: InkWell(
+              child: Icon(Icons.qr_code),
+              onTap: () async {
+                if (ID != "null") {
+                  final result =
+                      await Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => QRViewScan(
+                                ID: estate['IDEstate'].toString(),
+                              )));
+                  if (result) {
+                    SharedPreferences sharedPreferences =
+                        await SharedPreferences.getInstance();
+                    sharedPreferences.setString(
+                        estate['IDEstate'].toString(), "1");
+                    setState(() {
+                      checkGroup = "1";
+                    });
+                  }
+                } else {
+                  objProvider.FunSnackBarPage(
+                      getTranslated(context, "Please login first"), context);
+                }
               },
             ),
-            Container(
-              width: 25,
-            ),
-            InkWell(
-              child: Icon(Icons.message),
-              onTap: () {
+          ),
+          Container(
+            width: 25,
+          ),
+          Visibility(
+            visible: checkGroup == "1",
+            child: InkWell(
+              child: Icon(Icons.group),
+              onTap: () async {
                 if (ID != "null") {
                   Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => Chat(
+                      builder: (context) => ChatGroup(
                             idEstate: estate['IDEstate'].toString(),
                             Name: estate['NameEn'],
                             Key: estate['IDUser'],
@@ -196,86 +247,20 @@ class _State extends State<ProfileEstate> {
                 }
               },
             ),
-            Container(
-              width: 25,
-            ),
-            InkWell(
-              child: Icon(Icons.map_outlined),
-              onTap: () {
-                if (ID != "null") {
-                  _launchMaps();
-                } else {
-                  objProvider.FunSnackBarPage(
-                      getTranslated(context, "Please login first"), context);
-                }
-              },
-            ),
-            Container(
-              width: 25,
-            ),
-            Visibility(
-              visible: TypUser == "3" || TypUser == "4",
-              child: InkWell(
-                child: Icon(Icons.qr_code),
-                onTap: () async {
-                  if (ID != "null") {
-                    final result =
-                        await Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) => QRViewScan(
-                                  ID: estate['IDEstate'].toString(),
-                                )));
-                    if (result) {
-                      SharedPreferences sharedPreferences =
-                          await SharedPreferences.getInstance();
-                      sharedPreferences.setString(
-                          estate['IDEstate'].toString(), "1");
-                      setState(() {
-                        checkGroup = "1";
-                      });
-                    }
-                  } else {
-                    objProvider.FunSnackBarPage(
-                        getTranslated(context, "Please login first"), context);
-                  }
-                },
-              ),
-            ),
-            Container(
-              width: 25,
-            ),
-            Visibility(
-              visible: checkGroup == "1",
-              child: InkWell(
-                child: Icon(Icons.group),
-                onTap: () async {
-                  if (ID != "null") {
-                    Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => ChatGroup(
-                              idEstate: estate['IDEstate'].toString(),
-                              Name: estate['NameEn'],
-                              Key: estate['IDUser'],
-                            )));
-                  } else {
-                    objProvider.FunSnackBarPage(
-                        getTranslated(context, "Please login first"), context);
-                  }
-                },
-              ),
-            ),
-          ],
-        ),
-        body: Container(
-          width: MediaQuery.of(context).size.width,
-          height: MediaQuery.of(context).size.height,
-          child: SafeArea(
-              child: Stack(
+          ),
+        ],
+      ),
+      body: Container(
+        width: MediaQuery.of(context).size.width,
+        height: MediaQuery.of(context).size.height,
+        child: SafeArea(
+          child: Stack(
             children: [
               ListView(
                 children: [
                   Container(
                     height: 250,
                     width: MediaQuery.of(context).size.width,
-                    // ignore: sort_child_properties_last
                     child: FutureBuilder<List<String>?>(
                       future: listPhotos(estate['IDEstate'].toString()),
                       builder: (context, snapshot) {
@@ -294,7 +279,6 @@ class _State extends State<ProfileEstate> {
                             },
                           );
                         }
-                        // ignore: prefer_const_constructors
                         return SizedBox(
                           width: 50,
                           height: 50,
@@ -304,7 +288,6 @@ class _State extends State<ProfileEstate> {
                         );
                       },
                     ),
-
                     color: kPrimaryColor,
                   ),
                   Container(
@@ -318,244 +301,238 @@ class _State extends State<ProfileEstate> {
                             fontWeight: FontWeight.bold, fontSize: 16),
                       ),
                       subtitle: Text(
-                        estate["Country"] + " \ " + estate["State"],
-                        // ignore: prefer_const_constructors
+                        estate["Country"] + " \\ " + estate["State"],
                         style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 12,
                             color: Colors.black),
                       ),
                       leading: Container(
-                          width: 60,
-                          height: 60,
-                          // ignore: prefer_const_constructors
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            shape: BoxShape.circle,
-                            // ignore: prefer_const_literals_to_create_immutables
-                            boxShadow: [
-                              // ignore: prefer_const_constructors
-                              BoxShadow(
-                                  blurRadius: 10,
-                                  color: Colors.grey,
-                                  spreadRadius: 1)
-                            ],
+                        width: 60,
+                        height: 60,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                                blurRadius: 10,
+                                color: Colors.grey,
+                                spreadRadius: 1)
+                          ],
+                        ),
+                        child: CircleAvatar(
+                          backgroundColor: Colors.white,
+                          child: Image(
+                            image: AssetImage(icon),
+                            width: 35,
+                            height: 35,
                           ),
-                          child: CircleAvatar(
-                            backgroundColor: Colors.white,
-                            child: Image(
-                              image: AssetImage(icon),
-                              width: 35,
-                              height: 35,
-                            ),
-                          )),
+                        ),
+                      ),
                     ),
                   ),
                   Container(
-                      margin: const EdgeInsets.only(left: 35, right: 35),
-                      child: Text(
-                        objProvider.CheckLangValue
-                            ? estate["BioEn"]
-                            : estate["BioAr"],
-                        style: TextStyle(fontSize: 16, color: Colors.black),
-                      )),
+                    margin: const EdgeInsets.only(left: 35, right: 35),
+                    child: Text(
+                      objProvider.CheckLangValue
+                          ? estate["BioEn"]
+                          : estate["BioAr"],
+                      style: TextStyle(fontSize: 16, color: Colors.black),
+                    ),
+                  ),
                   Visibility(
                       visible: estate["Type"] == "1" ? true : false,
                       child: TextHedar("Rooms")),
                   Visibility(
-                      visible: estate["Type"] == "1",
-                      child: Container(
-                        child: FirebaseAnimatedList(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          defaultChild: const Center(
-                            child: CircularProgressIndicator(),
-                          ),
-                          itemBuilder: (context, snapshot, animation, index) {
-                            Map map = snapshot.value as Map;
-
-                            map['Key'] = snapshot.key;
-
-                            LstRooms.add(Rooms(
-                                id: map['ID'],
-                                name: map['Name'],
-                                nameEn: map['Name'],
-                                price: map['Price'],
-                                bio: map['BioAr'],
-                                bioEn: map['BioEn'],
-                                color: Colors.white));
-
-                            //----------------------------
-                            return Container(
-                              width: MediaQuery.of(context).size.width,
-                              height: 70,
-                              color: LstRooms[index].color,
-                              child: ListTile(
-                                title: Text(getTranslated(
-                                    context, LstRooms[index].name)),
-                                subtitle: Text(objProvider.CheckLangValue
-                                    ? LstRooms[index].bioEn
-                                    : LstRooms[index].bio),
-                                // ignore: prefer_const_constructors
-                                leading: Icon(
-                                  Icons.single_bed,
-                                  color: Color(0xFF84A5FA),
-                                ),
-                                trailing: Text(
-                                  LstRooms[index].price,
-                                  // ignore: prefer_const_constructors
-                                  style: TextStyle(
-                                      color: Colors.green, fontSize: 18),
-                                ),
-                                onTap: () async {
-                                  int indx = LstRoomsSelected.indexWhere(
-                                      (element) => element.name == map['Name']);
-                                  print(indx);
-                                  if (indx == -1) {
-                                    print(map['ID']);
-                                    LstRoomsSelected.add(Rooms(
-                                        id: map['ID'],
-                                        name: map['Name'],
-                                        nameEn: map['Name'],
-                                        price: map['Price'],
-                                        bio: map['BioAr'],
-                                        bioEn: map['BioEn'],
-                                        color: Colors.white));
-                                    setState(() {
-                                      LstRooms[index].color = Colors.blue;
-                                      count++;
-                                    });
-                                  } else {
-                                    LstRoomsSelected.removeAt(indx);
-                                    setState(() {
-                                      LstRooms[index].color = Colors.white;
-                                      count--;
-                                    });
-                                  }
-                                },
-                              ),
-                            );
-                          },
-                          query: FirebaseDatabase.instance
-                              .ref("App")
-                              .child("Rooms")
-                              .child(estate['IDEstate'].toString()),
+                    visible: estate["Type"] == "1",
+                    child: Container(
+                      child: FirebaseAnimatedList(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        defaultChild: const Center(
+                          child: CircularProgressIndicator(),
                         ),
-                      )),
-                  /////////////////////////////////////////Restaurant&Coffee
+                        itemBuilder: (context, snapshot, animation, index) {
+                          Map map = snapshot.value as Map;
+
+                          map['Key'] = snapshot.key;
+
+                          LstRooms.add(Rooms(
+                              id: map['ID'],
+                              name: map['Name'],
+                              nameEn: map['Name'],
+                              price: map['Price'],
+                              bio: map['BioAr'],
+                              bioEn: map['BioEn'],
+                              color: Colors.white));
+
+                          return Container(
+                            width: MediaQuery.of(context).size.width,
+                            height: 70,
+                            color: LstRooms[index].color,
+                            child: ListTile(
+                              title: Text(
+                                  getTranslated(context, LstRooms[index].name)),
+                              subtitle: Text(objProvider.CheckLangValue
+                                  ? LstRooms[index].bioEn
+                                  : LstRooms[index].bio),
+                              leading: Icon(
+                                Icons.single_bed,
+                                color: Color(0xFF84A5FA),
+                              ),
+                              trailing: Text(
+                                LstRooms[index].price,
+                                style: TextStyle(
+                                    color: Colors.green, fontSize: 18),
+                              ),
+                              onTap: () async {
+                                int indx = LstRoomsSelected.indexWhere(
+                                    (element) => element.name == map['Name']);
+                                if (indx == -1) {
+                                  LstRoomsSelected.add(Rooms(
+                                      id: map['ID'],
+                                      name: map['Name'],
+                                      nameEn: map['Name'],
+                                      price: map['Price'],
+                                      bio: map['BioAr'],
+                                      bioEn: map['BioEn'],
+                                      color: Colors.white));
+                                  setState(() {
+                                    LstRooms[index].color = Colors.blue;
+                                    count++;
+                                  });
+                                } else {
+                                  LstRoomsSelected.removeAt(indx);
+                                  setState(() {
+                                    LstRooms[index].color = Colors.white;
+                                    count--;
+                                  });
+                                }
+                              },
+                            ),
+                          );
+                        },
+                        query: FirebaseDatabase.instance
+                            .ref("App")
+                            .child("Rooms")
+                            .child(estate['IDEstate'].toString()),
+                      ),
+                    ),
+                  ),
                   Visibility(
-                      visible: estate["Type"] == "2" || estate["Type"] == "3",
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Visibility(
-                              visible: estate["Type"] == "3",
-                              child: ListTile(
-                                title: Text(
-                                  getTranslated(context, "Type of Restaurant"),
-                                  style: TextStyle(fontSize: 14),
-                                ),
-                                subtitle: FutureBuilder<String>(
-                                  future: splitText(
-                                      estate["TypeofRestaurant"].toString()),
-                                  builder: (context, snapshot) {
-                                    if (snapshot.hasData &&
-                                        snapshot.connectionState ==
-                                            ConnectionState.done) {
-                                      return Text(
-                                        snapshot.data.toString(),
-                                        style: TextStyle(fontSize: 12),
-                                      );
-                                    }
-                                    // ignore: prefer_const_constructors
-                                    return Center(
-                                      child: const CircularProgressIndicator(),
-                                    );
-                                  },
-                                ),
-                              )),
-                          Visibility(
-                              visible: estate["Type"] == "2" ||
-                                  estate["Type"] == "3",
-                              child: ListTile(
-                                title: Text(
-                                  getTranslated(context, "Entry allowed"),
-                                  style: const TextStyle(fontSize: 14),
-                                ),
-                                subtitle: FutureBuilder<String>(
-                                  future: splitText(estate["Entry"].toString()),
-                                  builder: (context, snapshot) {
-                                    if (snapshot.hasData &&
-                                        snapshot.connectionState ==
-                                            ConnectionState.done) {
-                                      return Text(
-                                        snapshot.data.toString(),
-                                        style: TextStyle(fontSize: 12),
-                                      );
-                                    }
-                                    // ignore: prefer_const_constructors
-                                    return Center(
-                                      child: const CircularProgressIndicator(),
-                                    );
-                                  },
-                                ),
-                              )),
-                          Visibility(
-                              visible: estate["Type"] == "2" ||
-                                  estate["Type"] == "3",
-                              child: ListTile(
-                                title: Text(
-                                  getTranslated(context, "Sessions type"),
-                                  style: const TextStyle(fontSize: 14),
-                                ),
-                                subtitle: FutureBuilder<String>(
-                                  future:
-                                      splitText(estate["Sessions"].toString()),
-                                  builder: (context, snapshot) {
-                                    if (snapshot.hasData &&
-                                        snapshot.connectionState ==
-                                            ConnectionState.done) {
-                                      return Text(
-                                        snapshot.data.toString(),
-                                        style: TextStyle(fontSize: 12),
-                                      );
-                                    }
-                                    // ignore: prefer_const_constructors
-                                    return Center(
-                                      child: const CircularProgressIndicator(),
-                                    );
-                                  },
-                                ),
-                              )),
-                          Visibility(
-                              visible: estate["Type"] == "3",
-                              child: ListTile(
-                                title: Text(
-                                  getTranslated(
-                                      context,
-                                      estate["Music"] == "1"
-                                          ? "There is music"
-                                          : "There is no music"),
-                                  style: const TextStyle(fontSize: 14),
-                                ),
-                              )),
-                          Visibility(
-                              visible: estate["Type"] == "2",
-                              child: ListTile(
-                                title: Text(
-                                  getTranslated(context, "Is there music"),
-                                  style: const TextStyle(fontSize: 14),
-                                ),
-                                subtitle: Text(
-                                  estate["Lstmusic"],
-                                  style: const TextStyle(fontSize: 12),
-                                ),
-                              )),
-                        ],
-                      )),
+                    visible: estate["Type"] == "2" || estate["Type"] == "3",
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Visibility(
+                          visible: estate["Type"] == "3",
+                          child: ListTile(
+                            title: Text(
+                              getTranslated(context, "Type of Restaurant"),
+                              style: TextStyle(fontSize: 14),
+                            ),
+                            subtitle: FutureBuilder<String>(
+                              future: splitText(
+                                  estate["TypeofRestaurant"].toString()),
+                              builder: (context, snapshot) {
+                                if (snapshot.hasData &&
+                                    snapshot.connectionState ==
+                                        ConnectionState.done) {
+                                  return Text(
+                                    snapshot.data.toString(),
+                                    style: TextStyle(fontSize: 12),
+                                  );
+                                }
+                                return Center(
+                                  child: const CircularProgressIndicator(),
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                        Visibility(
+                          visible:
+                              estate["Type"] == "2" || estate["Type"] == "3",
+                          child: ListTile(
+                            title: Text(
+                              getTranslated(context, "Entry allowed"),
+                              style: const TextStyle(fontSize: 14),
+                            ),
+                            subtitle: FutureBuilder<String>(
+                              future: splitText(estate["Entry"].toString()),
+                              builder: (context, snapshot) {
+                                if (snapshot.hasData &&
+                                    snapshot.connectionState ==
+                                        ConnectionState.done) {
+                                  return Text(
+                                    snapshot.data.toString(),
+                                    style: TextStyle(fontSize: 12),
+                                  );
+                                }
+                                return Center(
+                                  child: const CircularProgressIndicator(),
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                        Visibility(
+                          visible:
+                              estate["Type"] == "2" || estate["Type"] == "3",
+                          child: ListTile(
+                            title: Text(
+                              getTranslated(context, "Sessions type"),
+                              style: const TextStyle(fontSize: 14),
+                            ),
+                            subtitle: FutureBuilder<String>(
+                              future: splitText(estate["Sessions"].toString()),
+                              builder: (context, snapshot) {
+                                if (snapshot.hasData &&
+                                    snapshot.connectionState ==
+                                        ConnectionState.done) {
+                                  return Text(
+                                    snapshot.data.toString(),
+                                    style: TextStyle(fontSize: 12),
+                                  );
+                                }
+                                return Center(
+                                  child: const CircularProgressIndicator(),
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                        Visibility(
+                          visible: estate["Type"] == "3",
+                          child: ListTile(
+                            title: Text(
+                              getTranslated(
+                                  context,
+                                  estate["Music"] == "1"
+                                      ? "There is music"
+                                      : "There is no music"),
+                              style: const TextStyle(fontSize: 14),
+                            ),
+                          ),
+                        ),
+                        Visibility(
+                          visible: estate["Type"] == "2",
+                          child: ListTile(
+                            title: Text(
+                              getTranslated(context, "Is there music"),
+                              style: const TextStyle(fontSize: 14),
+                            ),
+                            subtitle: Text(
+                              estate["Lstmusic"],
+                              style: const TextStyle(fontSize: 12),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                   Container(
-                    // ignore: sort_child_properties_last
                     child: const Text(
                       "Post",
                       style: TextStyle(fontSize: 14),
@@ -603,43 +580,43 @@ class _State extends State<ProfileEstate> {
                                 },
                               ),
                               Visibility(
-                                  visible: VisEdit,
-                                  child: Align(
-                                      alignment: Alignment.bottomCenter,
-                                      child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.end,
-                                        children: [
-                                          InkWell(
-                                            child: Container(
-                                              width: 150.w,
-                                              height: 6.h,
-                                              margin: const EdgeInsets.only(
-                                                  right: 40,
-                                                  left: 40,
-                                                  bottom: 20),
-                                              decoration: BoxDecoration(
-                                                color: Colors.red,
-                                                borderRadius:
-                                                    BorderRadius.circular(12),
-                                              ),
-                                              // ignore: prefer_const_constructors
-                                              child: Center(
-                                                  child: Text(getTranslated(
-                                                      context, "delete"))),
-                                            ),
-                                            onTap: () {
-                                              FirebaseDatabase.instance
-                                                  .ref("App")
-                                                  .child("Post")
-                                                  .child(estate['IDEstate']
-                                                      .toString())
-                                                  .child(map["IDPost"])
-                                                  .remove();
-                                            },
+                                visible: VisEdit,
+                                child: Align(
+                                  alignment: Alignment.bottomCenter,
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      InkWell(
+                                        child: Container(
+                                          width: 150.w,
+                                          height: 6.h,
+                                          margin: const EdgeInsets.only(
+                                              right: 40, left: 40, bottom: 20),
+                                          decoration: BoxDecoration(
+                                            color: Colors.red,
+                                            borderRadius:
+                                                BorderRadius.circular(12),
                                           ),
-                                        ],
-                                      ))),
+                                          child: Center(
+                                            child: Text(
+                                              getTranslated(context, "delete"),
+                                            ),
+                                          ),
+                                        ),
+                                        onTap: () {
+                                          FirebaseDatabase.instance
+                                              .ref("App")
+                                              .child("Post")
+                                              .child(
+                                                  estate['IDEstate'].toString())
+                                              .child(map["IDPost"])
+                                              .remove();
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
                             ],
                           ),
                         );
@@ -675,9 +652,11 @@ class _State extends State<ProfileEstate> {
                             color: const Color(0xFF84A5FA),
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          // ignore: prefer_const_constructors
                           child: Center(
-                              child: Text(getTranslated(context, "Post"))),
+                            child: Text(
+                              getTranslated(context, "Post"),
+                            ),
+                          ),
                         ),
                         onTap: () {
                           Navigator.of(context).push(
@@ -699,10 +678,11 @@ class _State extends State<ProfileEstate> {
                             color: const Color(0xFF84A5FA),
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          // ignore: prefer_const_constructors
                           child: Center(
-                              child: Text(
-                                  getTranslated(context, "GenerateQRCode"))),
+                            child: Text(
+                              getTranslated(context, "GenerateQRCode"),
+                            ),
+                          ),
                         ),
                         onTap: () {
                           Navigator.of(context).push(MaterialPageRoute(
@@ -715,99 +695,99 @@ class _State extends State<ProfileEstate> {
                 ),
               ),
               Visibility(
-                  visible: !VisEdit,
-                  child: Align(
-                    alignment: Alignment.bottomCenter,
-                    child: InkWell(
-                      child: Container(
-                        width: 150.w,
-                        height: 6.h,
-                        margin: const EdgeInsets.only(
-                            right: 40, left: 40, bottom: 20),
-                        decoration: BoxDecoration(
-                          color: kPrimaryColor,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        // ignore: prefer_const_constructors
-                        child: Center(
-                            child: Text(
+                visible: !VisEdit,
+                child: Align(
+                  alignment: Alignment.bottomCenter,
+                  child: InkWell(
+                    child: Container(
+                      width: 150.w,
+                      height: 6.h,
+                      margin: const EdgeInsets.only(
+                          right: 40, left: 40, bottom: 20),
+                      decoration: BoxDecoration(
+                        color: kPrimaryColor,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Center(
+                        child: Text(
                           getTranslated(context, "Next"),
                           style: const TextStyle(
                             color: Colors.white,
                           ),
-                        )),
+                        ),
                       ),
-                      onTap: () async {
-                        if (ID != "null") {
-                          if (estate['Type'] == "1") {
-                            if (LstRoomsSelected.length == 0) {
-                              objProvider.FunSnackBarPage(
-                                  "Choees Room Befor", context);
-                            } else {
-                              Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (context) => AdditionalFacility(
-                                        CheckState: "",
-                                        CheckIsBooking: true,
-                                        estate: estate,
-                                        IDEstate: estate['IDEstate'].toString(),
-                                        Lstroom: LstRoomsSelected,
-                                      )));
-                            }
+                    ),
+                    onTap: () async {
+                      if (ID != "null") {
+                        if (estate['Type'] == "1") {
+                          if (LstRoomsSelected.isEmpty) {
+                            objProvider.FunSnackBarPage(
+                                "Choees Room Befor", context);
                           } else {
-                            await _selectDate(context);
-                            // ignore: use_build_context_synchronously
-                            await selectTime(context);
-                            DatabaseReference ref = FirebaseDatabase.instance
-                                .ref("App")
-                                .child("Booking");
-
-                            String? id = FirebaseAuth.instance.currentUser?.uid;
-                            if (flagDate && flagTime) {
-                              String? hour = sTime?.hour.toString();
-                              String? minute = sTime?.minute.toString();
-                              String IDBook = (estate['IDEstate'].toString() +
-                                  selectedDate.toString().split(" ")[0] +
-                                  id!);
-                              SharedPreferences sharedPreferences =
-                                  await SharedPreferences.getInstance();
-                              await ref
-                                  .child("Book")
-                                  .child(IDBook.toString())
-                                  .set({
-                                "IDEstate": estate['IDEstate'].toString(),
-                                "IDBook": IDBook,
-                                "NameEn": estate['NameEn'],
-                                "NameAr": estate['NameAr'],
-                                "Status": "1",
-                                "IDUser": id,
-                                "IDOwner": estate['IDUser'],
-                                "StartDate":
-                                    "${selectedDate.year}-${selectedDate.month}-${selectedDate.day} ${hour!}:${minute!}",
-                                "EndDate": "",
-                                "Type": estate['Type'],
-                                "Country": estate["Country"],
-                                "State": estate["State"],
-                                "City": estate["City"],
-                                "NameUser": estate["FirstName"],
-                              });
-                              // ignore: use_build_context_synchronously
-                              objProvider.FunSnackBarPage(
-                                  // ignore: use_build_context_synchronously
-                                  getTranslated(context, "Successfully"),
-                                  context);
-                            }
+                            Navigator.of(context).push(MaterialPageRoute(
+                                builder: (context) => AdditionalFacility(
+                                      CheckState: "",
+                                      CheckIsBooking: true,
+                                      estate: estate,
+                                      IDEstate: estate['IDEstate'].toString(),
+                                      Lstroom: LstRoomsSelected,
+                                    )));
                           }
                         } else {
-                          objProvider.FunSnackBarPage(
-                              getTranslated(context, "Please login first"),
-                              context);
+                          await _selectDate(context);
+                          await selectTime(context);
+                          DatabaseReference ref = FirebaseDatabase.instance
+                              .ref("App")
+                              .child("Booking");
+
+                          String? id = FirebaseAuth.instance.currentUser?.uid;
+                          if (flagDate && flagTime) {
+                            String? hour = sTime?.hour.toString();
+                            String? minute = sTime?.minute.toString();
+                            String IDBook = (estate['IDEstate'].toString() +
+                                selectedDate.toString().split(" ")[0] +
+                                id!);
+                            SharedPreferences sharedPreferences =
+                                await SharedPreferences.getInstance();
+                            await ref
+                                .child("Book")
+                                .child(IDBook.toString())
+                                .set({
+                              "IDEstate": estate['IDEstate'].toString(),
+                              "IDBook": IDBook,
+                              "NameEn": estate['NameEn'],
+                              "NameAr": estate['NameAr'],
+                              "Status": "1",
+                              "IDUser": id,
+                              "IDOwner": estate['IDUser'],
+                              "StartDate":
+                                  "${selectedDate.year}-${selectedDate.month}-${selectedDate.day} ${hour!}:${minute!}",
+                              "EndDate": "",
+                              "Type": estate['Type'],
+                              "Country": estate["Country"],
+                              "State": estate["State"],
+                              "City": estate["City"],
+                              "NameUser": estate["FirstName"],
+                            });
+                            objProvider.FunSnackBarPage(
+                                getTranslated(context, "Successfully"),
+                                context);
+                          }
                         }
-                      },
-                    ),
-                  )),
+                      } else {
+                        objProvider.FunSnackBarPage(
+                            getTranslated(context, "Please login first"),
+                            context);
+                      }
+                    },
+                  ),
+                ),
+              ),
             ],
-          )),
-        ));
+          ),
+        ),
+      ),
+    );
   }
 
   bool flagDate = false;
@@ -815,10 +795,11 @@ class _State extends State<ProfileEstate> {
 
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
-        context: context,
-        initialDate: selectedDate,
-        firstDate: new DateTime.now().subtract(new Duration(days: 0)),
-        lastDate: DateTime(2101));
+      context: context,
+      initialDate: selectedDate,
+      firstDate: DateTime.now(),
+      lastDate: DateTime(2101),
+    );
     if (picked != null && picked != selectedDate) {
       setState(() {
         selectedDate = picked;
@@ -827,7 +808,7 @@ class _State extends State<ProfileEstate> {
     }
   }
 
-  selectTime(BuildContext context) async {
+  Future<void> selectTime(BuildContext context) async {
     final selectedTime = await showTimePicker(
       initialTime: sTime!,
       context: context,
@@ -845,7 +826,6 @@ class _State extends State<ProfileEstate> {
       margin: const EdgeInsets.only(left: 30, right: 30, bottom: 10, top: 10),
       child: Text(
         getTranslated(context, text),
-        // ignore: prefer_const_constructors
         style: TextStyle(
             fontWeight: FontWeight.bold, fontSize: 16, color: Colors.black),
       ),
