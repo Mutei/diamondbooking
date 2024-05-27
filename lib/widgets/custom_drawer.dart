@@ -15,6 +15,7 @@ import '../page/type_estate.dart';
 import '../page/upgrade_account.dart';
 import '../screen/user_type_screen.dart';
 import '../widgets/item_drawer.dart';
+import 'package:badges/badges.dart' as badges;
 // class CustomDrawer extends StatelessWidget {
 //   final Map dataUser;
 //   final String id;
@@ -260,13 +261,11 @@ import '../widgets/item_drawer.dart';
 // }
 
 class CustomDrawer extends StatelessWidget {
-  // final Map dataUser;
   final String userType;
   final String id;
 
   const CustomDrawer({
     super.key,
-    // required this.dataUser,
     required this.userType,
     required this.id,
   });
@@ -369,6 +368,16 @@ class CustomDrawer extends StatelessWidget {
                 },
                 hint: getTranslated(context,
                     "From here you can see the reservations for your estate"),
+                badge: badges.Badge(
+                  badgeContent: Text('3',
+                      style: TextStyle(
+                          color: Colors
+                              .white)), // Replace '3' with your dynamic value
+                  child: const Icon(
+                    Icons.account_box,
+                    color: kPrimaryColor,
+                  ),
+                ),
               ),
             ),
             Visibility(
