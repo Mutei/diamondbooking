@@ -357,10 +357,7 @@ class CustomDrawer extends StatelessWidget {
             Visibility(
               visible: userType != "1",
               child: DrawerItem(
-                text: getTranslated(
-                  context,
-                  "Request",
-                ),
+                text: getTranslated(context, "Request"),
                 icon: const Icon(Icons.account_box, color: kPrimaryColor),
                 onTap: () {
                   Navigator.of(context)
@@ -369,10 +366,14 @@ class CustomDrawer extends StatelessWidget {
                 hint: getTranslated(context,
                     "From here you can see the reservations for your estate"),
                 badge: badges.Badge(
-                  badgeContent: Text('3',
-                      style: TextStyle(
-                          color: Colors
-                              .white)), // Replace '3' with your dynamic value
+                  badgeContent: Consumer<GeneralProvider>(
+                    builder: (context, provider, child) {
+                      return Text(
+                        provider.newRequestCount.toString(),
+                        style: TextStyle(color: Colors.white),
+                      );
+                    },
+                  ),
                   child: const Icon(
                     Icons.account_box,
                     color: kPrimaryColor,

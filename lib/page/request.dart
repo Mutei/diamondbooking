@@ -20,6 +20,7 @@ class _RequestState extends State<Request> {
   @override
   void initState() {
     super.initState();
+    Provider.of<GeneralProvider>(context, listen: false).resetNewRequestCount();
   }
 
   @override

@@ -1,4 +1,5 @@
 import 'package:diamond_booking/constants/colors.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -11,6 +12,10 @@ class GeneralProvider with ChangeNotifier, DiagnosticableTreeMixin {
   bool CheckLangValue = true;
   bool CheckLoginValue = false;
   Map UserMap = {};
+  int _newRequestCount = 0;
+
+  int get newRequestCount => _newRequestCount;
+
   FunSnackBarPage(String hint, BuildContext context) {
     final snackBar = SnackBar(
       content: Text(
@@ -27,8 +32,6 @@ class GeneralProvider with ChangeNotifier, DiagnosticableTreeMixin {
       ),
     );
 
-    // Find the ScaffoldMessenger in the widget tree
-    // and use it to show a SnackBar.
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
@@ -44,7 +47,6 @@ class GeneralProvider with ChangeNotifier, DiagnosticableTreeMixin {
     notifyListeners();
   }
 
-  // ignore: non_constant_identifier_names
   List<CustomerType> TypeService() {
     List<CustomerType> LstCustomerType = [];
     LstCustomerType.add(CustomerType(
@@ -81,5 +83,34 @@ class GeneralProvider with ChangeNotifier, DiagnosticableTreeMixin {
     } else {
       CheckLoginValue = true;
     }
+  }
+
+  void fetchNewRequestCount() {
+    String? id = FirebaseAuth.instance.currentUser?.uid;
+    if (id != null) {
+      FirebaseDatabase.instance
+          .ref("App/Booking/Book")
+          .orderByChild("IDOwner")
+          .equalTo(id)
+          .once()
+          .then((DatabaseEvent event) {
+        int count = 0;
+        if (event.snapshot.value != null) {
+          Map requests = event.snapshot.value as Map;
+          requests.forEach((key, value) {
+            if (value["Status"] == "1") {
+              count++;
+            }
+          });
+        }
+        _newRequestCount = count;
+        notifyListeners();
+      });
+    }
+  }
+
+  void resetNewRequestCount() {
+    _newRequestCount = 0;
+    notifyListeners();
   }
 }

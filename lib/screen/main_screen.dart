@@ -54,6 +54,7 @@ class _MainScreenState extends State<MainScreen> {
         (_) => _firebaseServices.afterLayoutWidgetBuild(setUserData, setID));
     _firebaseServices.initMessage(showNotification);
     _firebaseServices.getUserType(setUserType, setPermissionStatus);
+    Provider.of<GeneralProvider>(context, listen: false).fetchNewRequestCount();
     _loadUserType();
   }
 
@@ -214,11 +215,15 @@ class _MainScreenState extends State<MainScreen> {
                 ),
                 BottomNavigationBarItem(
                   icon: badges.Badge(
-                    badgeContent: Text('3',
-                        style: TextStyle(
-                            color: Colors
-                                .white)), // Replace '3' with your dynamic value
-                    child: const Icon(
+                    badgeContent: Consumer<GeneralProvider>(
+                      builder: (context, provider, child) {
+                        return Text(
+                          provider.newRequestCount.toString(),
+                          style: TextStyle(color: Colors.white),
+                        );
+                      },
+                    ),
+                    child: Icon(
                       Icons.account_box,
                       color: kPrimaryColor,
                     ),
