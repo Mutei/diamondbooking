@@ -10,36 +10,25 @@ class AuthMethods {
   final DatabaseReference _ref =
       FirebaseDatabase.instance.ref("App").child("User");
 
-  Future<String> loginUser({
+  Future<UserCredential> loginUser({
     required String email,
     required String password,
     required BuildContext context,
   }) async {
-    String res = 'Some error occurred!';
     try {
       if (email.isNotEmpty || password.isNotEmpty) {
-        await _auth.signInWithEmailAndPassword(
+        UserCredential userCredential = await _auth.signInWithEmailAndPassword(
             email: email, password: password);
-        res = 'success';
-        Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (context) => MainScreen()),
-          (Route<dynamic> route) => false,
-        );
+        return userCredential;
       } else {
-        res = 'Please enter all the fields';
+        throw FirebaseAuthException(
+          code: 'ERROR_EMPTY_FIELDS',
+          message: 'Please enter all the fields',
+        );
       }
     } on FirebaseAuthException catch (e) {
-      if (e.code == 'wrong-password') {
-        res = 'You entered a wrong password';
-      } else if (e.code == 'user-not-found') {
-        res = 'User is not found';
-      } else {
-        res = 'Log-in Successful';
-      }
-    } catch (e) {
-      res = e.toString();
+      throw e;
     }
-    return res;
   }
 
   Future<void> sendOtp(BuildContext context, String phoneNumber, String email,
@@ -120,8 +109,12 @@ class AuthMethods {
         password: password,
       );
       if (userCredential.user != null) {
-        print("Type user : $typeUser");
-        print("Type Account: $typeAccount");
+        // Store the user type in the user's profile
+        await _ref.child(userCredential.user!.uid).set({
+          'email': email,
+          'typeUser': typeUser,
+        });
+
         sendOtp(context, phoneNumber, email, password, typeUser!, typeAccount!);
       }
     } on FirebaseAuthException catch (e) {
@@ -135,6 +128,37 @@ class AuthMethods {
         );
     }
   }
+
+  // Future<void> registerWithEmailAndPassword(
+  //   BuildContext context,
+  //   String email,
+  //   String password,
+  //   String phoneNumber,
+  //   String? typeUser,
+  //   String? typeAccount,
+  // ) async {
+  //   try {
+  //     UserCredential userCredential =
+  //         await _auth.createUserWithEmailAndPassword(
+  //       email: email,
+  //       password: password,
+  //     );
+  //     if (userCredential.user != null) {
+  //       print("Type user : $typeUser");
+  //       print("Type Account: $typeAccount");
+  //       sendOtp(context, phoneNumber, email, password, typeUser!, typeAccount!);
+  //     }
+  //   } on FirebaseAuthException catch (e) {
+  //     ScaffoldMessenger.of(context)
+  //       ..hideCurrentSnackBar()
+  //       ..showSnackBar(
+  //         SnackBar(
+  //           content:
+  //               Text(e.message ?? "Something went wrong while registering"),
+  //         ),
+  //       );
+  //   }
+  // }
 
   Future<void> verifyOtp(
       BuildContext context,

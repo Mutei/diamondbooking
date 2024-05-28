@@ -8,6 +8,8 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sizer/sizer.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:permission_handler/permission_handler.dart';
 import '../general_provider.dart';
 import '../localization/language_constants.dart';
 import '../models/Additional.dart';
@@ -21,8 +23,6 @@ import '../resources/firebase_services.dart';
 import '../widgets/cardEstate.dart';
 import '../widgets/card_type.dart';
 import '../widgets/custom_drawer.dart';
-import 'package:firebase_database/firebase_database.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -56,6 +56,34 @@ class _MainScreenState extends State<MainScreen> {
     _firebaseServices.getUserType(setUserType, setPermissionStatus);
     Provider.of<GeneralProvider>(context, listen: false).fetchNewRequestCount();
     _loadUserType();
+    _requestPermissions(); // Request permissions
+  }
+
+  void _requestPermissions() async {
+    // Request location permission
+    var status = await Permission.location.request();
+    setPermissionStatus(status);
+
+    // Request notification permission
+    FirebaseMessaging messaging = FirebaseMessaging.instance;
+    NotificationSettings settings = await messaging.requestPermission(
+      alert: true,
+      announcement: false,
+      badge: true,
+      carPlay: false,
+      criticalAlert: false,
+      provisional: false,
+      sound: true,
+    );
+
+    if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+      print('User granted permission for notifications');
+    } else if (settings.authorizationStatus ==
+        AuthorizationStatus.provisional) {
+      print('User granted provisional permission for notifications');
+    } else {
+      print('User declined or has not accepted permission for notifications');
+    }
   }
 
   void showNotification(RemoteNotification? notification) async {

@@ -71,7 +71,8 @@ class _RequestState extends State<Request> {
                             Expanded(
                               child: ItemInCard(
                                   Icon(Icons.calendar_month),
-                                  value["StartDate"].toString().split(" ")[0],
+                                  value["StartDate"].toString(),
+                                  // .split(" ")[2]
                                   getTranslated(context, "FromDate")),
                             ),
                             Expanded(
@@ -103,7 +104,7 @@ class _RequestState extends State<Request> {
                             )
                           ],
                         ),
-                        ItemInCard(Icon(Icons.hotel), value["NameEn"],
+                        ItemInCard(Icon(Icons.business), value["NameEn"],
                             getTranslated(context, "Hottel Name")),
                       ],
                     ),

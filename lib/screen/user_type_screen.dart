@@ -6,13 +6,12 @@ import 'package:diamond_booking/constants/colors.dart';
 import 'package:diamond_booking/localization/language_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sizer/sizer.dart';
 import '../constants/styles.dart';
 import '../general_provider.dart';
-import '../guide_pager.dart';
+import 'guide_pager.dart';
 
 class ChooseTypeUser extends StatefulWidget {
   const ChooseTypeUser({super.key});

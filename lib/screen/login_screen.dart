@@ -1,6 +1,8 @@
 import 'package:diamond_booking/extension/sized_box_extension.dart';
 import 'package:diamond_booking/localization/language_constants.dart';
 import 'package:diamond_booking/screen/sign_in_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -8,6 +10,7 @@ import '../constants/colors.dart';
 import '../resources/auth_methods.dart';
 import '../widgets/reused_elevated_button.dart';
 import '../widgets/sign_in_info_text_form_field.dart';
+import 'main_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   final String? userType;
@@ -61,16 +64,63 @@ class _LoginScreenState extends State<LoginScreen>
 
   Future<void> loginWithEmail() async {
     if (_formKey.currentState!.validate()) {
-      String userId = await AuthMethods().loginUser(
-        email: _emailController.text,
-        password: _passwordController.text,
-        context: context,
-      );
-      print("The userid in login is $userId");
-      if (rememberMe) {
-        await _saveEmail(_emailController.text);
-      } else {
-        await _saveEmail('');
+      String email = _emailController.text;
+      String password = _passwordController.text;
+      String userType = widget.userType ?? '';
+
+      try {
+        UserCredential userCredential = await AuthMethods().loginUser(
+          email: email,
+          password: password,
+          context: context,
+        );
+
+        if (userCredential.user != null) {
+          // Retrieve user type from Firebase
+          DatabaseReference userRef = FirebaseDatabase.instance
+              .ref("App")
+              .child("User")
+              .child(userCredential.user!.uid);
+          DataSnapshot snapshot = await userRef.get();
+
+          if (snapshot.exists) {
+            String storedUserType = snapshot.child('TypeUser').value as String;
+
+            if (storedUserType != userType) {
+              // Show snackbar notification
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                      'You are not authorized to use this account as a ${userType == '1' ? 'Provider' : 'Customer'}.'),
+                ),
+              );
+
+              return;
+            }
+
+            // Proceed to main screen
+            Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(builder: (context) => MainScreen()),
+              (Route<dynamic> route) => false,
+            );
+
+            if (rememberMe) {
+              await _saveEmail(email);
+            } else {
+              await _saveEmail('');
+            }
+          }
+        }
+      } on FirebaseAuthException catch (e) {
+        if (e.code == 'wrong-password') {
+          print('You entered a wrong password');
+        } else if (e.code == 'user-not-found') {
+          print('User is not found');
+        } else {
+          print('Log-in successful');
+        }
+      } catch (e) {
+        print(e.toString());
       }
     }
   }
