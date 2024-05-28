@@ -799,8 +799,10 @@ class _ProfileEstateState extends State<ProfileEstate> {
 
                           String? id = FirebaseAuth.instance.currentUser?.uid;
                           if (flagDate && flagTime) {
-                            String? hour = sTime?.hour.toString();
-                            String? minute = sTime?.minute.toString();
+                            String? hour =
+                                sTime?.hour.toString().padLeft(2, '0');
+                            String? minute =
+                                sTime?.minute.toString().padLeft(2, '0');
                             String IDBook = (estate['IDEstate'].toString() +
                                 selectedDate.toString().split(" ")[0] +
                                 id!);
@@ -818,7 +820,8 @@ class _ProfileEstateState extends State<ProfileEstate> {
                               "IDUser": id,
                               "IDOwner": estate['IDUser'],
                               "StartDate":
-                                  "${selectedDate.year}-${selectedDate.month}-${selectedDate.day} ${hour!}:${minute!}",
+                                  "${selectedDate.year}-${selectedDate.month}-${selectedDate.day}",
+                              "Clock": "${hour!}:${minute!}",
                               "EndDate": "",
                               "Type": estate['Type'],
                               "Country": estate["Country"],
