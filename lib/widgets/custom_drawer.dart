@@ -7,6 +7,7 @@ import '../general_provider.dart';
 import '../localization/language_constants.dart';
 import '../main.dart';
 import '../page/Estate.dart';
+import '../resources/auth_methods.dart';
 import '../screen/all_posts_screen.dart';
 import '../page/notification_user.dart';
 import '../screen/profile_screen.dart';
@@ -500,17 +501,13 @@ class CustomDrawer extends StatelessWidget {
               ),
               icon: const Icon(Icons.logout, color: kPrimaryColor),
               onTap: () async {
-                SharedPreferences sharedPreferences =
-                    await SharedPreferences.getInstance();
-                await sharedPreferences.clear();
-                Navigator.of(context).pushReplacement(MaterialPageRoute(
-                    builder: (context) => const ChooseTypeUser()));
+                await AuthMethods().signOut(context);
               },
               hint: getTranslated(
                 context,
                 '',
               ),
-            ),
+            )
           ],
         ),
       ),

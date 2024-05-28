@@ -31,6 +31,8 @@ class _State extends State<Splashscreen> {
     sharedPreferences.setString("Language", defaultLocale.split('_')[0]);
     String? autoLogin = sharedPreferences.getString("auto");
     String? id = sharedPreferences.getString("id");
+    String? userType = sharedPreferences.getString("TypeUser");
+
     await Future.delayed(const Duration(seconds: 5)).then((value) {
       if (autoLogin == "1" && (id != null || id!.isNotEmpty)) {
         Navigator.of(context)
@@ -39,6 +41,7 @@ class _State extends State<Splashscreen> {
         Navigator.of(context).push(MaterialPageRoute(
             builder: (context) => LoginScreen(
                   title: '',
+                  userType: userType, // Pass the userType here
                 )));
       } else {
         Navigator.of(context).push(
