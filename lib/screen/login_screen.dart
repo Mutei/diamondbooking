@@ -98,17 +98,23 @@ class _LoginScreenState extends State<LoginScreen>
               return;
             }
 
+            // Store login state in SharedPreferences
+            SharedPreferences prefs = await SharedPreferences.getInstance();
+            if (rememberMe) {
+              await prefs.setString('savedEmail', email);
+              await prefs.setString('savedPassword', password);
+              await prefs.setBool('rememberMe', true);
+            } else {
+              await prefs.remove('savedEmail');
+              await prefs.remove('savedPassword');
+              await prefs.setBool('rememberMe', false);
+            }
+
             // Proceed to main screen
             Navigator.of(context).pushAndRemoveUntil(
               MaterialPageRoute(builder: (context) => MainScreen()),
               (Route<dynamic> route) => false,
             );
-
-            if (rememberMe) {
-              await _saveEmail(email);
-            } else {
-              await _saveEmail('');
-            }
           }
         }
       } on FirebaseAuthException catch (e) {

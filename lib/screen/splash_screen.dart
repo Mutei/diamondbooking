@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'user_type_screen.dart';
@@ -26,9 +27,34 @@ class _State extends State<Splashscreen> {
     final String defaultLocale = Platform.localeName;
     Locale newLocale = Locale(defaultLocale.split('_')[0], "SA");
     MyApp.setLocale(context, newLocale);
-    bool check = await checkLogin();
+
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    sharedPreferences.setString("Language", defaultLocale.split('_')[0]);
+    bool rememberMe = sharedPreferences.getBool('rememberMe') ?? false;
+    String? email = sharedPreferences.getString('savedEmail');
+    String? password = sharedPreferences.getString('savedPassword');
+
+    if (rememberMe && email != null && password != null) {
+      try {
+        // Attempt to login with saved credentials
+        UserCredential userCredential =
+            await FirebaseAuth.instance.signInWithEmailAndPassword(
+          email: email,
+          password: password,
+        );
+
+        if (userCredential.user != null) {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => MainScreen()),
+          );
+          return;
+        }
+      } catch (e) {
+        // Failed to login with saved credentials, proceed to normal flow
+        print('Failed to login with saved credentials: $e');
+      }
+    }
+
+    bool check = await checkLogin();
     String? autoLogin = sharedPreferences.getString("auto");
     String? id = sharedPreferences.getString("id");
     String? userType = sharedPreferences.getString("TypeUser");
