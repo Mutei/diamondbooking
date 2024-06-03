@@ -28,10 +28,10 @@ class _RequestState extends State<Request> {
     final objProvider = Provider.of<GeneralProvider>(context);
 
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: kPrimaryColor,
-        elevation: 0,
-      ),
+      // appBar: AppBar(
+      //   backgroundColor: kPrimaryColor,
+      //   elevation: 0,
+      // ),
       body: Container(
         height: MediaQuery.of(context).size.height,
         width: MediaQuery.of(context).size.width,

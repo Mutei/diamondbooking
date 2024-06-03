@@ -3,13 +3,13 @@ import 'package:flutter/material.dart';
 class ReusedAllPostsCards extends StatefulWidget {
   final Map post;
   final String? currentUserId;
-  final VoidCallback onEdit;
+  final VoidCallback onDelete;
 
   const ReusedAllPostsCards({
     super.key,
     required this.post,
     required this.currentUserId,
-    required this.onEdit,
+    required this.onDelete,
   });
 
   @override
@@ -117,9 +117,13 @@ class _ReusedAllPostsCardsState extends State<ReusedAllPostsCards> {
                 ],
               ),
             if (widget.post['userId'] == widget.currentUserId)
-              TextButton(
-                onPressed: widget.onEdit,
-                child: Text("Edit Post"),
+              Row(
+                children: [
+                  TextButton(
+                    onPressed: widget.onDelete,
+                    child: Text("Delete Post"),
+                  ),
+                ],
               ),
           ],
         ),

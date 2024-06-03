@@ -32,9 +32,9 @@ class _State extends State<TypeEstate> {
 
     return Scaffold(
         key: _scaffoldKey1,
-        appBar: AppBar(
-          backgroundColor: kPrimaryColor,
-        ),
+        // appBar: AppBar(
+        //   backgroundColor: kPrimaryColor,
+        // ),
         body: Container(
           width: MediaQuery.of(context).size.width,
           height: MediaQuery.of(context).size.height,

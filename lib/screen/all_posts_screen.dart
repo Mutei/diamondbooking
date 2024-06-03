@@ -6,11 +6,8 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timeago/timeago.dart' as timeago;
-import '../widgets/cardEstate.dart';
-import '../widgets/main_screen_widgets.dart';
 import '../widgets/reused_all_posts_cards.dart';
 import 'add_posts_screen.dart';
-import 'package:firebase_database/ui/firebase_animated_list.dart';
 
 class AllPostsScreen extends StatefulWidget {
   const AllPostsScreen({super.key});
@@ -86,6 +83,49 @@ class _AllPostsScreenState extends State<AllPostsScreen> {
     }
   }
 
+  void _confirmDeletePost(String postId) async {
+    bool? confirmed = await showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Delete Post'),
+          content: Text('Are you sure you want to delete this post?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed == true) {
+      _deletePost(postId);
+    }
+  }
+
+  void _deletePost(String postId) async {
+    try {
+      await _postsRef.child(postId).remove();
+      setState(() {
+        _posts.removeWhere((post) => post['postId'] == postId);
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Post deleted successfully')),
+      );
+    } catch (e) {
+      print('Error deleting post: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to delete post')),
+      );
+    }
+  }
+
   // Future<String> _getImages(String key) async {
   //   // Implement your image fetching logic here
   //   return 'assets/images/default_image.png';
@@ -96,6 +136,7 @@ class _AllPostsScreenState extends State<AllPostsScreen> {
     return Scaffold(
       appBar: userType == '2'
           ? AppBar(
+              centerTitle: true,
               title: Text(
                 "All Posts",
                 style: TextStyle(
@@ -119,6 +160,7 @@ class _AllPostsScreenState extends State<AllPostsScreen> {
               ],
             )
           : AppBar(
+              centerTitle: true,
               title: Text("All Posts"),
             ),
       body: _posts.isEmpty
@@ -154,15 +196,7 @@ class _AllPostsScreenState extends State<AllPostsScreen> {
         return ReusedAllPostsCards(
           post: post,
           currentUserId: currentUserId,
-          onEdit: () async {
-            await Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => AddPostScreen(post: post),
-              ),
-            );
-            _fetchPosts();
-          },
+          onDelete: () => _confirmDeletePost(post['postId']),
         );
       },
     );
