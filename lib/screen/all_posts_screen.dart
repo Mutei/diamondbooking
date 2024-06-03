@@ -1,9 +1,13 @@
+// lib/screens/all_posts_screen.dart
+
+import 'package:diamond_booking/constants/colors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import '../widgets/cardEstate.dart';
+import '../widgets/main_screen_widgets.dart';
 import '../widgets/reused_all_posts_cards.dart';
 import 'add_posts_screen.dart';
 import 'package:firebase_database/ui/firebase_animated_list.dart';
@@ -82,6 +86,64 @@ class _AllPostsScreenState extends State<AllPostsScreen> {
     }
   }
 
+  // Future<String> _getImages(String key) async {
+  //   // Implement your image fetching logic here
+  //   return 'assets/images/default_image.png';
+  // }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: userType == '2'
+          ? AppBar(
+              title: Text(
+                "All Posts",
+                style: TextStyle(
+                  color: kPrimaryColor,
+                ),
+              ),
+              actions: [
+                IconButton(
+                  icon: Icon(
+                    Icons.add,
+                    color: kPrimaryColor,
+                  ),
+                  onPressed: () async {
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => AddPostScreen()),
+                    );
+                    _fetchPosts();
+                  },
+                ),
+              ],
+            )
+          : AppBar(
+              title: Text("All Posts"),
+            ),
+      body: _posts.isEmpty
+          ? Center(child: CircularProgressIndicator())
+          : ListView(
+              children: [
+                Container(height: 20),
+                // CustomWidgets.buildSectionTitle(context, 'Hotel'),
+                // CustomWidgets.buildFirebaseAnimatedList(
+                //     _hotelRef, 'assets/images/hotel.png', _getImages),
+                // Divider(),
+                // CustomWidgets.buildSectionTitle(context, 'Coffee'),
+                // CustomWidgets.buildFirebaseAnimatedList(
+                //     _coffeeRef, 'assets/images/coffee.png', _getImages),
+                // Divider(),
+                // CustomWidgets.buildSectionTitle(context, 'Restaurant'),
+                // CustomWidgets.buildFirebaseAnimatedList(
+                //     _restaurantRef, 'assets/images/restaurant.png', _getImages),
+                // Divider(),
+                _buildPostsList(),
+              ],
+            ),
+    );
+  }
+
   Widget _buildPostsList() {
     return ListView.builder(
       shrinkWrap: true,
@@ -104,103 +166,6 @@ class _AllPostsScreenState extends State<AllPostsScreen> {
         );
       },
     );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: userType == '2'
-          ? AppBar(
-              title: Text("All Posts"),
-              actions: [
-                IconButton(
-                  icon: Icon(Icons.add),
-                  onPressed: () async {
-                    await Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => AddPostScreen()),
-                    );
-                    _fetchPosts();
-                  },
-                ),
-              ],
-            )
-          : AppBar(
-              title: Text("All Posts"),
-            ),
-      body: _posts.isEmpty
-          ? Center(child: CircularProgressIndicator())
-          : ListView(
-              children: [
-                Container(height: 20),
-                _buildSectionTitle(context, 'Hotel'),
-                _buildFirebaseAnimatedList(
-                    _hotelRef, 'assets/images/hotel.png'),
-                Divider(),
-                _buildSectionTitle(context, 'Coffee'),
-                _buildFirebaseAnimatedList(
-                    _coffeeRef, 'assets/images/coffee.png'),
-                Divider(),
-                _buildSectionTitle(context, 'Restaurant'),
-                _buildFirebaseAnimatedList(
-                    _restaurantRef, 'assets/images/restaurant.png'),
-                Divider(),
-                _buildPostsList(),
-              ],
-            ),
-    );
-  }
-
-  Widget _buildSectionTitle(BuildContext context, String title) {
-    return Container(
-      margin: const EdgeInsets.only(top: 20),
-      child: Text(
-        title,
-        style: TextStyle(fontSize: 24, color: Colors.black),
-      ),
-    );
-  }
-
-  Widget _buildFirebaseAnimatedList(Query query, String icon) {
-    return Container(
-      height: 200,
-      child: FirebaseAnimatedList(
-        shrinkWrap: true,
-        defaultChild: const Center(child: CircularProgressIndicator()),
-        scrollDirection: Axis.horizontal,
-        itemBuilder: (context, snapshot, animation, index) {
-          Map map = snapshot.value as Map;
-          map['Key'] = snapshot.key;
-          return FutureBuilder<String>(
-            future: _getImages(map['Key']),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return Center(child: CircularProgressIndicator());
-              } else if (snapshot.hasError) {
-                return Text('Error: ${snapshot.error}');
-              } else {
-                String imageUrl =
-                    snapshot.data ?? 'assets/images/default_image.png';
-                return CardEstate(
-                  context: context,
-                  obj: map,
-                  icon: icon,
-                  VisEdit: false,
-                  image: imageUrl,
-                  Visimage: true,
-                );
-              }
-            },
-          );
-        },
-        query: query,
-      ),
-    );
-  }
-
-  Future<String> _getImages(String key) async {
-    // Implement your image fetching logic here
-    return 'assets/images/default_image.png';
   }
 }
 
