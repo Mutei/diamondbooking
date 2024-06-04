@@ -1657,41 +1657,41 @@ class _ProfileEstateState extends State<ProfileEstate> {
                 ],
               ),
               Visibility(
-                visible: userType == '2',
+                visible: canEditEstate,
                 child: Align(
                   alignment: Alignment.bottomCenter,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      InkWell(
-                        child: Container(
-                          width: 150.w,
-                          height: 6.h,
-                          margin: const EdgeInsets.only(
-                              right: 40, left: 40, bottom: 20),
-                          decoration: BoxDecoration(
-                            color: kPrimaryColor,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Center(
-                            child: Text(
-                              getTranslated(context, "Post"),
-                              style: const TextStyle(
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ),
-                        onTap: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => AddPost(
-                                map: estate,
-                              ),
-                            ),
-                          );
-                        },
-                      ),
+                      // InkWell(
+                      //   child: Container(
+                      //     width: 150.w,
+                      //     height: 6.h,
+                      //     margin: const EdgeInsets.only(
+                      //         right: 40, left: 40, bottom: 20),
+                      //     decoration: BoxDecoration(
+                      //       color: kPrimaryColor,
+                      //       borderRadius: BorderRadius.circular(12),
+                      //     ),
+                      //     child: Center(
+                      //       child: Text(
+                      //         getTranslated(context, "Post"),
+                      //         style: const TextStyle(
+                      //           color: Colors.white,
+                      //         ),
+                      //       ),
+                      //     ),
+                      //   ),
+                      //   onTap: () {
+                      //     Navigator.of(context).push(
+                      //       MaterialPageRoute(
+                      //         builder: (context) => AddPost(
+                      //           map: estate,
+                      //         ),
+                      //       ),
+                      //     );
+                      //   },
+                      // ),
                       InkWell(
                         child: Container(
                           width: 150.w,
