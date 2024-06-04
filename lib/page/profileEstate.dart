@@ -53,11 +53,38 @@ class _ProfileEstateState extends State<ProfileEstate> {
   bool flagDate = false;
   bool flagTime = false;
   final GlobalKey<ScaffoldState> _scaffoldKey1 = new GlobalKey<ScaffoldState>();
+  final databaseRef = FirebaseDatabase.instance.ref();
+  String userType = "2";
 
   @override
   void initState() {
     getData();
+    fetchUserType();
     super.initState();
+  }
+
+  Future<void> fetchUserType() async {
+    try {
+      User? user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        String uid = user.uid;
+        DatabaseReference userTypeRef =
+            databaseRef.child('App/User/$uid/TypeUser');
+        DataSnapshot snapshot = await userTypeRef.get();
+        if (snapshot.exists) {
+          setState(() {
+            userType = snapshot.value.toString();
+          });
+          print("The usertype in profile estate is: $userType");
+        } else {
+          print("User Type not found");
+        }
+      } else {
+        print("User not logged in");
+      }
+    } catch (e) {
+      print("Failed to fetch user type: $e");
+    }
   }
 
   Future<void> _selectDate(BuildContext context) async {
@@ -693,7 +720,7 @@ class _ProfileEstateState extends State<ProfileEstate> {
                 ],
               ),
               Visibility(
-                visible: VisEdit,
+                visible: userType == '2',
                 child: Align(
                   alignment: Alignment.bottomCenter,
                   child: Column(
@@ -706,12 +733,15 @@ class _ProfileEstateState extends State<ProfileEstate> {
                           margin: const EdgeInsets.only(
                               right: 40, left: 40, bottom: 20),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF84A5FA),
+                            color: kPrimaryColor,
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Center(
                             child: Text(
                               getTranslated(context, "Post"),
+                              style: const TextStyle(
+                                color: Colors.white,
+                              ),
                             ),
                           ),
                         ),
@@ -732,12 +762,15 @@ class _ProfileEstateState extends State<ProfileEstate> {
                           margin: const EdgeInsets.only(
                               right: 40, left: 40, bottom: 20),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF84A5FA),
+                            color: kPrimaryColor,
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Center(
                             child: Text(
                               getTranslated(context, "GenerateQRCode"),
+                              style: const TextStyle(
+                                color: Colors.white,
+                              ),
                             ),
                           ),
                         ),
@@ -752,7 +785,7 @@ class _ProfileEstateState extends State<ProfileEstate> {
                 ),
               ),
               Visibility(
-                visible: !VisEdit,
+                visible: userType == "1",
                 child: Align(
                   alignment: Alignment.bottomCenter,
                   child: InkWell(

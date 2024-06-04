@@ -712,7 +712,7 @@ class _MainScreenState extends State<MainScreen> {
         },
         children: userType == "1"
             ? [
-                EstatePage(
+                ReusedEstatePage(
                     queryHotel: queryHotel,
                     queryCoffee: queryCoffee,
                     queryRestaurant: queryRestaurant,
@@ -724,7 +724,7 @@ class _MainScreenState extends State<MainScreen> {
                 AllPostsScreen(),
               ]
             : [
-                EstatePage(
+                ReusedEstatePage(
                     queryHotel: queryHotel,
                     queryCoffee: queryCoffee,
                     queryRestaurant: queryRestaurant,
@@ -739,14 +739,14 @@ class _MainScreenState extends State<MainScreen> {
   }
 }
 
-class EstatePage extends StatelessWidget {
+class ReusedEstatePage extends StatelessWidget {
   final Query queryHotel;
   final Query queryCoffee;
   final Query queryRestaurant;
   final Future<String> Function(String) getImages;
   final GeneralProvider objProvider;
 
-  const EstatePage({
+  const ReusedEstatePage({
     Key? key,
     required this.queryHotel,
     required this.queryCoffee,

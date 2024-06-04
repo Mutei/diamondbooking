@@ -1,9 +1,10 @@
 // ignore_for_file: non_constant_identifier_names, prefer_const_constructors
 
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import 'package:sizer/sizer.dart';
 
 import '../general_provider.dart';
@@ -39,6 +40,8 @@ class _State extends State<CardEstate> {
   bool Visimage;
 
   final storageRef = FirebaseStorage.instance.ref();
+  final databaseRef = FirebaseDatabase.instance.ref();
+  String userType = "2";
 
   _State(
     this.context,
@@ -52,6 +55,31 @@ class _State extends State<CardEstate> {
   @override
   void initState() {
     super.initState();
+    fetchUserType();
+  }
+
+  Future<void> fetchUserType() async {
+    try {
+      User? user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        String uid = user.uid;
+        DatabaseReference userTypeRef =
+            databaseRef.child('App/User/$uid/TypeUser');
+        DataSnapshot snapshot = await userTypeRef.get();
+        if (snapshot.exists) {
+          setState(() {
+            userType = snapshot.value.toString();
+          });
+          print("User Type: $userType");
+        } else {
+          print("User Type not found");
+        }
+      } else {
+        print("User not logged in");
+      }
+    } catch (e) {
+      print("Failed to fetch user type: $e");
+    }
   }
 
   Future<String> getimages(String EID) async {
