@@ -11,6 +11,9 @@ final kPrimaryGoogleFontsStyle = GoogleFonts.laila(
   fontWeight: FontWeight.bold,
   color: Colors.black,
 );
+const kIconTheme=IconThemeData(
+  color: kPrimaryColor, // Change this to your desired color
+);
 final kSecondaryGoogleFontsStyle = GoogleFonts.laila(
   fontWeight: FontWeight.bold,
   color: Colors.black,

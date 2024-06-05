@@ -1,4 +1,6 @@
 import 'dart:io';
+import 'package:diamond_booking/constants/colors.dart';
+import 'package:diamond_booking/constants/styles.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
@@ -139,7 +141,14 @@ class _AddPostScreenState extends State<AddPostScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.post == null ? "Add Post" : "Edit Post"),
+        iconTheme: kIconTheme,
+        centerTitle: true,
+        title: Text(
+          widget.post == null ? "Add Post" : "Edit Post",
+          style: const TextStyle(
+            color: kPrimaryColor,
+          ),
+        ),
       ),
       body: SingleChildScrollView(
         child: Form(

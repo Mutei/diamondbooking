@@ -438,6 +438,7 @@
 
 import 'package:badges/badges.dart' as badges;
 import 'package:diamond_booking/constants/colors.dart';
+import 'package:diamond_booking/constants/styles.dart';
 import 'package:diamond_booking/page/notification_user.dart';
 import 'package:firebase_database/ui/firebase_animated_list.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -700,7 +701,8 @@ class _MainScreenState extends State<MainScreen> {
           ),
         ),
         centerTitle: true,
-        backgroundColor: Colors.white, // Set the background color to white
+        backgroundColor: Colors.white,
+        iconTheme: kIconTheme, // Set the background color to white
       ),
       drawer: CustomDrawer(userType: userType, id: ID),
       body: PageView(

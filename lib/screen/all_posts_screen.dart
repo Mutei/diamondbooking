@@ -1,6 +1,7 @@
 // lib/screens/all_posts_screen.dart
 
 import 'package:diamond_booking/constants/colors.dart';
+import 'package:diamond_booking/constants/styles.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
@@ -136,8 +137,9 @@ class _AllPostsScreenState extends State<AllPostsScreen> {
     return Scaffold(
       appBar: userType == '2'
           ? AppBar(
+              iconTheme: kIconTheme,
               centerTitle: true,
-              title: Text(
+              title: const Text(
                 "All Posts",
                 style: TextStyle(
                   color: kPrimaryColor,
@@ -145,14 +147,15 @@ class _AllPostsScreenState extends State<AllPostsScreen> {
               ),
               actions: [
                 IconButton(
-                  icon: Icon(
+                  icon: const Icon(
                     Icons.add,
                     color: kPrimaryColor,
                   ),
                   onPressed: () async {
                     await Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => AddPostScreen()),
+                      MaterialPageRoute(
+                          builder: (context) => const AddPostScreen()),
                     );
                     _fetchPosts();
                   },
@@ -160,6 +163,7 @@ class _AllPostsScreenState extends State<AllPostsScreen> {
               ],
             )
           : AppBar(
+              iconTheme: kIconTheme,
               centerTitle: true,
               title: Text("All Posts"),
             ),

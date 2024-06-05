@@ -1,5 +1,6 @@
 import 'package:diamond_booking/chooseCity.dart';
 import 'package:diamond_booking/constants/colors.dart';
+import 'package:diamond_booking/constants/styles.dart';
 import 'package:diamond_booking/extension/sized_box_extension.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -137,7 +138,9 @@ class _AddEstatesScreenState extends State<AddEstatesScreen> {
       getTranslated(context, "Next"),
     );
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        iconTheme: kIconTheme,
+      ),
       body: Stack(
         children: [
           Container(

@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 import 'package:diamond_booking/constants/colors.dart';
+import 'package:diamond_booking/constants/styles.dart';
 import 'package:diamond_booking/extension/sized_box_extension.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -187,11 +188,14 @@ class _ProfileScreenUserState extends State<ProfileScreenUser> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: kPrimaryColor,
+        centerTitle: true,
         title: Text(
           getTranslated(context, 'Profile'),
-          style: const TextStyle(color: Colors.white),
+          style: const TextStyle(
+            color: kPrimaryColor,
+          ),
         ),
+        iconTheme: kIconTheme,
       ),
       body: SafeArea(
         child: SingleChildScrollView(

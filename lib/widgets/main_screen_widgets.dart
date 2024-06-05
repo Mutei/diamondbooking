@@ -1,5 +1,6 @@
 // lib/widgets/custom_widgets.dart
 
+import 'package:diamond_booking/localization/language_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_database/ui/firebase_animated_list.dart';
@@ -9,8 +10,12 @@ class CustomWidgets {
   static Widget buildSectionTitle(BuildContext context, String title) {
     return Container(
       margin: const EdgeInsets.only(top: 20),
+      // child: Text(
+      //   title,
+      //   style: TextStyle(fontSize: 24, color: Colors.black),
+      // ),
       child: Text(
-        title,
+        getTranslated(context, title),
         style: TextStyle(fontSize: 24, color: Colors.black),
       ),
     );
