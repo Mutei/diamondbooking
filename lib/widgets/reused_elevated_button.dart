@@ -25,13 +25,13 @@ class ReusedElevatedButton extends StatelessWidget {
         children: [
           Icon(
             icon,
-            color: kSecondaryColor,
+            color: Colors.white,
           ),
           10.kW,
           Text(
             text,
             style: const TextStyle(
-              color: kSecondaryColor,
+              color: Colors.white,
             ),
           ),
         ],
