@@ -29,72 +29,66 @@ class _State extends State<NotificationUser> {
     final objProvider = Provider.of<GeneralProvider>(context);
 
     return Scaffold(
-        appBar: AppBar(
-          backgroundColor: Color(0xFF84A5FA),
-          elevation: 0,
-        ),
         body: Container(
-          height: MediaQuery.of(context).size.height,
-          width: MediaQuery.of(context).size.width,
-          child: FirebaseAnimatedList(
-            shrinkWrap: true,
-            defaultChild: const Center(
-              child: CircularProgressIndicator(),
-            ),
-            itemBuilder: (context, snapshot, animation, index) {
-              Map value = snapshot.value as Map;
-              value['Key'] = snapshot.key;
-              String? id = FirebaseAuth.instance.currentUser?.uid;
+      height: MediaQuery.of(context).size.height,
+      width: MediaQuery.of(context).size.width,
+      child: FirebaseAnimatedList(
+        shrinkWrap: true,
+        defaultChild: const Center(
+          child: CircularProgressIndicator(),
+        ),
+        itemBuilder: (context, snapshot, animation, index) {
+          Map value = snapshot.value as Map;
+          value['Key'] = snapshot.key;
+          String? id = FirebaseAuth.instance.currentUser?.uid;
 
-              if (value["IDUser"] == id) {
-                return Card(
-                  color: value["Status"] == "1"
-                      ? Colors.white
-                      : value["Status"] == "2"
-                          ? Colors.green[200]
-                          : Colors.red[100],
-                  child: Container(
-                      child: Wrap(
+          if (value["IDUser"] == id) {
+            return Card(
+              color: value["Status"] == "1"
+                  ? Colors.white
+                  : value["Status"] == "2"
+                      ? Colors.green[200]
+                      : Colors.red[100],
+              child: Container(
+                  child: Wrap(
+                children: [
+                  Row(
                     children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: ItemInCard(
-                                Icon(Icons.calendar_month),
-                                value["StartDate"].toString().split(" ")[0],
-                                "From Date"),
-                          ),
-                          Expanded(
-                            child: ItemInCard(
-                                Icon(Icons.calendar_month),
-                                value["EndDate"].toString().split(" ")[0],
-                                "To Date"),
-                          )
-                        ],
+                      Expanded(
+                        child: ItemInCard(
+                            Icon(Icons.calendar_month),
+                            value["StartDate"].toString().split(" ")[0],
+                            "From Date"),
                       ),
-                      ItemInCard(
-                          Icon(Icons.hotel),
-                          value["Status"] == "1"
-                              ? "Your Booking Under Prossing"
-                              : value["Status"] == "2"
-                                  ? "Your Booking is Confermed"
-                                  : "Your Booking is Canseld",
-                          "Status"),
-
-                      // ignore: prefer_interpolation_to_compose_strings
+                      Expanded(
+                        child: ItemInCard(
+                            Icon(Icons.calendar_month),
+                            value["EndDate"].toString().split(" ")[0],
+                            "To Date"),
+                      )
                     ],
-                  )),
-                );
-              } else {
-                return Container();
-              }
-            },
-            query: FirebaseDatabase.instance
-                .ref("App")
-                .child("Booking")
-                .child("Book"),
-          ),
-        ));
+                  ),
+                  ItemInCard(
+                      Icon(Icons.hotel),
+                      value["Status"] == "1"
+                          ? "Your Booking Under Prossing"
+                          : value["Status"] == "2"
+                              ? "Your Booking is Confermed"
+                              : "Your Booking is Canseld",
+                      "Status"),
+
+                  // ignore: prefer_interpolation_to_compose_strings
+                ],
+              )),
+            );
+          } else {
+            return Container();
+          }
+        },
+        query:
+            FirebaseDatabase.instance.ref("App").child("Booking").child("Book"),
+      ),
+    ));
   }
 
   ListRoom(String id) {

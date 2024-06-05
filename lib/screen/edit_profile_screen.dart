@@ -1,4 +1,5 @@
 import 'package:diamond_booking/constants/colors.dart';
+import 'package:diamond_booking/constants/styles.dart';
 import 'package:diamond_booking/localization/language_constants.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -59,6 +60,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _cityController = TextEditingController(text: widget.city);
 
     _firstNameController.addListener(_onTextChanged);
+    _secondNameController.addListener(_onTextChanged);
+    _lastNameController.addListener(_onTextChanged);
     _emailController.addListener(_onTextChanged);
     _phoneController.addListener(_onTextChanged);
     _countryController.addListener(_onTextChanged);
@@ -68,6 +71,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   @override
   void dispose() {
     _firstNameController.dispose();
+    _secondNameController.dispose();
+    _lastNameController.dispose();
     _emailController.dispose();
     _phoneController.dispose();
     _countryController.dispose();
@@ -116,13 +121,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        iconTheme: kIconTheme,
+        centerTitle: true,
         title: Text(
           getTranslated(context, "Edit Profile"),
           style: const TextStyle(
-            color: Colors.white,
+            color: kPrimaryColor,
           ),
         ),
-        backgroundColor: kPrimaryColor,
         actions: [
           TextButton(
             onPressed: _isChanged ? () => saveProfileData() : null,
@@ -132,7 +138,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             child: Text(
               getTranslated(context, "Save"),
               style: TextStyle(
-                color: _isChanged ? Colors.white : Colors.grey,
+                color: _isChanged ? kPrimaryColor : Colors.grey,
               ),
             ),
           ),
