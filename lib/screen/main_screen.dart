@@ -464,6 +464,34 @@ import '../widgets/cardEstate.dart';
 import '../widgets/card_type.dart';
 import '../widgets/custom_drawer.dart';
 
+import 'package:badges/badges.dart' as badges;
+import 'package:diamond_booking/constants/colors.dart';
+import 'package:diamond_booking/constants/styles.dart';
+import 'package:diamond_booking/page/notification_user.dart';
+import 'package:firebase_database/ui/firebase_animated_list.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sizer/sizer.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:permission_handler/permission_handler.dart';
+import '../general_provider.dart';
+import '../localization/language_constants.dart';
+import '../models/Additional.dart';
+import '../models/rooms.dart';
+import '../page/Estate.dart';
+import '../widgets/main_screen_widgets.dart';
+import 'all_posts_screen.dart';
+import '../page/request.dart';
+import '../page/type_estate.dart';
+import '../page/upgrade_account.dart';
+import '../resources/firebase_services.dart';
+import '../widgets/cardEstate.dart';
+import '../widgets/card_type.dart';
+import '../widgets/custom_drawer.dart';
+
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
 
@@ -489,6 +517,7 @@ class _MainScreenState extends State<MainScreen> {
 
   PageController _pageController = PageController();
   int _selectedIndex = 0;
+  String _selectedFilter = 'All'; // Add this line
 
   @override
   void initState() {
@@ -582,6 +611,12 @@ class _MainScreenState extends State<MainScreen> {
       _selectedIndex = index;
     });
     _pageController.jumpToPage(index);
+  }
+
+  void _onFilterChanged(String filter) {
+    setState(() {
+      _selectedFilter = filter;
+    });
   }
 
   Future<String> _getImages(String key) async {
@@ -715,11 +750,14 @@ class _MainScreenState extends State<MainScreen> {
         children: userType == "1"
             ? [
                 ReusedEstatePage(
-                    queryHotel: queryHotel,
-                    queryCoffee: queryCoffee,
-                    queryRestaurant: queryRestaurant,
-                    getImages: _getImages,
-                    objProvider: objProvider),
+                  queryHotel: queryHotel,
+                  queryCoffee: queryCoffee,
+                  queryRestaurant: queryRestaurant,
+                  getImages: _getImages,
+                  objProvider: objProvider,
+                  selectedFilter: _selectedFilter, // Add this line
+                  onFilterChanged: _onFilterChanged, // Add this line
+                ),
                 NotificationUser(),
                 UpgradeAccount(),
                 TypeEstate(Check: "chatuser"),
@@ -727,11 +765,14 @@ class _MainScreenState extends State<MainScreen> {
               ]
             : [
                 ReusedEstatePage(
-                    queryHotel: queryHotel,
-                    queryCoffee: queryCoffee,
-                    queryRestaurant: queryRestaurant,
-                    getImages: _getImages,
-                    objProvider: objProvider),
+                  queryHotel: queryHotel,
+                  queryCoffee: queryCoffee,
+                  queryRestaurant: queryRestaurant,
+                  getImages: _getImages,
+                  objProvider: objProvider,
+                  selectedFilter: _selectedFilter, // Add this line
+                  onFilterChanged: _onFilterChanged, // Add this line
+                ),
                 Request(),
                 TypeEstate(Check: "chat"),
                 AllPostsScreen(),
@@ -747,6 +788,8 @@ class ReusedEstatePage extends StatelessWidget {
   final Query queryRestaurant;
   final Future<String> Function(String) getImages;
   final GeneralProvider objProvider;
+  final String selectedFilter; // Add this line
+  final Function(String) onFilterChanged; // Add this line
 
   const ReusedEstatePage({
     Key? key,
@@ -755,42 +798,107 @@ class ReusedEstatePage extends StatelessWidget {
     required this.queryRestaurant,
     required this.getImages,
     required this.objProvider,
+    required this.selectedFilter, // Add this line
+    required this.onFilterChanged, // Add this line
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.white, // Set the background color to white
+      color: Colors.white,
       margin: const EdgeInsets.only(top: 5, bottom: 20, left: 10, right: 10),
       child: ListView(
         children: [
           Container(height: 20),
-          Container(
-            padding: const EdgeInsets.only(bottom: 10),
-            height: 13.h,
-            child: ListView.builder(
-                itemCount: objProvider.TypeService().length,
-                scrollDirection: Axis.horizontal,
-                itemBuilder: (BuildContext context, int index) {
-                  return CardType(
-                    context: context,
-                    obj: objProvider.TypeService()[index],
-                  );
-                }),
+          // Container(
+          //   padding: const EdgeInsets.only(bottom: 10),
+          //   height: 13.h,
+          //   child: ListView.builder(
+          //     itemCount: objProvider.TypeService().length,
+          //     scrollDirection: Axis.horizontal,
+          //     itemBuilder: (BuildContext context, int index) {
+          //       return CardType(
+          //         context: context,
+          //         obj: objProvider.TypeService()[index],
+          //       );
+          //     },
+          //   ),
+          // ),
+          // Add filter buttons here
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              FilterButton(
+                label: 'All',
+                isSelected: selectedFilter == 'All',
+                onTap: () => onFilterChanged('All'),
+              ),
+              FilterButton(
+                label: 'Restaurant',
+                isSelected: selectedFilter == 'Restaurant',
+                onTap: () => onFilterChanged('Restaurant'),
+              ),
+              FilterButton(
+                label: 'Hotel',
+                isSelected: selectedFilter == 'Hotel',
+                onTap: () => onFilterChanged('Hotel'),
+              ),
+              FilterButton(
+                label: 'Coffee',
+                isSelected: selectedFilter == 'Coffee',
+                onTap: () => onFilterChanged('Coffee'),
+              ),
+            ],
           ),
           Divider(),
           CustomWidgets.buildSectionTitle(context, 'Hotel'),
-          CustomWidgets.buildFirebaseAnimatedList(
-              queryHotel, 'assets/images/hotel.png', getImages),
+          if (selectedFilter == 'All' || selectedFilter == 'Hotel')
+            CustomWidgets.buildFirebaseAnimatedList(
+                queryHotel, 'assets/images/hotel.png', getImages),
           Divider(),
           CustomWidgets.buildSectionTitle(context, 'Coffee'),
-          CustomWidgets.buildFirebaseAnimatedList(
-              queryCoffee, 'assets/images/coffee.png', getImages),
+          if (selectedFilter == 'All' || selectedFilter == 'Coffee')
+            CustomWidgets.buildFirebaseAnimatedList(
+                queryCoffee, 'assets/images/coffee.png', getImages),
           Divider(),
           CustomWidgets.buildSectionTitle(context, 'Restaurant'),
-          CustomWidgets.buildFirebaseAnimatedList(
-              queryRestaurant, 'assets/images/restaurant.png', getImages),
+          if (selectedFilter == 'All' || selectedFilter == 'Restaurant')
+            CustomWidgets.buildFirebaseAnimatedList(
+                queryRestaurant, 'assets/images/restaurant.png', getImages),
         ],
+      ),
+    );
+  }
+}
+
+class FilterButton extends StatelessWidget {
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const FilterButton({
+    Key? key,
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+        decoration: BoxDecoration(
+          color: isSelected ? kPrimaryColor : Colors.grey[200],
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            color: isSelected ? Colors.white : Colors.black,
+          ),
+        ),
       ),
     );
   }

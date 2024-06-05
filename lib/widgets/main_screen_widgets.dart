@@ -1,5 +1,6 @@
 // lib/widgets/custom_widgets.dart
 
+import 'package:diamond_booking/constants/colors.dart';
 import 'package:diamond_booking/localization/language_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -16,7 +17,7 @@ class CustomWidgets {
       // ),
       child: Text(
         getTranslated(context, title),
-        style: TextStyle(fontSize: 24, color: Colors.black),
+        style: TextStyle(fontSize: 24, color: kPrimaryColor),
       ),
     );
   }
