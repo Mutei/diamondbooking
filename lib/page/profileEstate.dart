@@ -975,6 +975,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sizer/sizer.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../general_provider.dart';
 import '../localization/language_constants.dart';
@@ -1169,6 +1170,16 @@ class _ProfileEstateState extends State<ProfileEstate> {
     }
   }
 
+  Future<void> _openCamera() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.camera);
+    if (pickedFile != null) {
+      print('Camera image selected: ${pickedFile.path}');
+    } else {
+      print('No image selected.');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final objProvider = Provider.of<GeneralProvider>(context, listen: true);
@@ -1268,6 +1279,14 @@ class _ProfileEstateState extends State<ProfileEstate> {
               },
             ),
           ),
+          if (!canEditEstate)
+            InkWell(
+              child: Icon(Icons.camera_alt),
+              onTap: () {
+                _openCamera();
+              },
+            ),
+          const SizedBox(width: 25),
         ],
       ),
       body: Container(

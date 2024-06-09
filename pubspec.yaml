@@ -76,6 +76,7 @@ dependencies:
   timeago: ^3.6.1
   multi_image_picker: ^4.8.01
   badges: ^3.1.2
+  camera: ^0.11.0+1
 
 
 dev_dependencies:
