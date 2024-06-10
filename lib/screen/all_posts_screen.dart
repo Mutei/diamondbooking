@@ -1,5 +1,3 @@
-// lib/screens/all_posts_screen.dart
-
 import 'package:diamond_booking/constants/colors.dart';
 import 'package:diamond_booking/constants/styles.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -29,6 +27,7 @@ class _AllPostsScreenState extends State<AllPostsScreen> {
 
   String userType = "2";
   String? currentUserId;
+  String? typeAccount;
   List<Map<dynamic, dynamic>> _posts = [];
 
   @override
@@ -37,6 +36,7 @@ class _AllPostsScreenState extends State<AllPostsScreen> {
     _fetchPosts();
     _loadUserType();
     _loadCurrentUser();
+    _loadTypeAccount();
   }
 
   void _loadUserType() async {
@@ -52,6 +52,23 @@ class _AllPostsScreenState extends State<AllPostsScreen> {
     setState(() {
       currentUserId = user?.uid;
     });
+  }
+
+  Future<void> _loadTypeAccount() async {
+    if (currentUserId != null) {
+      DatabaseReference typeAccountRef = FirebaseDatabase.instance
+          .ref("App")
+          .child("User")
+          .child(currentUserId!)
+          .child("TypeAccount");
+      DataSnapshot snapshot = await typeAccountRef.get();
+      if (snapshot.exists) {
+        setState(() {
+          typeAccount = snapshot.value.toString();
+          print("Loaded Type Account: $typeAccount");
+        });
+      }
+    }
   }
 
   Future<void> _fetchPosts() async {
@@ -127,63 +144,41 @@ class _AllPostsScreenState extends State<AllPostsScreen> {
     }
   }
 
-  // Future<String> _getImages(String key) async {
-  //   // Implement your image fetching logic here
-  //   return 'assets/images/default_image.png';
-  // }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: userType == '2'
-          ? AppBar(
-              iconTheme: kIconTheme,
-              centerTitle: true,
-              title: const Text(
-                "All Posts",
-                style: TextStyle(
-                  color: kPrimaryColor,
-                ),
+      appBar: AppBar(
+        iconTheme: kIconTheme,
+        centerTitle: true,
+        title: const Text(
+          "All Posts",
+          style: TextStyle(
+            color: kPrimaryColor,
+          ),
+        ),
+        actions: [
+          if (userType == '2' || (userType == '1' && typeAccount == '3'))
+            IconButton(
+              icon: const Icon(
+                Icons.add,
+                color: kPrimaryColor,
               ),
-              actions: [
-                IconButton(
-                  icon: const Icon(
-                    Icons.add,
-                    color: kPrimaryColor,
-                  ),
-                  onPressed: () async {
-                    await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const AddPostScreen()),
-                    );
-                    _fetchPosts();
-                  },
-                ),
-              ],
-            )
-          : AppBar(
-              iconTheme: kIconTheme,
-              centerTitle: true,
-              title: Text("All Posts"),
+              onPressed: () async {
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const AddPostScreen()),
+                );
+                _fetchPosts();
+              },
             ),
+        ],
+      ),
       body: _posts.isEmpty
           ? Center(child: CircularProgressIndicator())
           : ListView(
               children: [
                 Container(height: 20),
-                // CustomWidgets.buildSectionTitle(context, 'Hotel'),
-                // CustomWidgets.buildFirebaseAnimatedList(
-                //     _hotelRef, 'assets/images/hotel.png', _getImages),
-                // Divider(),
-                // CustomWidgets.buildSectionTitle(context, 'Coffee'),
-                // CustomWidgets.buildFirebaseAnimatedList(
-                //     _coffeeRef, 'assets/images/coffee.png', _getImages),
-                // Divider(),
-                // CustomWidgets.buildSectionTitle(context, 'Restaurant'),
-                // CustomWidgets.buildFirebaseAnimatedList(
-                //     _restaurantRef, 'assets/images/restaurant.png', _getImages),
-                // Divider(),
                 _buildPostsList(),
               ],
             ),

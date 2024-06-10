@@ -6,6 +6,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AddPostScreen extends StatefulWidget {
   final Map<dynamic, dynamic>? post;
@@ -25,6 +26,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
   final ImagePicker _picker = ImagePicker();
   String? _selectedEstate;
   List<Map<dynamic, dynamic>> _userEstates = [];
+  String userType = "2";
 
   @override
   void initState() {
@@ -35,6 +37,15 @@ class _AddPostScreenState extends State<AddPostScreen> {
       _textController.text = widget.post!['Text'];
     }
     _fetchUserEstates();
+    _loadUserType();
+  }
+
+  Future<void> _loadUserType() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      userType = prefs.getString("TypeUser") ?? "2";
+      print("Loaded User Type: $userType");
+    });
   }
 
   Future<void> _fetchUserEstates() async {
@@ -77,7 +88,8 @@ class _AddPostScreenState extends State<AddPostScreen> {
   }
 
   Future<void> _savePost() async {
-    if (_formKey.currentState!.validate() && _selectedEstate != null) {
+    if (_formKey.currentState!.validate() &&
+        (_selectedEstate != null || userType != "2")) {
       try {
         User? user = FirebaseAuth.instance.currentUser;
         if (user == null) {
@@ -86,12 +98,14 @@ class _AddPostScreenState extends State<AddPostScreen> {
         }
         String userId = user.uid;
 
-        Map<dynamic, dynamic> selectedEstate = _userEstates.firstWhere(
-          (estate) => estate['type'] == _selectedEstate,
-          orElse: () => {},
-        );
+        Map<dynamic, dynamic> selectedEstate = _selectedEstate != null
+            ? _userEstates.firstWhere(
+                (estate) => estate['type'] == _selectedEstate,
+                orElse: () => {},
+              )
+            : {};
 
-        if (selectedEstate.isEmpty) {
+        if (_selectedEstate != null && selectedEstate.isEmpty) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
                 content:
@@ -123,7 +137,8 @@ class _AddPostScreenState extends State<AddPostScreen> {
           'Description': _titleController.text,
           'Text': _textController.text,
           'Date': DateTime.now().millisecondsSinceEpoch,
-          'EstateName': selectedEstate['data']['NameEn'],
+          'EstateName':
+              userType == "2" ? selectedEstate['data']['NameEn'] : null,
           'EstateType': _selectedEstate,
           'userId': userId,
           'ImageUrls': imageUrls,
@@ -157,27 +172,28 @@ class _AddPostScreenState extends State<AddPostScreen> {
             padding: const EdgeInsets.all(16.0),
             child: Column(
               children: [
-                DropdownButtonFormField<String>(
-                  value: _selectedEstate,
-                  hint: Text("Select Estate"),
-                  items: _userEstates.map((estate) {
-                    return DropdownMenuItem<String>(
-                      value: estate['type'],
-                      child: Text(estate['data']['NameEn']),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedEstate = value;
-                    });
-                  },
-                  validator: (value) {
-                    if (value == null) {
-                      return 'Please select an estate';
-                    }
-                    return null;
-                  },
-                ),
+                if (userType == "2")
+                  DropdownButtonFormField<String>(
+                    value: _selectedEstate,
+                    hint: Text("Select Estate"),
+                    items: _userEstates.map((estate) {
+                      return DropdownMenuItem<String>(
+                        value: estate['type'],
+                        child: Text(estate['data']['NameEn']),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedEstate = value;
+                      });
+                    },
+                    validator: (value) {
+                      if (value == null) {
+                        return 'Please select an estate';
+                      }
+                      return null;
+                    },
+                  ),
                 TextFormField(
                   controller: _titleController,
                   decoration: InputDecoration(labelText: "Title"),
