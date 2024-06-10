@@ -630,9 +630,26 @@ class _MainScreenState extends State<MainScreen> {
                   label: estates,
                 ),
                 BottomNavigationBarItem(
-                  icon: const Icon(
-                    Icons.notifications,
-                    color: kPrimaryColor,
+                  icon: Consumer<GeneralProvider>(
+                    builder: (context, provider, child) {
+                      if (provider.newRequestCount == 0) {
+                        return const Icon(
+                          Icons.notifications,
+                          color: kPrimaryColor,
+                        );
+                      } else {
+                        return badges.Badge(
+                          badgeContent: Text(
+                            provider.newRequestCount.toString(),
+                            style: TextStyle(color: Colors.white),
+                          ),
+                          child: const Icon(
+                            Icons.notifications,
+                            color: kPrimaryColor,
+                          ),
+                        );
+                      }
+                    },
                   ),
                   label: Notification,
                 ),
@@ -667,19 +684,26 @@ class _MainScreenState extends State<MainScreen> {
                   label: Estate,
                 ),
                 BottomNavigationBarItem(
-                  icon: badges.Badge(
-                    badgeContent: Consumer<GeneralProvider>(
-                      builder: (context, provider, child) {
-                        return Text(
-                          provider.newRequestCount.toString(),
-                          style: TextStyle(color: Colors.white),
+                  icon: Consumer<GeneralProvider>(
+                    builder: (context, provider, child) {
+                      if (provider.newRequestCount == 0) {
+                        return const Icon(
+                          Icons.account_box,
+                          color: kPrimaryColor,
                         );
-                      },
-                    ),
-                    child: Icon(
-                      Icons.account_box,
-                      color: kPrimaryColor,
-                    ),
+                      } else {
+                        return badges.Badge(
+                          badgeContent: Text(
+                            provider.newRequestCount.toString(),
+                            style: TextStyle(color: Colors.white),
+                          ),
+                          child: const Icon(
+                            Icons.account_box,
+                            color: kPrimaryColor,
+                          ),
+                        );
+                      }
+                    },
                   ),
                   label: request,
                 ),
@@ -699,6 +723,7 @@ class _MainScreenState extends State<MainScreen> {
                 ),
               ],
       ),
+
       appBar: AppBar(
         elevation: 0,
         title: Text(

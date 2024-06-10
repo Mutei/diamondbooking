@@ -357,29 +357,31 @@ class CustomDrawer extends StatelessWidget {
             ),
             Visibility(
               visible: userType != "1",
-              child: DrawerItem(
-                text: getTranslated(context, "Request"),
-                icon: const Icon(Icons.account_box, color: kPrimaryColor),
-                onTap: () {
-                  Navigator.of(context)
-                      .push(MaterialPageRoute(builder: (context) => Request()));
-                },
-                hint: getTranslated(context,
-                    "From here you can see the reservations for your estate"),
-                badge: badges.Badge(
-                  badgeContent: Consumer<GeneralProvider>(
-                    builder: (context, provider, child) {
-                      return Text(
-                        provider.newRequestCount.toString(),
-                        style: TextStyle(color: Colors.white),
-                      );
+              child: Consumer<GeneralProvider>(
+                builder: (context, provider, child) {
+                  return DrawerItem(
+                    text: getTranslated(context, "Request"),
+                    icon: const Icon(Icons.account_box, color: kPrimaryColor),
+                    onTap: () {
+                      Navigator.of(context).push(
+                          MaterialPageRoute(builder: (context) => Request()));
                     },
-                  ),
-                  child: const Icon(
-                    Icons.account_box,
-                    color: kPrimaryColor,
-                  ),
-                ),
+                    hint: getTranslated(context,
+                        "From here you can see the reservations for your estate"),
+                    badge: provider.newRequestCount == 0
+                        ? null
+                        : badges.Badge(
+                            badgeContent: Text(
+                              provider.newRequestCount.toString(),
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            child: const Icon(
+                              Icons.account_box,
+                              color: kPrimaryColor,
+                            ),
+                          ),
+                  );
+                },
               ),
             ),
             Visibility(
