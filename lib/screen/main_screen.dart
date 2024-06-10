@@ -464,34 +464,6 @@ import '../widgets/cardEstate.dart';
 import '../widgets/card_type.dart';
 import '../widgets/custom_drawer.dart';
 
-import 'package:badges/badges.dart' as badges;
-import 'package:diamond_booking/constants/colors.dart';
-import 'package:diamond_booking/constants/styles.dart';
-import 'package:diamond_booking/page/notification_user.dart';
-import 'package:firebase_database/ui/firebase_animated_list.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sizer/sizer.dart';
-import 'package:firebase_database/firebase_database.dart';
-import 'package:permission_handler/permission_handler.dart';
-import '../general_provider.dart';
-import '../localization/language_constants.dart';
-import '../models/Additional.dart';
-import '../models/rooms.dart';
-import '../page/Estate.dart';
-import '../widgets/main_screen_widgets.dart';
-import 'all_posts_screen.dart';
-import '../page/request.dart';
-import '../page/type_estate.dart';
-import '../page/upgrade_account.dart';
-import '../resources/firebase_services.dart';
-import '../widgets/cardEstate.dart';
-import '../widgets/card_type.dart';
-import '../widgets/custom_drawer.dart';
-
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
 
