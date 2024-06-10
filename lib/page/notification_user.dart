@@ -1,12 +1,8 @@
-// ignore_for_file: non_constant_identifier_names
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_database/ui/firebase_animated_list.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:sizer/sizer.dart';
 
 import '../general_provider.dart';
 import '../localization/language_constants.dart';
@@ -29,66 +25,78 @@ class _State extends State<NotificationUser> {
     final objProvider = Provider.of<GeneralProvider>(context);
 
     return Scaffold(
-        body: Container(
-      height: MediaQuery.of(context).size.height,
-      width: MediaQuery.of(context).size.width,
-      child: FirebaseAnimatedList(
-        shrinkWrap: true,
-        defaultChild: const Center(
-          child: CircularProgressIndicator(),
-        ),
-        itemBuilder: (context, snapshot, animation, index) {
-          Map value = snapshot.value as Map;
-          value['Key'] = snapshot.key;
-          String? id = FirebaseAuth.instance.currentUser?.uid;
+      body: Container(
+        height: MediaQuery.of(context).size.height,
+        width: MediaQuery.of(context).size.width,
+        child: FirebaseAnimatedList(
+          shrinkWrap: true,
+          defaultChild: const Center(
+            child: CircularProgressIndicator(),
+          ),
+          itemBuilder: (context, snapshot, animation, index) {
+            Map value = snapshot.value as Map;
+            value['Key'] = snapshot.key;
+            String? id = FirebaseAuth.instance.currentUser?.uid;
 
-          if (value["IDUser"] == id) {
-            return Card(
-              color: value["Status"] == "1"
-                  ? Colors.white
-                  : value["Status"] == "2"
-                      ? Colors.green[200]
-                      : Colors.red[100],
-              child: Container(
+            if (value["IDUser"] == id) {
+              return Card(
+                color: value["Status"] == "1"
+                    ? Colors.white
+                    : value["Status"] == "2"
+                        ? Colors.green[200]
+                        : Colors.red[100],
+                child: Container(
                   child: Wrap(
-                children: [
-                  Row(
                     children: [
-                      Expanded(
-                        child: ItemInCard(
-                            Icon(Icons.calendar_month),
-                            value["StartDate"].toString().split(" ")[0],
-                            "From Date"),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: ItemInCard(
+                              Icon(Icons.calendar_month),
+                              value["StartDate"].toString().split(" ")[0],
+                              "From Date",
+                            ),
+                          ),
+                          Expanded(
+                            child: ItemInCard(
+                              Icon(Icons.calendar_month),
+                              value["EndDate"].toString().split(" ")[0],
+                              "To Date",
+                            ),
+                          )
+                        ],
                       ),
-                      Expanded(
-                        child: ItemInCard(
-                            Icon(Icons.calendar_month),
-                            value["EndDate"].toString().split(" ")[0],
-                            "To Date"),
-                      )
+                      ItemInCard(
+                        Icon(Icons.hotel),
+                        value["Status"] == "1"
+                            ? "Your Booking Under Processing"
+                            : value["Status"] == "2"
+                                ? "Your Booking is Confirmed"
+                                : "Your Booking is Canceled",
+                        "Status",
+                      ),
+                      if (value["Status"] == "2")
+                        ItemInCard(
+                          Icon(Icons.confirmation_number),
+                          value['IDBook'],
+                          "Order ID",
+                        ),
+                      // ignore: prefer_interpolation_to_compose_strings
                     ],
                   ),
-                  ItemInCard(
-                      Icon(Icons.hotel),
-                      value["Status"] == "1"
-                          ? "Your Booking Under Prossing"
-                          : value["Status"] == "2"
-                              ? "Your Booking is Confermed"
-                              : "Your Booking is Canseld",
-                      "Status"),
-
-                  // ignore: prefer_interpolation_to_compose_strings
-                ],
-              )),
-            );
-          } else {
-            return Container();
-          }
-        },
-        query:
-            FirebaseDatabase.instance.ref("App").child("Booking").child("Book"),
+                ),
+              );
+            } else {
+              return Container();
+            }
+          },
+          query: FirebaseDatabase.instance
+              .ref("App")
+              .child("Booking")
+              .child("Book"),
+        ),
       ),
-    ));
+    );
   }
 
   ListRoom(String id) {
@@ -186,86 +194,88 @@ class _State extends State<NotificationUser> {
             ),
           ),
           body: SingleChildScrollView(
-              child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                getTranslated(context, "Rooms"),
-                style: TextStyle(fontSize: 18),
-              ),
-              ListRoom(map['IDBook']),
-              Text(
-                getTranslated(context, "additional services"),
-                style: TextStyle(fontSize: 18),
-              ),
-              ListAdd(map['IDBook']),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextButton(
-                      child: Text(getTranslated(context, 'Confirm')),
-                      onPressed: () async {
-                        DatabaseReference ref = FirebaseDatabase.instance
-                            .ref("App")
-                            .child("Booking")
-                            .child("Book")
-                            .child(map['IDBook']);
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  getTranslated(context, "Rooms"),
+                  style: TextStyle(fontSize: 18),
+                ),
+                ListRoom(map['IDBook']),
+                Text(
+                  getTranslated(context, "additional services"),
+                  style: TextStyle(fontSize: 18),
+                ),
+                ListAdd(map['IDBook']),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextButton(
+                        child: Text(getTranslated(context, 'Confirm')),
+                        onPressed: () async {
+                          DatabaseReference ref = FirebaseDatabase.instance
+                              .ref("App")
+                              .child("Booking")
+                              .child("Book")
+                              .child(map['IDBook']);
 
-                        await ref.update({
-                          "Status": "2",
-                        });
-                        Navigator.of(context).pop();
-                      },
+                          await ref.update({
+                            "Status": "2",
+                          });
+                          Navigator.of(context).pop();
+                        },
+                      ),
                     ),
-                  ),
-                  Expanded(
-                    child: TextButton(
-                      child: Text(getTranslated(context, 'Reject')),
-                      onPressed: () async {
-                        DatabaseReference ref = FirebaseDatabase.instance
-                            .ref("App")
-                            .child("Booking")
-                            .child("Book")
-                            .child(map['IDBook']);
+                    Expanded(
+                      child: TextButton(
+                        child: Text(getTranslated(context, 'Reject')),
+                        onPressed: () async {
+                          DatabaseReference ref = FirebaseDatabase.instance
+                              .ref("App")
+                              .child("Booking")
+                              .child("Book")
+                              .child(map['IDBook']);
 
-                        await ref.update({
-                          "Status": "3",
-                        });
-                        Navigator.of(context).pop();
-                      },
+                          await ref.update({
+                            "Status": "3",
+                          });
+                          Navigator.of(context).pop();
+                        },
+                      ),
                     ),
-                  ),
-                  Expanded(
-                    child: TextButton(
-                      child: Text(getTranslated(context, 'close')),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                    ),
-                  )
-                ],
-              )
-            ],
-          )),
+                    Expanded(
+                      child: TextButton(
+                        child: Text(getTranslated(context, 'close')),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                    )
+                  ],
+                )
+              ],
+            ),
+          ),
         );
       },
     );
   }
 
-  ItemInCard(Icon icon, String data, String labe) {
+  ItemInCard(Icon icon, String data, String label) {
     return Container(
-        child: ListTile(
-      leading: icon,
-      iconColor: Colors.black,
-      title: Text(
-        labe,
-        style: TextStyle(fontSize: 12),
+      child: ListTile(
+        leading: icon,
+        iconColor: Colors.black,
+        title: Text(
+          label,
+          style: TextStyle(fontSize: 12),
+        ),
+        subtitle: Text(
+          data,
+          style: TextStyle(fontSize: 12),
+        ),
       ),
-      subtitle: Text(
-        data,
-        style: TextStyle(fontSize: 12),
-      ),
-    ));
+    );
   }
 }
