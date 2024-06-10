@@ -89,6 +89,17 @@ class _RequestState extends State<Request> {
                           children: [
                             Expanded(
                               child: ItemInCard(
+                                  Icon(Icons.bookmark_added_sharp),
+                                  value["IDBook"].toString(),
+                                  // .split(" ")[2]
+                                  getTranslated(context, "Booking ID")),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: ItemInCard(
                                   Icon(Icons.timer),
                                   value["Clock"].toString(),
                                   // .split(" ")[2]
