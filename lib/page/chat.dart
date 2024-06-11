@@ -254,64 +254,66 @@ class _State extends State<Chat> {
                 top: const BorderSide(color: Colors.grey, width: 1.0),
               ),
             ),
-            child: Column(
-              children: [
-                ValueListenableBuilder<int>(
-                  valueListenable: _charCountNotifier,
-                  builder: (context, count, child) {
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 4.0),
-                      child: Text(
-                        '$count / 500',
-                        style: TextStyle(
-                          color: count > 500 ? Colors.red : Colors.grey,
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  ValueListenableBuilder<int>(
+                    valueListenable: _charCountNotifier,
+                    builder: (context, count, child) {
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4.0),
+                        child: Text(
+                          '$count / 500',
+                          style: TextStyle(
+                            color: count > 500 ? Colors.red : Colors.grey,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: <Widget>[
+                      Expanded(
+                        child: TextField(
+                          controller: _textController,
+                          maxLength: 500,
+                          maxLines: null,
+                          decoration: const InputDecoration(
+                            contentPadding: EdgeInsets.all(16.0),
+                            hintText: 'Type a message...',
+                            border: InputBorder.none,
+                            counterText: "", // Hide the counter text
+                          ),
+                          onChanged: (text) {
+                            _messageNotifier.value = text;
+                            _charCountNotifier.value = text.length;
+                          },
+                          onSubmitted: (text) {
+                            if (text.isNotEmpty) {
+                              sendMessage(text);
+                            }
+                          },
                         ),
                       ),
-                    );
-                  },
-                ),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: <Widget>[
-                    Expanded(
-                      child: TextField(
-                        controller: _textController,
-                        maxLength: 500,
-                        maxLines: null,
-                        decoration: const InputDecoration(
-                          contentPadding: EdgeInsets.all(16.0),
-                          hintText: 'Type a message...',
-                          border: InputBorder.none,
-                          counterText: "", // Hide the counter text
-                        ),
-                        onChanged: (text) {
-                          _messageNotifier.value = text;
-                          _charCountNotifier.value = text.length;
-                        },
-                        onSubmitted: (text) {
-                          if (text.isNotEmpty) {
-                            sendMessage(text);
-                          }
+                      ValueListenableBuilder<String>(
+                        valueListenable: _messageNotifier,
+                        builder: (context, value, child) {
+                          return IconButton(
+                            icon: const Icon(Icons.send),
+                            color: value.isEmpty ? Colors.grey : kPrimaryColor,
+                            onPressed: value.isEmpty
+                                ? null
+                                : () {
+                                    sendMessage(_textController.text);
+                                  },
+                          );
                         },
                       ),
-                    ),
-                    ValueListenableBuilder<String>(
-                      valueListenable: _messageNotifier,
-                      builder: (context, value, child) {
-                        return IconButton(
-                          icon: const Icon(Icons.send),
-                          color: value.isEmpty ? Colors.grey : kPrimaryColor,
-                          onPressed: value.isEmpty
-                              ? null
-                              : () {
-                                  sendMessage(_textController.text);
-                                },
-                        );
-                      },
-                    ),
-                  ],
-                ),
-              ],
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ],
