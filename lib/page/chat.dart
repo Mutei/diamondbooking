@@ -1,5 +1,3 @@
-// ignore_for_file: non_constant_identifier_names
-
 import 'dart:io';
 import 'package:diamond_booking/constants/colors.dart';
 import 'package:diamond_booking/private.dart';
@@ -13,6 +11,8 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:cloud_functions/cloud_functions.dart';
+
+import '../constants/styles.dart';
 
 class Chat extends StatefulWidget {
   String idEstate;
@@ -47,10 +47,21 @@ class _State extends State<Chat> {
 
   final TextEditingController _textController = TextEditingController();
 
-  Widget build(BuildContext context) {
-    //
-    // final objProvider = Provider.of<GeneralProvider>(context, listen: false);
+  Future<String> getUserFullName(String userId) async {
+    DatabaseReference userRef =
+        FirebaseDatabase.instance.ref("App").child("User").child(userId);
+    DataSnapshot snapshot = await userRef.get();
+    if (snapshot.exists) {
+      String firstName = snapshot.child("FirstName").value?.toString() ?? "";
+      String secondName = snapshot.child("SecondName").value?.toString() ?? "";
+      String lastName = snapshot.child("LastName").value?.toString() ?? "";
+      return "$firstName $secondName $lastName";
+    }
+    return "";
+  }
 
+  @override
+  Widget build(BuildContext context) {
     DatabaseReference refChat = FirebaseDatabase.instance
         .ref("App")
         .child("Chat")
@@ -127,8 +138,14 @@ class _State extends State<Chat> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Chat'),
-        backgroundColor: const Color(0xFF84A5FA),
+        title: const Text(
+          'Chat',
+          style: TextStyle(
+            color: kPrimaryColor,
+          ),
+        ),
+        centerTitle: true,
+        iconTheme: kIconTheme,
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -142,32 +159,61 @@ class _State extends State<Chat> {
               itemBuilder: (context, snapshot, animation, index) {
                 Map map = snapshot.value as Map;
                 map['Key'] = snapshot.key;
-                return Row(
-                  mainAxisAlignment: map['Type'] == "1"
-                      ? MainAxisAlignment.end
-                      : MainAxisAlignment.start,
-                  children: <Widget>[
-                    Container(
-                      margin: const EdgeInsets.all(5),
-                      decoration: BoxDecoration(
-                        color: map['Type'] == "1"
-                            ? Colors.grey[300]
-                            : kPrimaryColor,
-                        borderRadius: BorderRadius.circular(10.0),
-                      ),
-                      // ignore: prefer_const_constructors
-                      padding: EdgeInsets.symmetric(
-                          vertical: 10.0, horizontal: 16.0),
-                      child: Text(
-                        map['message'] ?? "",
-                        style: TextStyle(
+                return FutureBuilder<String>(
+                  future: getUserFullName(map['IDUser']),
+                  builder: (context, asyncSnapshot) {
+                    if (asyncSnapshot.connectionState ==
+                        ConnectionState.waiting) {
+                      return Center(child: CircularProgressIndicator());
+                    }
+                    if (asyncSnapshot.hasError || !asyncSnapshot.hasData) {
+                      return Text('Error fetching user name');
+                    }
+                    String fullName = asyncSnapshot.data!;
+                    return Column(
+                      crossAxisAlignment: map['Type'] == "1"
+                          ? CrossAxisAlignment.end
+                          : CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Container(
+                          margin: const EdgeInsets.all(5),
+                          decoration: BoxDecoration(
                             color: map['Type'] == "1"
-                                ? Colors.black
-                                : Colors.white,
-                            fontSize: 15.0),
-                      ),
-                    ),
-                  ],
+                                ? Colors.grey[300]
+                                : kPrimaryColor,
+                            borderRadius: const BorderRadius.only(
+                              topRight: Radius.circular(20),
+                              bottomLeft: Radius.circular(20),
+                              bottomRight: Radius.circular(20),
+                            ),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 10.0, horizontal: 16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              Text(
+                                fullName,
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                    fontSize: 10),
+                              ),
+                              const SizedBox(height: 5),
+                              Text(
+                                map['message'] ?? "",
+                                style: TextStyle(
+                                    color: map['Type'] == "1"
+                                        ? Colors.black
+                                        : Colors.white,
+                                    fontSize: 15.0),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    );
+                  },
                 );
               },
               query: FirebaseDatabase.instance
@@ -178,9 +224,7 @@ class _State extends State<Chat> {
             ),
           ),
           Container(
-            // ignore: prefer_const_constructors
             decoration: BoxDecoration(
-              // ignore: prefer_const_constructors
               border: Border(
                 top: const BorderSide(color: Colors.grey, width: 1.0),
               ),
@@ -191,8 +235,7 @@ class _State extends State<Chat> {
                 Expanded(
                   child: TextField(
                     controller: _textController,
-                    // ignore: prefer_const_constructors
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       contentPadding: EdgeInsets.all(16.0),
                       hintText: 'Type a message...',
                       border: InputBorder.none,

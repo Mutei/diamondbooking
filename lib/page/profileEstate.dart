@@ -977,6 +977,7 @@ import 'package:sizer/sizer.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../constants/styles.dart';
 import '../general_provider.dart';
 import '../localization/language_constants.dart';
 import '../models/rooms.dart';
@@ -1188,7 +1189,7 @@ class _ProfileEstateState extends State<ProfileEstate> {
       key: _scaffoldKey1,
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: kPrimaryColor,
+        iconTheme: kIconTheme,
         actions: [
           if (canEditEstate)
             InkWell(
