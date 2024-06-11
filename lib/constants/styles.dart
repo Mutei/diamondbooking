@@ -6,12 +6,18 @@ import 'package:sizer/sizer.dart';
 
 import 'colors.dart';
 
+const kMessageBorderRadius = BorderRadius.only(
+  topRight: Radius.circular(20),
+  bottomLeft: Radius.circular(20),
+  bottomRight: Radius.circular(20),
+);
+
 final kPrimaryGoogleFontsStyle = GoogleFonts.laila(
   fontSize: 6.w,
   fontWeight: FontWeight.bold,
   color: Colors.black,
 );
-const kIconTheme=IconThemeData(
+const kIconTheme = IconThemeData(
   color: kPrimaryColor, // Change this to your desired color
 );
 final kSecondaryGoogleFontsStyle = GoogleFonts.laila(

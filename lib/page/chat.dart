@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:diamond_booking/constants/colors.dart';
+import 'package:diamond_booking/extension/sized_box_extension.dart';
 import 'package:diamond_booking/private.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -25,7 +26,7 @@ class Chat extends StatefulWidget {
 }
 
 class _State extends State<Chat> {
-  final databaseReference = FirebaseDatabase.instance.reference();
+  final databaseReference = FirebaseDatabase.instance;
   String idEstate;
   String Name;
   String Key;
@@ -38,6 +39,7 @@ class _State extends State<Chat> {
       'sendNotificationsadmin',
       options: HttpsCallableOptions(timeout: Duration(seconds: 5)));
   final ValueNotifier<String> _messageNotifier = ValueNotifier<String>("");
+  final ValueNotifier<int> _charCountNotifier = ValueNotifier<int>(0);
 
   @override
   void initState() {
@@ -120,9 +122,12 @@ class _State extends State<Chat> {
     void sendMessage(String message) async {
       _textController.clear();
       _messageNotifier.value = "";
+      _charCountNotifier.value = 0;
 
       // Fetch full name before setting the data in refChatList
       String fullName = await getUserFullName(id!);
+      String? hour = TimeOfDay.now().hour.toString().padLeft(2, '0');
+      String? minute = TimeOfDay.now().minute.toString().padLeft(2, '0');
 
       refChat.push().set({
         'message': message,
@@ -132,6 +137,7 @@ class _State extends State<Chat> {
         'seen': "0",
         'Type': "2",
         'Name': fullName,
+        'time': "$hour:$minute"
       });
       refChatList
           .child(idEstate)
@@ -187,14 +193,13 @@ class _State extends State<Chat> {
                             color: map['Type'] == "1"
                                 ? Colors.grey[300]
                                 : kPrimaryColor,
-                            borderRadius: const BorderRadius.only(
-                              topRight: Radius.circular(20),
-                              bottomLeft: Radius.circular(20),
-                              bottomRight: Radius.circular(20),
-                            ),
+                            borderRadius: kMessageBorderRadius,
                           ),
                           padding: const EdgeInsets.symmetric(
                               vertical: 10.0, horizontal: 16.0),
+                          constraints: BoxConstraints(
+                            maxWidth: MediaQuery.of(context).size.width * 0.75,
+                          ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
@@ -206,13 +211,27 @@ class _State extends State<Chat> {
                                     fontSize: 10),
                               ),
                               const SizedBox(height: 5),
-                              Text(
-                                map['message'] ?? "",
-                                style: TextStyle(
-                                    color: map['Type'] == "1"
-                                        ? Colors.black
-                                        : Colors.white,
-                                    fontSize: 15.0),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      map['message'] ?? "",
+                                      style: TextStyle(
+                                          color: map['Type'] == "1"
+                                              ? Colors.black
+                                              : Colors.white,
+                                          fontSize: 15.0),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Text(
+                                    map['time'] ?? "",
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.w400,
+                                        color: Colors.white,
+                                        fontSize: 10),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
@@ -235,40 +254,62 @@ class _State extends State<Chat> {
                 top: const BorderSide(color: Colors.grey, width: 1.0),
               ),
             ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                Expanded(
-                  child: TextField(
-                    controller: _textController,
-                    decoration: const InputDecoration(
-                      contentPadding: EdgeInsets.all(16.0),
-                      hintText: 'Type a message...',
-                      border: InputBorder.none,
-                    ),
-                    onChanged: (text) {
-                      _messageNotifier.value = text;
-                    },
-                    onSubmitted: (text) {
-                      if (text.isNotEmpty) {
-                        sendMessage(text);
-                      }
-                    },
-                  ),
-                ),
-                ValueListenableBuilder<String>(
-                  valueListenable: _messageNotifier,
-                  builder: (context, value, child) {
-                    return IconButton(
-                      icon: Icon(Icons.send),
-                      color: value.isEmpty ? Colors.grey : kPrimaryColor,
-                      onPressed: value.isEmpty
-                          ? null
-                          : () {
-                              sendMessage(_textController.text);
-                            },
+            child: Column(
+              children: [
+                ValueListenableBuilder<int>(
+                  valueListenable: _charCountNotifier,
+                  builder: (context, count, child) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4.0),
+                      child: Text(
+                        '$count / 500',
+                        style: TextStyle(
+                          color: count > 500 ? Colors.red : Colors.grey,
+                        ),
+                      ),
                     );
                   },
+                ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                    Expanded(
+                      child: TextField(
+                        controller: _textController,
+                        maxLength: 500,
+                        maxLines: null,
+                        decoration: const InputDecoration(
+                          contentPadding: EdgeInsets.all(16.0),
+                          hintText: 'Type a message...',
+                          border: InputBorder.none,
+                          counterText: "", // Hide the counter text
+                        ),
+                        onChanged: (text) {
+                          _messageNotifier.value = text;
+                          _charCountNotifier.value = text.length;
+                        },
+                        onSubmitted: (text) {
+                          if (text.isNotEmpty) {
+                            sendMessage(text);
+                          }
+                        },
+                      ),
+                    ),
+                    ValueListenableBuilder<String>(
+                      valueListenable: _messageNotifier,
+                      builder: (context, value, child) {
+                        return IconButton(
+                          icon: const Icon(Icons.send),
+                          color: value.isEmpty ? Colors.grey : kPrimaryColor,
+                          onPressed: value.isEmpty
+                              ? null
+                              : () {
+                                  sendMessage(_textController.text);
+                                },
+                        );
+                      },
+                    ),
+                  ],
                 ),
               ],
             ),
