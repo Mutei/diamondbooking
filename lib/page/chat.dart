@@ -37,6 +37,7 @@ class _State extends State<Chat> {
   HttpsCallable callable = FirebaseFunctions.instance.httpsCallable(
       'sendNotificationsadmin',
       options: HttpsCallableOptions(timeout: Duration(seconds: 5)));
+  final ValueNotifier<String> _messageNotifier = ValueNotifier<String>("");
 
   @override
   void initState() {
@@ -118,6 +119,10 @@ class _State extends State<Chat> {
 
     void sendMessage(String message) async {
       _textController.clear();
+      _messageNotifier.value = "";
+
+      // Fetch full name before setting the data in refChatList
+      String fullName = await getUserFullName(id!);
 
       refChat.push().set({
         'message': message,
@@ -125,7 +130,8 @@ class _State extends State<Chat> {
         'IDUser': id,
         'IDEstate': idEstate,
         'seen': "0",
-        'Type': "2"
+        'Type': "2",
+        'Name': fullName,
       });
       refChatList
           .child(idEstate)
@@ -195,7 +201,7 @@ class _State extends State<Chat> {
                               Text(
                                 fullName,
                                 style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
+                                    fontWeight: FontWeight.w900,
                                     color: Colors.white,
                                     fontSize: 10),
                               ),
@@ -240,14 +246,28 @@ class _State extends State<Chat> {
                       hintText: 'Type a message...',
                       border: InputBorder.none,
                     ),
-                    onSubmitted: sendMessage,
+                    onChanged: (text) {
+                      _messageNotifier.value = text;
+                    },
+                    onSubmitted: (text) {
+                      if (text.isNotEmpty) {
+                        sendMessage(text);
+                      }
+                    },
                   ),
                 ),
-                IconButton(
-                  icon: Icon(Icons.send),
-                  color: kPrimaryColor,
-                  onPressed: () {
-                    sendMessage(_textController.text);
+                ValueListenableBuilder<String>(
+                  valueListenable: _messageNotifier,
+                  builder: (context, value, child) {
+                    return IconButton(
+                      icon: Icon(Icons.send),
+                      color: value.isEmpty ? Colors.grey : kPrimaryColor,
+                      onPressed: value.isEmpty
+                          ? null
+                          : () {
+                              sendMessage(_textController.text);
+                            },
+                    );
                   },
                 ),
               ],
