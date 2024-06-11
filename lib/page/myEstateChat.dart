@@ -8,6 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
 
+import '../constants/colors.dart';
+import '../constants/styles.dart';
 import '../general_provider.dart';
 import '../models/Additional.dart';
 import '../models/rooms.dart';
@@ -54,7 +56,7 @@ class _State extends State<MyEstateChat> {
     return Scaffold(
         appBar: AppBar(
           elevation: 0,
-          backgroundColor: const Color(0xFF84A5FA),
+          iconTheme: kIconTheme,
         ),
         body: SafeArea(
             child: Container(
@@ -76,7 +78,7 @@ class _State extends State<MyEstateChat> {
                           // ignore: prefer_const_constructors
                           icon: Icon(
                             Icons.search,
-                            color: const Color(0xFF84A5FA),
+                            color: kPrimaryColor,
                           ),
                           control: Search_Controller,
                           isObsecured: false,
