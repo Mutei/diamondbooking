@@ -4,7 +4,6 @@ import 'package:diamond_booking/extension/sized_box_extension.dart';
 import 'package:diamond_booking/private.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_database/ui/firebase_animated_list.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -14,6 +13,7 @@ import 'dart:convert';
 import 'package:cloud_functions/cloud_functions.dart';
 
 import '../constants/styles.dart';
+import '../resources/user_services.dart';
 
 class Chat extends StatefulWidget {
   String idEstate;
@@ -40,12 +40,14 @@ class _State extends State<Chat> {
       options: HttpsCallableOptions(timeout: Duration(seconds: 5)));
   final ValueNotifier<String> _messageNotifier = ValueNotifier<String>("");
   final ValueNotifier<int> _charCountNotifier = ValueNotifier<int>(0);
-
+  User? currentUser;
   @override
   void initState() {
     id = FirebaseAuth.instance.currentUser?.uid;
     // Do something with the message and timestamp
     super.initState();
+    currentUser = UserService().getCurrentUser();
+    print("The current user: $currentUser");
   }
 
   final TextEditingController _textController = TextEditingController();
@@ -132,7 +134,7 @@ class _State extends State<Chat> {
       refChat.push().set({
         'message': message,
         'timestamp': DateTime.now().millisecondsSinceEpoch,
-        'IDUser': id,
+        'SenderId': id,
         'IDEstate': idEstate,
         'seen': "0",
         'Type': "2",
@@ -141,7 +143,7 @@ class _State extends State<Chat> {
       });
       refChatList
           .child(idEstate)
-          .set({"IDUser": id, "IDEstate": idEstate, "Name": Name});
+          .set({"SenderId": id, "IDEstate": idEstate, "Name": Name});
       // Initialize Firebase Cloud Messaging
       String? token = await firebaseMessaging.getToken();
       final FirebaseMessaging x = FirebaseMessaging.instance;
@@ -163,91 +165,102 @@ class _State extends State<Chat> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
           Expanded(
-            child: FirebaseAnimatedList(
-              shrinkWrap: true,
-              defaultChild: const Center(
-                child: CircularProgressIndicator(),
-              ),
-              itemBuilder: (context, snapshot, animation, index) {
-                Map map = snapshot.value as Map;
-                map['Key'] = snapshot.key;
-                return FutureBuilder<String>(
-                  future: getUserFullName(map['IDUser']),
-                  builder: (context, asyncSnapshot) {
-                    if (asyncSnapshot.connectionState ==
-                        ConnectionState.waiting) {
-                      return Center(child: CircularProgressIndicator());
-                    }
-                    if (asyncSnapshot.hasError || !asyncSnapshot.hasData) {
-                      return Text('Error fetching user name');
-                    }
-                    String fullName = asyncSnapshot.data!;
-                    return Column(
-                      crossAxisAlignment: map['Type'] == "1"
-                          ? CrossAxisAlignment.start
-                          : CrossAxisAlignment.end,
-                      children: <Widget>[
-                        Container(
-                          margin: const EdgeInsets.all(5),
-                          decoration: BoxDecoration(
-                            color: map['Type'] == "1"
-                                ? Colors.grey[300]
-                                : kPrimaryColor,
-                            borderRadius: map['Type'] == "1"
-                                ? kMessageBorderRadius
-                                : kMessageBorderRadius2,
-                          ),
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 10.0, horizontal: 16.0),
-                          constraints: BoxConstraints(
-                            maxWidth: MediaQuery.of(context).size.width * 0.75,
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Text(
-                                fullName,
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.w900,
-                                    color: Colors.white,
-                                    fontSize: 10),
+            child: StreamBuilder(
+              stream: refChat.onValue,
+              builder: (context, AsyncSnapshot<DatabaseEvent> snapshot) {
+                if (!snapshot.hasData) {
+                  return Center(child: CircularProgressIndicator());
+                }
+                if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}');
+                }
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(child: CircularProgressIndicator());
+                }
+
+                List<DataSnapshot> items =
+                    snapshot.data!.snapshot.children.toList();
+
+                return ListView.builder(
+                  itemCount: items.length,
+                  itemBuilder: (context, index) {
+                    Map map = items[index].value as Map;
+                    map['Key'] = items[index].key;
+                    return FutureBuilder<String>(
+                      future: getUserFullName(map['SenderId']),
+                      builder: (context, asyncSnapshot) {
+                        if (asyncSnapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return Center(child: CircularProgressIndicator());
+                        }
+                        if (asyncSnapshot.hasError || !asyncSnapshot.hasData) {
+                          return Text('Error fetching user name');
+                        }
+                        String fullName = asyncSnapshot.data!;
+                        return Column(
+                          crossAxisAlignment: map['Type'] == "1"
+                              ? CrossAxisAlignment.start
+                              : CrossAxisAlignment.end,
+                          children: <Widget>[
+                            Container(
+                              margin: const EdgeInsets.all(5),
+                              decoration: BoxDecoration(
+                                color: map['Type'] == "1"
+                                    ? Colors.grey[300]
+                                    : kPrimaryColor,
+                                borderRadius: map['Type'] == "1"
+                                    ? kMessageBorderRadius
+                                    : kMessageBorderRadius2,
                               ),
-                              const SizedBox(height: 5),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      map['message'] ?? "",
-                                      style: TextStyle(
-                                          color: map['Type'] == "1"
-                                              ? Colors.black
-                                              : Colors.white,
-                                          fontSize: 15.0),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 10),
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 10.0, horizontal: 16.0),
+                              constraints: BoxConstraints(
+                                maxWidth:
+                                    MediaQuery.of(context).size.width * 0.75,
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: <Widget>[
                                   Text(
-                                    map['time'] ?? "",
+                                    fullName,
                                     style: const TextStyle(
-                                        fontWeight: FontWeight.w400,
+                                        fontWeight: FontWeight.w900,
                                         color: Colors.white,
                                         fontSize: 10),
                                   ),
+                                  const SizedBox(height: 5),
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          map['message'] ?? "",
+                                          style: TextStyle(
+                                              color: map['Type'] == "1"
+                                                  ? Colors.black
+                                                  : Colors.white,
+                                              fontSize: 15.0),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 10),
+                                      Text(
+                                        map['time'] ?? "",
+                                        style: const TextStyle(
+                                            fontWeight: FontWeight.w400,
+                                            color: Colors.white,
+                                            fontSize: 10),
+                                      ),
+                                    ],
+                                  ),
                                 ],
                               ),
-                            ],
-                          ),
-                        ),
-                      ],
+                            ),
+                          ],
+                        );
+                      },
                     );
                   },
                 );
               },
-              query: FirebaseDatabase.instance
-                  .ref("App")
-                  .child("Chat")
-                  .child(idEstate)
-                  .child(id!),
             ),
           ),
           Container(
