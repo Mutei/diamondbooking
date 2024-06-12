@@ -41,6 +41,7 @@ class _State extends State<Chat> {
   final ValueNotifier<String> _messageNotifier = ValueNotifier<String>("");
   final ValueNotifier<int> _charCountNotifier = ValueNotifier<int>(0);
   User? currentUser;
+
   @override
   void initState() {
     id = FirebaseAuth.instance.currentUser?.uid;
@@ -186,6 +187,10 @@ class _State extends State<Chat> {
                   itemBuilder: (context, index) {
                     Map map = items[index].value as Map;
                     map['Key'] = items[index].key;
+
+                    print(
+                        "Message: ${map['message']}, SenderId: ${map['SenderId']}");
+
                     return FutureBuilder<String>(
                       future: getUserFullName(map['SenderId']),
                       builder: (context, asyncSnapshot) {
@@ -198,19 +203,21 @@ class _State extends State<Chat> {
                         }
                         String fullName = asyncSnapshot.data!;
                         return Column(
-                          crossAxisAlignment: map['Type'] == "1"
-                              ? CrossAxisAlignment.start
-                              : CrossAxisAlignment.end,
+                          crossAxisAlignment:
+                              map['SenderId'] == currentUser?.uid
+                                  ? CrossAxisAlignment.end
+                                  : CrossAxisAlignment.start,
                           children: <Widget>[
                             Container(
                               margin: const EdgeInsets.all(5),
                               decoration: BoxDecoration(
-                                color: map['Type'] == "1"
-                                    ? Colors.grey[300]
-                                    : kPrimaryColor,
-                                borderRadius: map['Type'] == "1"
-                                    ? kMessageBorderRadius
-                                    : kMessageBorderRadius2,
+                                color: map['SenderId'] == currentUser?.uid
+                                    ? kPrimaryColor
+                                    : Colors.grey[300],
+                                borderRadius:
+                                    map['SenderId'] == currentUser?.uid
+                                        ? kMessageBorderRadius
+                                        : kMessageBorderRadius2,
                               ),
                               padding: const EdgeInsets.symmetric(
                                   vertical: 10.0, horizontal: 16.0),
@@ -235,9 +242,10 @@ class _State extends State<Chat> {
                                         child: Text(
                                           map['message'] ?? "",
                                           style: TextStyle(
-                                              color: map['Type'] == "1"
-                                                  ? Colors.black
-                                                  : Colors.white,
+                                              color: map['SenderId'] ==
+                                                      currentUser?.uid
+                                                  ? Colors.white
+                                                  : Colors.black,
                                               fontSize: 15.0),
                                         ),
                                       ),
