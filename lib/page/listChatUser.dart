@@ -4,7 +4,6 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_database/ui/firebase_animated_list.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:sizer/sizer.dart';
 
 import '../constants/colors.dart';
 import '../constants/styles.dart';
@@ -61,13 +60,13 @@ class _State extends State<ListChatUser> {
     print("Chat ID in build method: $id");
 
     return Scaffold(
-        appBar: AppBar(
-          elevation: 0,
-          iconTheme: kIconTheme,
-          title: Text("Hello"),
-        ),
-        body: SafeArea(
-            child: SizedBox(
+      appBar: AppBar(
+        elevation: 0,
+        iconTheme: kIconTheme,
+        title: Text("Hello"),
+      ),
+      body: SafeArea(
+        child: SizedBox(
           width: MediaQuery.of(context).size.width,
           height: MediaQuery.of(context).size.height,
           child: ListView(
@@ -80,42 +79,43 @@ class _State extends State<ListChatUser> {
                     Expanded(
                       flex: 4,
                       child: TextFormFieldStyle(
-                          context: context,
-                          hint: "Search",
-                          icon: const Icon(
-                            Icons.search,
-                            color: kPrimaryColor,
-                          ),
-                          control: Search_Controller,
-                          isObsecured: false,
-                          validate: true,
-                          textInputType: TextInputType.emailAddress),
+                        context: context,
+                        hint: "Search",
+                        icon: const Icon(
+                          Icons.search,
+                          color: kPrimaryColor,
+                        ),
+                        control: Search_Controller,
+                        isObsecured: false,
+                        validate: true,
+                        textInputType: TextInputType.emailAddress,
+                      ),
                     ),
                   ],
                 ),
               ),
               Container(
-                padding: const EdgeInsets.only(
-                  bottom: 20,
-                ),
+                padding: const EdgeInsets.only(bottom: 20),
                 height: MediaQuery.of(context).size.height,
                 child: FirebaseAnimatedList(
                   shrinkWrap: true,
-                  defaultChild: const Center(
-                    child: CircularProgressIndicator(),
-                  ),
+                  defaultChild:
+                      const Center(child: CircularProgressIndicator()),
                   itemBuilder: (context, snapshot, animation, index) {
                     Map map = snapshot.value as Map;
 
                     return Card(
                       child: ListTile(
                         onTap: () {
-                          Navigator.of(context).push(MaterialPageRoute(
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
                               builder: (builder) => Chat(
-                                    idEstate: id,
-                                    Name: Name,
-                                    Key: snapshot.key.toString(),
-                                  )));
+                                idEstate: widget.id,
+                                Name: widget.Name,
+                                Key: snapshot.key.toString(),
+                              ),
+                            ),
+                          );
                         },
                         title: FutureBuilder<String?>(
                           future: getName(snapshot.key.toString()),
@@ -139,12 +139,14 @@ class _State extends State<ListChatUser> {
                   },
                   query: FirebaseDatabase.instance
                       .ref("App")
-                      .child("Chat")
-                      .child(id),
+                      .child("ChatList")
+                      .child(widget.id),
                 ),
               ),
             ],
           ),
-        )));
+        ),
+      ),
+    );
   }
 }

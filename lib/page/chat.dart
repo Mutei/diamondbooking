@@ -1,11 +1,8 @@
 import 'dart:io';
 import 'package:diamond_booking/constants/colors.dart';
-import 'package:diamond_booking/extension/sized_box_extension.dart';
 import 'package:diamond_booking/private.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:http/http.dart' as http;
@@ -33,7 +30,6 @@ class _State extends State<Chat> {
 
   _State(this.idEstate, this.Name, this.Key);
   String? id = "";
-  final GlobalKey<ScaffoldState> _scaffoldKey1 = new GlobalKey<ScaffoldState>();
   final FirebaseMessaging firebaseMessaging = FirebaseMessaging.instance;
   HttpsCallable callable = FirebaseFunctions.instance.httpsCallable(
       'sendNotificationsadmin',
@@ -45,10 +41,10 @@ class _State extends State<Chat> {
   @override
   void initState() {
     id = FirebaseAuth.instance.currentUser?.uid;
-    // Do something with the message and timestamp
     super.initState();
     currentUser = UserService().getCurrentUser();
     print("The current user: $currentUser");
+    print("Chat initialized with idEstate: $idEstate, Name: $Name, Key: $Key");
   }
 
   final TextEditingController _textController = TextEditingController();
@@ -71,11 +67,13 @@ class _State extends State<Chat> {
     DatabaseReference refChat = FirebaseDatabase.instance
         .ref("App")
         .child("Chat")
-        .child(idEstate)
-        .child(id!);
+        .child(widget.idEstate)
+        .child(widget.Key);
 
-    DatabaseReference refChatList =
-        FirebaseDatabase.instance.ref("App").child("ChatList").child(id!);
+    DatabaseReference refChatList = FirebaseDatabase.instance
+        .ref("App")
+        .child("ChatList")
+        .child(widget.idEstate);
 
     void sendNotification(
         String? recipientToken, String title, String body) async {
@@ -85,7 +83,7 @@ class _State extends State<Chat> {
         var url = Uri.parse('https://fcm.googleapis.com/fcm/send');
         var body = {
           'to': recipientToken,
-          'notification': {"title": "test", "body": "test"}
+          'notification': {"title": title, "body": 'body'}
         };
 
         var response = await http.post(url,
@@ -111,7 +109,7 @@ class _State extends State<Chat> {
       try {
         final HttpsCallableResult result = await callable.call(
           <String, dynamic>{
-            'userid': Key,
+            'userid': widget.Key,
             'title': title,
             'message': message,
           },
@@ -132,7 +130,7 @@ class _State extends State<Chat> {
       String? hour = TimeOfDay.now().hour.toString().padLeft(2, '0');
       String? minute = TimeOfDay.now().minute.toString().padLeft(2, '0');
 
-      refChat.push().set({
+      await refChat.push().set({
         'message': message,
         'timestamp': DateTime.now().millisecondsSinceEpoch,
         'SenderId': id,
@@ -142,9 +140,11 @@ class _State extends State<Chat> {
         'Name': fullName,
         'time': "$hour:$minute"
       });
-      refChatList
-          .child(idEstate)
-          .set({"SenderId": id, "IDEstate": idEstate, "Name": Name});
+
+      await refChatList
+          .child(id!)
+          .set({"SenderId": id, "IDEstate": idEstate, "Name": fullName});
+
       // Initialize Firebase Cloud Messaging
       String? token = await firebaseMessaging.getToken();
       final FirebaseMessaging x = FirebaseMessaging.instance;
@@ -181,6 +181,10 @@ class _State extends State<Chat> {
 
                 List<DataSnapshot> items =
                     snapshot.data!.snapshot.children.toList();
+
+                if (items.isEmpty) {
+                  return Center(child: Text('No messages yet'));
+                }
 
                 return ListView.builder(
                   itemCount: items.length,
