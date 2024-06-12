@@ -64,6 +64,7 @@ class _State extends State<ListChatUser> {
         appBar: AppBar(
           elevation: 0,
           iconTheme: kIconTheme,
+          title: Text("Hello"),
         ),
         body: SafeArea(
             child: SizedBox(
