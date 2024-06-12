@@ -11,6 +11,11 @@ const kMessageBorderRadius = BorderRadius.only(
   bottomLeft: Radius.circular(20),
   bottomRight: Radius.circular(20),
 );
+const kMessageBorderRadius2 = BorderRadius.only(
+  topLeft: Radius.circular(20),
+  bottomLeft: Radius.circular(20),
+  bottomRight: Radius.circular(20),
+);
 
 final kPrimaryGoogleFontsStyle = GoogleFonts.laila(
   fontSize: 6.w,

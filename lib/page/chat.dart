@@ -184,8 +184,8 @@ class _State extends State<Chat> {
                     String fullName = asyncSnapshot.data!;
                     return Column(
                       crossAxisAlignment: map['Type'] == "1"
-                          ? CrossAxisAlignment.end
-                          : CrossAxisAlignment.start,
+                          ? CrossAxisAlignment.start
+                          : CrossAxisAlignment.end,
                       children: <Widget>[
                         Container(
                           margin: const EdgeInsets.all(5),
@@ -193,7 +193,9 @@ class _State extends State<Chat> {
                             color: map['Type'] == "1"
                                 ? Colors.grey[300]
                                 : kPrimaryColor,
-                            borderRadius: kMessageBorderRadius,
+                            borderRadius: map['Type'] == "1"
+                                ? kMessageBorderRadius
+                                : kMessageBorderRadius2,
                           ),
                           padding: const EdgeInsets.symmetric(
                               vertical: 10.0, horizontal: 16.0),
