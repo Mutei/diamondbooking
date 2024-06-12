@@ -191,9 +191,8 @@ class _State extends State<Chat> {
                   itemBuilder: (context, index) {
                     Map map = items[index].value as Map;
                     map['Key'] = items[index].key;
-
                     print(
-                        "Message: ${map['message']}, SenderId: ${map['SenderId']}");
+                        "Message: ${map['message']}, SenderId: ${map['SenderId']}, ${map['Name']}");
 
                     return FutureBuilder<String>(
                       future: getUserFullName(map['SenderId']),
@@ -220,8 +219,8 @@ class _State extends State<Chat> {
                                     : Colors.grey[300],
                                 borderRadius:
                                     map['SenderId'] == currentUser?.uid
-                                        ? kMessageBorderRadius
-                                        : kMessageBorderRadius2,
+                                        ? kMessageBorderRadius2
+                                        : kMessageBorderRadius,
                               ),
                               padding: const EdgeInsets.symmetric(
                                   vertical: 10.0, horizontal: 16.0),
