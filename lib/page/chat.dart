@@ -130,6 +130,7 @@ class _State extends State<Chat> {
       String? hour = TimeOfDay.now().hour.toString().padLeft(2, '0');
       String? minute = TimeOfDay.now().minute.toString().padLeft(2, '0');
 
+      // Save the message to the chat node
       await refChat.push().set({
         'message': message,
         'timestamp': DateTime.now().millisecondsSinceEpoch,
@@ -141,9 +142,19 @@ class _State extends State<Chat> {
         'time': "$hour:$minute"
       });
 
-      await refChatList
-          .child(id!)
-          .set({"SenderId": id, "IDEstate": idEstate, "Name": fullName});
+      // Save the chat details for the current user
+      await refChatList.child(id!).set({
+        "SenderId": id,
+        "IDEstate": idEstate,
+        "Name": fullName,
+      });
+
+      // Save the chat details for the provider
+      await refChatList.child(widget.Key).set({
+        "SenderId": widget.Key,
+        "IDEstate": idEstate,
+        "Name": fullName,
+      });
 
       // Initialize Firebase Cloud Messaging
       String? token = await firebaseMessaging.getToken();

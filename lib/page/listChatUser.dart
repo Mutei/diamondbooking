@@ -22,16 +22,11 @@ class ListChatUser extends StatefulWidget {
 }
 
 class _State extends State<ListChatUser> {
-  List<Estate> LstEstate = [];
-  List<Rooms> LstRooms = [];
   TextEditingController Search_Controller = TextEditingController();
-  List<Additional> LstAdditional = [];
   String id;
-  int flag = 0;
   String Name;
 
   _State(this.id, this.Name);
-  late Query query;
 
   @override
   void initState() {
@@ -54,6 +49,7 @@ class _State extends State<ListChatUser> {
     }
   }
 
+  @override
   Widget build(BuildContext context) {
     final objProvider = Provider.of<GeneralProvider>(context, listen: false);
 
