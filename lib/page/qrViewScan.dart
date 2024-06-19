@@ -4,22 +4,22 @@ import 'package:flutter/material.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 
 class QRViewScan extends StatefulWidget {
-  String ID;
+  final String ID;
 
   QRViewScan({required this.ID});
+
   @override
-  QRViewExample createState() => new QRViewExample(ID);
+  QRViewExample createState() => QRViewExample(ID);
 }
 
 class QRViewExample extends State<QRViewScan> {
-  String ID;
-  QRViewExample(this.ID);
+  final String ID;
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
   Barcode? result;
   QRViewController? controller;
 
-  // In order to get hot reload to work we need to pause the camera if the platform
-  // is android, or resume the camera if the platform is iOS.
+  QRViewExample(this.ID);
+
   @override
   void reassemble() {
     super.reassemble();
@@ -28,6 +28,22 @@ class QRViewExample extends State<QRViewScan> {
     } else if (Platform.isIOS) {
       controller!.resumeCamera();
     }
+  }
+
+  void _onQRViewCreated(QRViewController controller) {
+    this.controller = controller;
+    controller.scannedDataStream.listen((scanData) {
+      setState(() {
+        result = scanData;
+      });
+      if (result != null &&
+          result!.code != null &&
+          result!.code!.contains('userId')) {
+        Navigator.pop(context, true);
+      } else {
+        Navigator.pop(context, false);
+      }
+    });
   }
 
   @override
@@ -47,27 +63,13 @@ class QRViewExample extends State<QRViewScan> {
             child: Center(
               child: (result != null)
                   ? Text(
-                      'Barcode Type: ${(result!.format)}   Data: ${result!.code}')
+                      'Barcode Type: ${result!.format}   Data: ${result!.code}')
                   : Text('Scan a code'),
             ),
-          )
+          ),
         ],
       ),
     );
-  }
-
-  void _onQRViewCreated(QRViewController controller) {
-    this.controller = controller;
-    controller.scannedDataStream.listen((scanData) {
-      setState(() {
-        result = scanData;
-      });
-      if (ID == result!.code.toString()) {
-        Navigator.pop(context, true);
-      } else {
-        Navigator.pop(context, false);
-      }
-    });
   }
 
   @override

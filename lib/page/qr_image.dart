@@ -2,12 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 class QRImage extends StatelessWidget {
-  const QRImage(this.controller, {super.key});
+  final String userId;
+  final String userName;
 
-  final String controller;
+  const QRImage({required this.userId, required this.userName, Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final qrData = 'MyApp://chat?userId=$userId&userName=$userName';
+
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
@@ -15,15 +19,10 @@ class QRImage extends StatelessWidget {
       ),
       body: Center(
         child: QrImageView(
-          data: controller,
+          data: qrData,
           size: 280,
-          // You can include embeddedImageStyle Property if you
-          //wanna embed an image from your Asset folder
           embeddedImageStyle: QrEmbeddedImageStyle(
-            size: const Size(
-              100,
-              100,
-            ),
+            size: const Size(100, 100),
           ),
         ),
       ),

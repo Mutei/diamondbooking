@@ -22,15 +22,16 @@ import 'chat_group.dart';
 import 'editEstate.dart';
 
 class ProfileEstate extends StatefulWidget {
-  Map estate;
-  String icon;
-  bool VisEdit;
+  final Map estate;
+  final String icon;
+  final bool VisEdit;
 
   ProfileEstate(
-      {super.key,
-      required this.estate,
+      {required this.estate,
       required this.icon,
-      required this.VisEdit});
+      required this.VisEdit,
+      Key? key})
+      : super(key: key);
 
   @override
   _ProfileEstateState createState() =>
@@ -38,31 +39,31 @@ class ProfileEstate extends StatefulWidget {
 }
 
 class _ProfileEstateState extends State<ProfileEstate> {
-  Map estate;
-  String icon;
-  bool VisEdit;
-  late Map mapRoom;
+  final Map estate;
+  final String icon;
+  final bool VisEdit;
   List<Rooms> LstRooms = [];
   List<Rooms> LstRoomsSelected = [];
-
-  _ProfileEstateState(this.estate, this.icon, this.VisEdit);
-
   int count = 0;
   String ID = "";
   String TypUser = "";
   String checkGroup = "";
   final storageRef = FirebaseStorage.instance.ref();
-  bool flagDate = false;
-  bool flagTime = false;
-  final GlobalKey<ScaffoldState> _scaffoldKey1 = new GlobalKey<ScaffoldState>();
+  final GlobalKey<ScaffoldState> _scaffoldKey1 = GlobalKey<ScaffoldState>();
   final databaseRef = FirebaseDatabase.instance.ref();
   String userType = "2";
+  DateTime selectedDate = DateTime.now();
+  TimeOfDay? sTime = TimeOfDay?.now();
+  bool flagDate = false;
+  bool flagTime = false;
+
+  _ProfileEstateState(this.estate, this.icon, this.VisEdit);
 
   @override
   void initState() {
+    super.initState();
     getData();
     fetchUserType();
-    super.initState();
   }
 
   Future<void> fetchUserType() async {
@@ -77,12 +78,7 @@ class _ProfileEstateState extends State<ProfileEstate> {
           setState(() {
             userType = snapshot.value.toString();
           });
-          print("The usertype in profile estate is: $userType");
-        } else {
-          print("User Type not found");
         }
-      } else {
-        print("User not logged in");
       }
     } catch (e) {
       print("Failed to fetch user type: $e");
@@ -117,7 +113,7 @@ class _ProfileEstateState extends State<ProfileEstate> {
     }
   }
 
-  getData() async {
+  Future<void> getData() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     setState(() {
       ID = sharedPreferences.getString("ID") ?? "";
@@ -130,7 +126,6 @@ class _ProfileEstateState extends State<ProfileEstate> {
       DatabaseReference userRef =
           FirebaseDatabase.instance.ref("App").child("User").child(ID);
       DataSnapshot snapshot = await userRef.get();
-
       if (snapshot.exists) {
         setState(() {
           estate["FirstName"] =
@@ -144,7 +139,7 @@ class _ProfileEstateState extends State<ProfileEstate> {
     }
   }
 
-  _launchMaps() async {
+  void _launchMaps() async {
     String googleUrl =
         'https://www.google.com/maps/search/?api=1&query=${estate['Lat']},${estate['Lon']}';
     if (await canLaunch(googleUrl)) {
@@ -154,52 +149,31 @@ class _ProfileEstateState extends State<ProfileEstate> {
     }
   }
 
-  DateTime selectedDate = DateTime.now();
-  TimeOfDay? sTime = TimeOfDay?.now();
-
   Future<List<String>> listPhotos(String EID) async {
     List<String> LstImage = [];
     final result = await FirebaseStorage.instance.ref().child(EID).listAll();
-    var Ref = await FirebaseStorage.instance.ref();
-    for (Ref in result.items) {
+    for (var ref in result.items) {
       String url =
-          await FirebaseStorage.instance.ref(Ref.fullPath).getDownloadURL();
+          await FirebaseStorage.instance.ref(ref.fullPath).getDownloadURL();
       LstImage.add(url);
     }
     return LstImage;
   }
 
   Future<String> splitText(String data) async {
-    String text = "";
     List<String> Lst = data.split(",");
-    for (int i = 0; i < Lst.length; i++) {
-      if (i == 0) {
-        setState(() {
-          text = getTranslated(context, Lst[i]);
-        });
-      } else {
-        setState(() {
-          text = text + " ," + getTranslated(context, Lst[i]);
-        });
-      }
-    }
-    return text;
+    return Lst.map((e) => getTranslated(context, e)).join(" ,");
   }
 
-  Query query = FirebaseDatabase.instance.ref("App").child("Rooms");
-
-  Future<String> getimages(String EID, String id) async {
+  Future<String> getImages(String EID, String id) async {
     try {
-      String imageUrl;
-      imageUrl = await storageRef
+      String imageUrl = await storageRef
           .child("Post")
-          .child(EID + ".jpg")
+          .child("$EID.jpg")
           .child(id)
           .getDownloadURL()
-          .onError((error, stackTrace) => '')
-          .then((value) => value);
-      print(imageUrl.toString());
-      return imageUrl.toString();
+          .catchError((error) => '');
+      return imageUrl;
     } catch (e) {
       return "";
     }
@@ -210,208 +184,98 @@ class _ProfileEstateState extends State<ProfileEstate> {
     final objProvider = Provider.of<GeneralProvider>(context, listen: true);
     return Scaffold(
       key: _scaffoldKey1,
-      appBar: userType == '2'
-          ? AppBar(
-              elevation: 0,
-              backgroundColor: kPrimaryColor,
-              actions: [
-                InkWell(
-                  child: const Icon(Icons.edit),
-                  onTap: () {
-                    print(LstRooms.length.toString());
-                    Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => EditEstate(
-                              objEstate: estate,
-                              LstRooms: LstRooms,
-                            )));
-                  },
-                ),
-                Container(
-                  width: 25,
-                ),
-                InkWell(
-                  child: Icon(Icons.message),
-                  onTap: () {
-                    if (ID != "null") {
-                      Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => Chat(
-                                idEstate: estate['IDEstate'].toString(),
-                                Name: estate['NameEn'],
-                                Key: estate['IDUser'],
-                              )));
-                    } else {
-                      objProvider.FunSnackBarPage(
-                          getTranslated(context, "Please login first"),
-                          context);
-                    }
-                  },
-                ),
-                Container(
-                  width: 25,
-                ),
-                InkWell(
-                  child: Icon(Icons.map_outlined),
-                  onTap: () {
-                    if (ID != "null") {
-                      _launchMaps();
-                    } else {
-                      objProvider.FunSnackBarPage(
-                          getTranslated(context, "Please login first"),
-                          context);
-                    }
-                  },
-                ),
-                Container(
-                  width: 25,
-                ),
-                Visibility(
-                  visible: TypUser == "3" || TypUser == "4",
-                  child: InkWell(
-                    child: Icon(Icons.qr_code),
-                    onTap: () async {
-                      if (ID != "null") {
-                        final result =
-                            await Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) => QRViewScan(
-                                      ID: estate['IDEstate'].toString(),
-                                    )));
-                        if (result) {
-                          SharedPreferences sharedPreferences =
-                              await SharedPreferences.getInstance();
-                          sharedPreferences.setString(
-                              estate['IDEstate'].toString(), "1");
-                          setState(() {
-                            checkGroup = "1";
-                          });
-                        }
-                      } else {
-                        objProvider.FunSnackBarPage(
-                            getTranslated(context, "Please login first"),
-                            context);
-                      }
-                    },
-                  ),
-                ),
-                Container(
-                  width: 25,
-                ),
-                Visibility(
-                  visible: checkGroup == "1",
-                  child: InkWell(
-                    child: Icon(Icons.group),
-                    onTap: () async {
-                      if (ID != "null") {
-                        Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) => ChatGroup(
-                                  idEstate: estate['IDEstate'].toString(),
-                                  Name: estate['NameEn'],
-                                  Key: estate['IDUser'],
-                                )));
-                      } else {
-                        objProvider.FunSnackBarPage(
-                            getTranslated(context, "Please login first"),
-                            context);
-                      }
-                    },
-                  ),
-                ),
-              ],
-            )
-          : AppBar(
-              elevation: 0,
-              backgroundColor: kPrimaryColor,
-              actions: [
-                Container(
-                  width: 25,
-                ),
-                InkWell(
-                  child: Icon(Icons.message),
-                  onTap: () {
-                    if (ID != "null") {
-                      Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => Chat(
-                                idEstate: estate['IDEstate'].toString(),
-                                Name: estate['NameEn'],
-                                Key: estate['IDUser'],
-                              )));
-                    } else {
-                      objProvider.FunSnackBarPage(
-                          getTranslated(context, "Please login first"),
-                          context);
-                    }
-                  },
-                ),
-                Container(
-                  width: 25,
-                ),
-                InkWell(
-                  child: Icon(Icons.map_outlined),
-                  onTap: () {
-                    if (ID != "null") {
-                      _launchMaps();
-                    } else {
-                      objProvider.FunSnackBarPage(
-                          getTranslated(context, "Please login first"),
-                          context);
-                    }
-                  },
-                ),
-                Container(
-                  width: 25,
-                ),
-                Visibility(
-                  visible: TypUser == "3" || TypUser == "4",
-                  child: InkWell(
-                    child: Icon(Icons.qr_code),
-                    onTap: () async {
-                      if (ID != "null") {
-                        final result =
-                            await Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) => QRViewScan(
-                                      ID: estate['IDEstate'].toString(),
-                                    )));
-                        if (result) {
-                          SharedPreferences sharedPreferences =
-                              await SharedPreferences.getInstance();
-                          sharedPreferences.setString(
-                              estate['IDEstate'].toString(), "1");
-                          setState(() {
-                            checkGroup = "1";
-                          });
-                        }
-                      } else {
-                        objProvider.FunSnackBarPage(
-                            getTranslated(context, "Please login first"),
-                            context);
-                      }
-                    },
-                  ),
-                ),
-                Container(
-                  width: 25,
-                ),
-                Visibility(
-                  visible: checkGroup == "1",
-                  child: InkWell(
-                    child: Icon(Icons.group),
-                    onTap: () async {
-                      if (ID != "null") {
-                        Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) => ChatGroup(
-                                  idEstate: estate['IDEstate'].toString(),
-                                  Name: estate['NameEn'],
-                                  Key: estate['IDUser'],
-                                )));
-                      } else {
-                        objProvider.FunSnackBarPage(
-                            getTranslated(context, "Please login first"),
-                            context);
-                      }
-                    },
-                  ),
-                ),
-              ],
+      appBar: AppBar(
+        elevation: 0,
+        backgroundColor: kPrimaryColor,
+        actions: [
+          if (userType == '2') ...[
+            InkWell(
+              child: const Icon(Icons.edit),
+              onTap: () {
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => EditEstate(
+                          objEstate: estate,
+                          LstRooms: LstRooms,
+                        )));
+              },
             ),
+            const SizedBox(width: 25),
+          ],
+          InkWell(
+            child: Icon(Icons.message),
+            onTap: () {
+              if (ID != "null") {
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => Chat(
+                          idEstate: estate['IDEstate'].toString(),
+                          Name: estate['NameEn'],
+                          Key: estate['IDUser'],
+                        )));
+              } else {
+                objProvider.FunSnackBarPage(
+                    getTranslated(context, "Please login first"), context);
+              }
+            },
+          ),
+          const SizedBox(width: 25),
+          InkWell(
+            child: Icon(Icons.map_outlined),
+            onTap: () {
+              if (ID != "null") {
+                _launchMaps();
+              } else {
+                objProvider.FunSnackBarPage(
+                    getTranslated(context, "Please login first"), context);
+              }
+            },
+          ),
+          const SizedBox(width: 25),
+          if (TypUser == "3" || TypUser == "4")
+            InkWell(
+              child: Icon(Icons.qr_code),
+              onTap: () async {
+                if (ID != "null") {
+                  final result =
+                      await Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => QRViewScan(
+                                ID: estate['IDEstate'].toString(),
+                              )));
+                  if (result) {
+                    SharedPreferences sharedPreferences =
+                        await SharedPreferences.getInstance();
+                    sharedPreferences.setString(
+                        estate['IDEstate'].toString(), "1");
+                    setState(() {
+                      checkGroup = "1";
+                    });
+                  }
+                } else {
+                  objProvider.FunSnackBarPage(
+                      getTranslated(context, "Please login first"), context);
+                }
+              },
+            ),
+          const SizedBox(width: 25),
+          if (checkGroup == "1")
+            InkWell(
+              child: Icon(Icons.group),
+              onTap: () async {
+                if (ID != "null") {
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => ChatGroup(
+                            idEstate: estate['IDEstate'].toString(),
+                            Name: estate['NameEn'],
+                            Key: estate['IDUser'],
+                          )));
+                } else {
+                  objProvider.FunSnackBarPage(
+                      getTranslated(context, "Please login first"), context);
+                }
+              },
+            ),
+          const SizedBox(width: 25),
+        ],
+      ),
       body: Container(
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
@@ -423,6 +287,7 @@ class _ProfileEstateState extends State<ProfileEstate> {
                   Container(
                     height: 250,
                     width: MediaQuery.of(context).size.width,
+                    color: kPrimaryColor,
                     child: FutureBuilder<List<String>?>(
                       future: listPhotos(estate['IDEstate'].toString()),
                       builder: (context, snapshot) {
@@ -434,23 +299,15 @@ class _ProfileEstateState extends State<ProfileEstate> {
                             itemBuilder: (context, index) {
                               return Container(
                                 width: MediaQuery.of(context).size.width,
-                                child: Image(
-                                    image: NetworkImage(snapshot.data![index]),
+                                child: Image.network(snapshot.data![index],
                                     fit: BoxFit.fitWidth),
                               );
                             },
                           );
                         }
-                        return SizedBox(
-                          width: 50,
-                          height: 50,
-                          child: const Center(
-                            child: CircularProgressIndicator(),
-                          ),
-                        );
+                        return const Center(child: CircularProgressIndicator());
                       },
                     ),
-                    color: kPrimaryColor,
                   ),
                   Container(
                     margin: const EdgeInsets.only(left: 10, right: 10),
@@ -463,7 +320,7 @@ class _ProfileEstateState extends State<ProfileEstate> {
                             fontWeight: FontWeight.bold, fontSize: 16),
                       ),
                       subtitle: Text(
-                        estate["Country"] + " \\ " + estate["State"],
+                        "${estate["Country"]} \\ ${estate["State"]}",
                         style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 12,
@@ -484,11 +341,7 @@ class _ProfileEstateState extends State<ProfileEstate> {
                         ),
                         child: CircleAvatar(
                           backgroundColor: Colors.white,
-                          child: Image(
-                            image: AssetImage(icon),
-                            width: 35,
-                            height: 35,
-                          ),
+                          child: Image.asset(icon, width: 35, height: 35),
                         ),
                       ),
                     ),
@@ -503,98 +356,90 @@ class _ProfileEstateState extends State<ProfileEstate> {
                     ),
                   ),
                   Visibility(
-                    visible: estate["Type"] == "1" ? true : false,
+                    visible: estate["Type"] == "1",
                     child: TextHeader("Rooms", context),
                   ),
                   Visibility(
                     visible: estate["Type"] == "1",
-                    child: Container(
-                      child: FirebaseAnimatedList(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        defaultChild: const Center(
-                          child: CircularProgressIndicator(),
-                        ),
-                        itemBuilder: (context, snapshot, animation, index) {
-                          Map map = snapshot.value as Map;
+                    child: FirebaseAnimatedList(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      defaultChild:
+                          const Center(child: CircularProgressIndicator()),
+                      itemBuilder: (context, snapshot, animation, index) {
+                        Map map = snapshot.value as Map;
+                        map['Key'] = snapshot.key;
+                        LstRooms.add(Rooms(
+                          id: map['ID'],
+                          name: map['Name'],
+                          nameEn: map['Name'],
+                          price: map['Price'],
+                          bio: map['BioAr'],
+                          bioEn: map['BioEn'],
+                          color: Colors.white,
+                        ));
 
-                          map['Key'] = snapshot.key;
-
-                          LstRooms.add(Rooms(
-                              id: map['ID'],
-                              name: map['Name'],
-                              nameEn: map['Name'],
-                              price: map['Price'],
-                              bio: map['BioAr'],
-                              bioEn: map['BioEn'],
-                              color: Colors.white));
-
-                          return Container(
-                            width: MediaQuery.of(context).size.width,
-                            height: 70,
-                            color: LstRooms[index].color,
-                            child: ListTile(
-                              title: Text(
-                                  getTranslated(context, LstRooms[index].name)),
-                              subtitle: Text(objProvider.CheckLangValue
-                                  ? LstRooms[index].bioEn
-                                  : LstRooms[index].bio),
-                              leading: const Icon(
-                                Icons.single_bed,
-                                color: Color(0xFF84A5FA),
-                              ),
-                              trailing: Text(
-                                LstRooms[index].price,
-                                style: const TextStyle(
-                                    color: Colors.green, fontSize: 18),
-                              ),
-                              onTap: () async {
-                                int index = LstRoomsSelected.indexWhere(
-                                    (element) => element.name == map['Name']);
-                                if (index == -1) {
-                                  LstRoomsSelected.add(Rooms(
-                                      id: map['ID'],
-                                      name: map['Name'],
-                                      nameEn: map['Name'],
-                                      price: map['Price'],
-                                      bio: map['BioAr'],
-                                      bioEn: map['BioEn'],
-                                      color: Colors.white));
-                                  setState(() {
-                                    LstRooms[index].color = Colors.blue;
-                                    count++;
-                                  });
-                                } else {
-                                  LstRoomsSelected.removeAt(index);
-                                  setState(() {
-                                    LstRooms[index].color = Colors.white;
-                                    count--;
-                                  });
-                                }
-                              },
+                        return Container(
+                          width: MediaQuery.of(context).size.width,
+                          height: 70,
+                          color: LstRooms[index].color,
+                          child: ListTile(
+                            title: Text(
+                                getTranslated(context, LstRooms[index].name)),
+                            subtitle: Text(objProvider.CheckLangValue
+                                ? LstRooms[index].bioEn
+                                : LstRooms[index].bio),
+                            leading: const Icon(Icons.single_bed,
+                                color: Color(0xFF84A5FA)),
+                            trailing: Text(
+                              LstRooms[index].price,
+                              style: const TextStyle(
+                                  color: Colors.green, fontSize: 18),
                             ),
-                          );
-                        },
-                        query: FirebaseDatabase.instance
-                            .ref("App")
-                            .child("Rooms")
-                            .child(estate['IDEstate'].toString()),
-                      ),
+                            onTap: () async {
+                              int index = LstRoomsSelected.indexWhere(
+                                  (element) => element.name == map['Name']);
+                              if (index == -1) {
+                                LstRoomsSelected.add(Rooms(
+                                  id: map['ID'],
+                                  name: map['Name'],
+                                  nameEn: map['Name'],
+                                  price: map['Price'],
+                                  bio: map['BioAr'],
+                                  bioEn: map['BioEn'],
+                                  color: Colors.white,
+                                ));
+                                setState(() {
+                                  LstRooms[index].color = Colors.blue;
+                                  count++;
+                                });
+                              } else {
+                                LstRoomsSelected.removeAt(index);
+                                setState(() {
+                                  LstRooms[index].color = Colors.white;
+                                  count--;
+                                });
+                              }
+                            },
+                          ),
+                        );
+                      },
+                      query: FirebaseDatabase.instance
+                          .ref("App")
+                          .child("Rooms")
+                          .child(estate['IDEstate'].toString()),
                     ),
                   ),
                   Visibility(
                     visible: estate["Type"] == "2" || estate["Type"] == "3",
                     child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Visibility(
-                          visible: estate["Type"] == "3",
-                          child: ListTile(
+                        if (estate["Type"] == "3")
+                          ListTile(
                             title: Text(
-                              getTranslated(context, "Type of Restaurant"),
-                              style: TextStyle(fontSize: 14),
-                            ),
+                                getTranslated(context, "Type of Restaurant"),
+                                style: TextStyle(fontSize: 14)),
                             subtitle: FutureBuilder<String>(
                               future: splitText(
                                   estate["TypeofRestaurant"].toString()),
@@ -602,73 +447,52 @@ class _ProfileEstateState extends State<ProfileEstate> {
                                 if (snapshot.hasData &&
                                     snapshot.connectionState ==
                                         ConnectionState.done) {
-                                  return Text(
-                                    snapshot.data.toString(),
-                                    style: TextStyle(fontSize: 12),
-                                  );
+                                  return Text(snapshot.data.toString(),
+                                      style: TextStyle(fontSize: 12));
                                 }
-                                return Center(
-                                  child: const CircularProgressIndicator(),
-                                );
+                                return const Center(
+                                    child: CircularProgressIndicator());
                               },
                             ),
                           ),
-                        ),
-                        Visibility(
-                          visible:
-                              estate["Type"] == "2" || estate["Type"] == "3",
-                          child: ListTile(
-                            title: Text(
-                              getTranslated(context, "Entry allowed"),
-                              style: const TextStyle(fontSize: 14),
-                            ),
+                        if (estate["Type"] == "2" || estate["Type"] == "3")
+                          ListTile(
+                            title: Text(getTranslated(context, "Entry allowed"),
+                                style: const TextStyle(fontSize: 14)),
                             subtitle: FutureBuilder<String>(
                               future: splitText(estate["Entry"].toString()),
                               builder: (context, snapshot) {
                                 if (snapshot.hasData &&
                                     snapshot.connectionState ==
                                         ConnectionState.done) {
-                                  return Text(
-                                    snapshot.data.toString(),
-                                    style: TextStyle(fontSize: 12),
-                                  );
+                                  return Text(snapshot.data.toString(),
+                                      style: TextStyle(fontSize: 12));
                                 }
-                                return Center(
-                                  child: const CircularProgressIndicator(),
-                                );
+                                return const Center(
+                                    child: CircularProgressIndicator());
                               },
                             ),
                           ),
-                        ),
-                        Visibility(
-                          visible:
-                              estate["Type"] == "2" || estate["Type"] == "3",
-                          child: ListTile(
-                            title: Text(
-                              getTranslated(context, "Sessions type"),
-                              style: const TextStyle(fontSize: 14),
-                            ),
+                        if (estate["Type"] == "2" || estate["Type"] == "3")
+                          ListTile(
+                            title: Text(getTranslated(context, "Sessions type"),
+                                style: const TextStyle(fontSize: 14)),
                             subtitle: FutureBuilder<String>(
                               future: splitText(estate["Sessions"].toString()),
                               builder: (context, snapshot) {
                                 if (snapshot.hasData &&
                                     snapshot.connectionState ==
                                         ConnectionState.done) {
-                                  return Text(
-                                    snapshot.data.toString(),
-                                    style: TextStyle(fontSize: 12),
-                                  );
+                                  return Text(snapshot.data.toString(),
+                                      style: TextStyle(fontSize: 12));
                                 }
-                                return Center(
-                                  child: const CircularProgressIndicator(),
-                                );
+                                return const Center(
+                                    child: CircularProgressIndicator());
                               },
                             ),
                           ),
-                        ),
-                        Visibility(
-                          visible: estate["Type"] == "3",
-                          child: ListTile(
+                        if (estate["Type"] == "3")
+                          ListTile(
                             title: Text(
                               getTranslated(
                                   context,
@@ -678,36 +502,26 @@ class _ProfileEstateState extends State<ProfileEstate> {
                               style: const TextStyle(fontSize: 14),
                             ),
                           ),
-                        ),
-                        Visibility(
-                          visible: estate["Type"] == "2",
-                          child: ListTile(
+                        if (estate["Type"] == "2")
+                          ListTile(
                             title: Text(
-                              getTranslated(context, "Is there music"),
-                              style: const TextStyle(fontSize: 14),
-                            ),
-                            subtitle: Text(
-                              estate["Lstmusic"],
-                              style: const TextStyle(fontSize: 12),
-                            ),
+                                getTranslated(context, "Is there music"),
+                                style: const TextStyle(fontSize: 14)),
+                            subtitle: Text(estate["Lstmusic"],
+                                style: const TextStyle(fontSize: 12)),
                           ),
-                        ),
                       ],
                     ),
                   ),
                   Container(
-                    child: const Text(
-                      "Post",
-                      style: TextStyle(fontSize: 14),
-                    ),
                     margin: const EdgeInsets.only(left: 35, right: 35),
+                    child: const Text("Post", style: TextStyle(fontSize: 14)),
                   ),
                   FirebaseAnimatedList(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    defaultChild: const Center(
-                      child: CircularProgressIndicator(),
-                    ),
+                    defaultChild:
+                        const Center(child: CircularProgressIndicator()),
                     itemBuilder: (context, snapshot, animation, index) {
                       Map map = snapshot.value as Map;
                       if (map["Type"] == "1") {
@@ -720,7 +534,7 @@ class _ProfileEstateState extends State<ProfileEstate> {
                                 subtitle: Text(map["Date"]),
                               ),
                               FutureBuilder<String>(
-                                future: getimages(estate['IDEstate'].toString(),
+                                future: getImages(estate['IDEstate'].toString(),
                                     map["IDPost"]),
                                 builder: (context, snapshot) {
                                   if (snapshot.hasData &&
@@ -728,23 +542,18 @@ class _ProfileEstateState extends State<ProfileEstate> {
                                           ConnectionState.done) {
                                     return Container(
                                       width: MediaQuery.of(context).size.width,
-                                      child: snapshot.data != ""
-                                          ? Image(
-                                              image:
-                                                  NetworkImage(snapshot.data!),
+                                      child: snapshot.data!.isNotEmpty
+                                          ? Image.network(snapshot.data!,
                                               fit: BoxFit.cover)
                                           : Container(),
                                     );
                                   }
-
-                                  return Center(
-                                    child: const CircularProgressIndicator(),
-                                  );
+                                  return const Center(
+                                      child: CircularProgressIndicator());
                                 },
                               ),
-                              Visibility(
-                                visible: VisEdit,
-                                child: Align(
+                              if (VisEdit)
+                                Align(
                                   alignment: Alignment.bottomCenter,
                                   child: Column(
                                     mainAxisAlignment: MainAxisAlignment.end,
@@ -761,10 +570,8 @@ class _ProfileEstateState extends State<ProfileEstate> {
                                                 BorderRadius.circular(12),
                                           ),
                                           child: Center(
-                                            child: Text(
-                                              getTranslated(context, "delete"),
-                                            ),
-                                          ),
+                                              child: Text(getTranslated(
+                                                  context, "delete"))),
                                         ),
                                         onTap: () {
                                           FirebaseDatabase.instance
@@ -779,13 +586,11 @@ class _ProfileEstateState extends State<ProfileEstate> {
                                     ],
                                   ),
                                 ),
-                              ),
                             ],
                           ),
                         );
-                      } else {
-                        return Container();
                       }
+                      return Container();
                     },
                     query: FirebaseDatabase.instance
                         .ref("App")
@@ -793,14 +598,11 @@ class _ProfileEstateState extends State<ProfileEstate> {
                         .child(estate['IDEstate'].toString())
                         .orderByChild("Date"),
                   ),
-                  const SizedBox(
-                    height: 150,
-                  ),
+                  const SizedBox(height: 150),
                 ],
               ),
-              Visibility(
-                visible: userType == '2',
-                child: Align(
+              if (userType == '2')
+                Align(
                   alignment: Alignment.bottomCenter,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.end,
@@ -816,22 +618,15 @@ class _ProfileEstateState extends State<ProfileEstate> {
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Center(
-                            child: Text(
-                              getTranslated(context, "Post"),
-                              style: const TextStyle(
-                                color: Colors.white,
-                              ),
-                            ),
+                            child: Text(getTranslated(context, "Post"),
+                                style: const TextStyle(color: Colors.white)),
                           ),
                         ),
                         onTap: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
+                          Navigator.of(context).push(MaterialPageRoute(
                               builder: (context) => AddPost(
-                                map: estate,
-                              ),
-                            ),
-                          );
+                                    map: estate,
+                                  )));
                         },
                       ),
                       InkWell(
@@ -846,26 +641,23 @@ class _ProfileEstateState extends State<ProfileEstate> {
                           ),
                           child: Center(
                             child: Text(
-                              getTranslated(context, "GenerateQRCode"),
-                              style: const TextStyle(
-                                color: Colors.white,
-                              ),
-                            ),
+                                getTranslated(context, "GenerateQRCode"),
+                                style: const TextStyle(color: Colors.white)),
                           ),
                         ),
                         onTap: () {
                           Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) =>
-                                  QRImage(estate['IDEstate'].toString())));
+                              builder: (context) => QRImage(
+                                    userId: estate['IDUser'],
+                                    userName: estate['NameEn'],
+                                  )));
                         },
                       ),
                     ],
                   ),
                 ),
-              ),
-              Visibility(
-                visible: userType == "1",
-                child: Align(
+              if (userType == "1")
+                Align(
                   alignment: Alignment.bottomCenter,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.end,
@@ -881,12 +673,8 @@ class _ProfileEstateState extends State<ProfileEstate> {
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Center(
-                            child: Text(
-                              getTranslated(context, "Next"),
-                              style: const TextStyle(
-                                color: Colors.white,
-                              ),
-                            ),
+                            child: Text(getTranslated(context, "Next"),
+                                style: const TextStyle(color: Colors.white)),
                           ),
                         ),
                         onTap: () async {
@@ -970,12 +758,8 @@ class _ProfileEstateState extends State<ProfileEstate> {
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Center(
-                            child: Text(
-                              getTranslated(context, "Scan QR Code"),
-                              style: const TextStyle(
-                                color: Colors.white,
-                              ),
-                            ),
+                            child: Text(getTranslated(context, "Scan QR Code"),
+                                style: const TextStyle(color: Colors.white)),
                           ),
                         ),
                         onTap: () {
@@ -987,7 +771,6 @@ class _ProfileEstateState extends State<ProfileEstate> {
                           ))
                               .then((scanned) {
                             if (scanned == true) {
-                              // Navigate to chat screen with the owner
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -1005,7 +788,6 @@ class _ProfileEstateState extends State<ProfileEstate> {
                     ],
                   ),
                 ),
-              ),
             ],
           ),
         ),
