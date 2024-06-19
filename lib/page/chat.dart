@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:diamond_booking/constants/colors.dart';
 import 'package:diamond_booking/private.dart';
@@ -13,41 +14,76 @@ import '../constants/styles.dart';
 import '../resources/user_services.dart';
 
 class Chat extends StatefulWidget {
-  String idEstate;
-  String Name;
-  String Key;
+  final String idEstate;
+  final String Name;
+  final String Key;
 
   Chat({required this.idEstate, required this.Name, required this.Key});
+
   @override
   _State createState() => new _State(idEstate, Name, Key);
 }
 
 class _State extends State<Chat> {
   final databaseReference = FirebaseDatabase.instance;
+  final FirebaseMessaging firebaseMessaging = FirebaseMessaging.instance;
+  final TextEditingController _textController = TextEditingController();
+  final ValueNotifier<String> _messageNotifier = ValueNotifier<String>("");
+  final ValueNotifier<int> _charCountNotifier = ValueNotifier<int>(0);
+
+  late Timer _timer;
+  final int _chatDuration = 180; // Chat duration in seconds (3 minutes)
+
   String idEstate;
   String Name;
   String Key;
-
-  _State(this.idEstate, this.Name, this.Key);
   String? id = "";
-  final FirebaseMessaging firebaseMessaging = FirebaseMessaging.instance;
+  User? currentUser;
+
   HttpsCallable callable = FirebaseFunctions.instance.httpsCallable(
       'sendNotificationsadmin',
       options: HttpsCallableOptions(timeout: Duration(seconds: 5)));
-  final ValueNotifier<String> _messageNotifier = ValueNotifier<String>("");
-  final ValueNotifier<int> _charCountNotifier = ValueNotifier<int>(0);
-  User? currentUser;
+
+  _State(this.idEstate, this.Name, this.Key);
 
   @override
   void initState() {
-    id = FirebaseAuth.instance.currentUser?.uid;
     super.initState();
+    id = FirebaseAuth.instance.currentUser?.uid;
     currentUser = UserService().getCurrentUser();
-    print("The current user: $currentUser");
-    print("Chat initialized with idEstate: $idEstate, Name: $Name, Key: $Key");
+    startChatTimer();
   }
 
-  final TextEditingController _textController = TextEditingController();
+  @override
+  void dispose() {
+    _timer.cancel();
+    super.dispose();
+  }
+
+  void startChatTimer() {
+    _timer = Timer(Duration(seconds: _chatDuration), deleteChat);
+  }
+
+  Future<void> deleteChat() async {
+    DatabaseReference refChat = FirebaseDatabase.instance
+        .ref("App")
+        .child("Chat")
+        .child(widget.idEstate)
+        .child(widget.Key);
+
+    DatabaseReference refChatList = FirebaseDatabase.instance
+        .ref("App")
+        .child("ChatList")
+        .child(widget.idEstate);
+
+    await refChat.remove();
+    await refChatList.child(id!).remove();
+    await refChatList.child(widget.Key).remove();
+
+    if (mounted) {
+      Navigator.pop(context); // Navigate back after chat deletion
+    }
+  }
 
   Future<String> getUserFullName(String userId) async {
     DatabaseReference userRef =
@@ -62,8 +98,15 @@ class _State extends State<Chat> {
     return "";
   }
 
-  @override
-  Widget build(BuildContext context) {
+  void sendMessage(String message) async {
+    _textController.clear();
+    _messageNotifier.value = "";
+    _charCountNotifier.value = 0;
+
+    String fullName = await getUserFullName(id!);
+    String? hour = TimeOfDay.now().hour.toString().padLeft(2, '0');
+    String? minute = TimeOfDay.now().minute.toString().padLeft(2, '0');
+
     DatabaseReference refChat = FirebaseDatabase.instance
         .ref("App")
         .child("Chat")
@@ -75,101 +118,57 @@ class _State extends State<Chat> {
         .child("ChatList")
         .child(widget.idEstate);
 
-    void sendNotification(
-        String? recipientToken, String title, String body) async {
-      firebaseMessaging.requestPermission();
+    await refChat.push().set({
+      'message': message,
+      'timestamp': DateTime.now().millisecondsSinceEpoch,
+      'SenderId': id,
+      'IDEstate': idEstate,
+      'seen': "0",
+      'Type': "2",
+      'Name': fullName,
+      'time': "$hour:$minute"
+    });
 
-      try {
-        var url = Uri.parse('https://fcm.googleapis.com/fcm/send');
-        var body = {
-          'to': recipientToken,
-          'notification': {"title": title, "body": 'body'}
-        };
+    await refChatList.child(id!).set({
+      "SenderId": id,
+      "IDEstate": idEstate,
+      "Name": fullName,
+    });
 
-        var response = await http.post(url,
-            headers: {
-              HttpHeaders.contentTypeHeader: 'application/json',
-              HttpHeaders.authorizationHeader: 'key=$chatApiKey'
-            },
-            body: jsonEncode(body));
+    await refChatList.child(widget.Key).set({
+      "SenderId": widget.Key,
+      "IDEstate": idEstate,
+      "Name": fullName,
+    });
 
-        if (response.statusCode == 200) {
-          print('Notification sent successfully!');
-        } else {
-          print(
-              'Failed to send notification. Error code: ${response.reasonPhrase}');
-        }
-      } catch (e) {
-        print('Error sending notification: $e');
-      }
-    }
+    String? token = await firebaseMessaging.getToken();
+    fetchPost('New Message For $Name', message);
+  }
 
-    void fetchPost(String title, String message) async {
-      String? id = FirebaseAuth.instance.currentUser?.uid;
-      try {
-        final HttpsCallableResult result = await callable.call(
-          <String, dynamic>{
-            'userid': widget.Key,
-            'title': title,
-            'message': message,
-          },
-        );
-      } catch (e) {
-        print('caught firebase functions exception');
-        print('caught generic exception');
-      }
-    }
-
-    void sendMessage(String message) async {
-      _textController.clear();
-      _messageNotifier.value = "";
-      _charCountNotifier.value = 0;
-
-      // Fetch full name before setting the data in refChatList
-      String fullName = await getUserFullName(id!);
-      String? hour = TimeOfDay.now().hour.toString().padLeft(2, '0');
-      String? minute = TimeOfDay.now().minute.toString().padLeft(2, '0');
-
-      // Save the message to the chat node
-      await refChat.push().set({
+  void fetchPost(String title, String message) async {
+    try {
+      await callable.call(<String, dynamic>{
+        'userid': widget.Key,
+        'title': title,
         'message': message,
-        'timestamp': DateTime.now().millisecondsSinceEpoch,
-        'SenderId': id,
-        'IDEstate': idEstate,
-        'seen': "0",
-        'Type': "2",
-        'Name': fullName,
-        'time': "$hour:$minute"
       });
-
-      // Save the chat details for the current user
-      await refChatList.child(id!).set({
-        "SenderId": id,
-        "IDEstate": idEstate,
-        "Name": fullName,
-      });
-
-      // Save the chat details for the provider
-      await refChatList.child(widget.Key).set({
-        "SenderId": widget.Key,
-        "IDEstate": idEstate,
-        "Name": fullName,
-      });
-
-      // Initialize Firebase Cloud Messaging
-      String? token = await firebaseMessaging.getToken();
-      final FirebaseMessaging x = FirebaseMessaging.instance;
-      fetchPost('New Message For $Name', message);
+    } catch (e) {
+      print('Error sending notification: $e');
     }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    DatabaseReference refChat = FirebaseDatabase.instance
+        .ref("App")
+        .child("Chat")
+        .child(widget.idEstate)
+        .child(widget.Key);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Chat',
-          style: TextStyle(
-            color: kPrimaryColor,
-          ),
-        ),
+        title: Text('Chat with ${widget.Name}',
+            style: TextStyle(color: kPrimaryColor)),
         centerTitle: true,
         iconTheme: kIconTheme,
       ),
@@ -192,7 +191,6 @@ class _State extends State<Chat> {
 
                 List<DataSnapshot> items =
                     snapshot.data!.snapshot.children.toList();
-
                 if (items.isEmpty) {
                   return Center(child: Text('No messages yet'));
                 }
@@ -202,8 +200,6 @@ class _State extends State<Chat> {
                   itemBuilder: (context, index) {
                     Map map = items[index].value as Map;
                     map['Key'] = items[index].key;
-                    print(
-                        "Message: ${map['message']}, SenderId: ${map['SenderId']}, ${map['Name']}");
 
                     return FutureBuilder<String>(
                       future: getUserFullName(map['SenderId']),
@@ -287,9 +283,8 @@ class _State extends State<Chat> {
           ),
           Container(
             decoration: BoxDecoration(
-              border: Border(
-                top: const BorderSide(color: Colors.grey, width: 1.0),
-              ),
+              border:
+                  Border(top: const BorderSide(color: Colors.grey, width: 1.0)),
             ),
             child: SingleChildScrollView(
               child: Column(
@@ -302,8 +297,7 @@ class _State extends State<Chat> {
                         child: Text(
                           '$count / 500',
                           style: TextStyle(
-                            color: count > 500 ? Colors.red : Colors.grey,
-                          ),
+                              color: count > 500 ? Colors.red : Colors.grey),
                         ),
                       );
                     },
