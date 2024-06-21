@@ -1,24 +1,23 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 
 class QRViewScan extends StatefulWidget {
-  final String ID;
+  final String expectedID;
 
-  QRViewScan({required this.ID});
+  QRViewScan({required this.expectedID});
 
   @override
-  QRViewExample createState() => QRViewExample(ID);
+  QRViewExample createState() => QRViewExample(expectedID);
 }
 
 class QRViewExample extends State<QRViewScan> {
-  final String ID;
+  final String expectedID;
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
   Barcode? result;
   QRViewController? controller;
 
-  QRViewExample(this.ID);
+  QRViewExample(this.expectedID);
 
   @override
   void reassemble() {
@@ -36,12 +35,36 @@ class QRViewExample extends State<QRViewScan> {
       setState(() {
         result = scanData;
       });
-      if (result != null &&
-          result!.code != null &&
-          result!.code!.contains('userId')) {
-        Navigator.pop(context, true);
-      } else {
-        Navigator.pop(context, false);
+
+      if (result != null && result!.code != null) {
+        final scannedData = result!.code!;
+        print('Scanned Data: $scannedData');
+
+        // Parse the scanned data to extract the estate ID
+        String? scannedEstateID;
+        try {
+          final uri = Uri.parse(scannedData);
+          scannedEstateID = uri.queryParameters['estateId'];
+        } catch (e) {
+          print('Failed to parse URI: $e');
+        }
+
+        // Additional parsing logic if the data is not a URL
+        if (scannedEstateID == null && scannedData.contains('estateId')) {
+          final splitData = scannedData.split('=');
+          if (splitData.length > 1) {
+            scannedEstateID = splitData[1];
+          }
+        }
+
+        print('Scanned Estate ID: $scannedEstateID');
+        print('Expected Estate ID: $expectedID');
+
+        if (scannedEstateID == expectedID) {
+          Navigator.pop(context, true);
+        } else {
+          Navigator.pop(context, false);
+        }
       }
     });
   }

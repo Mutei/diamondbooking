@@ -112,19 +112,23 @@ class _State extends State<Chat> {
   }
 
   Future<void> scanQRCode() async {
-    final result = await Navigator.of(context).push(
-        MaterialPageRoute(builder: (context) => QRViewScan(ID: idEstate)));
+    final result = await Navigator.of(context).push(MaterialPageRoute(
+        builder: (context) => QRViewScan(expectedID: idEstate)));
+    print('QR Scan Result: $result');
     if (result == true) {
       SharedPreferences sharedPreferences =
           await SharedPreferences.getInstance();
       String accessTimeKey = 'access_time_$idEstate';
-      DateTime accessEndTime = DateTime.now().add(Duration(minutes: 3));
+      DateTime accessEndTime = DateTime.now().add(Duration(hours: 3));
       sharedPreferences.setString(
           accessTimeKey, accessEndTime.toIso8601String());
       setState(() {
         hasAccess = true;
       });
-      startAccessTimer(Duration(minutes: 3));
+      startAccessTimer(Duration(hours: 3));
+      print('Access granted');
+    } else {
+      print('Access denied');
     }
   }
 

@@ -239,7 +239,7 @@ class _ProfileEstateState extends State<ProfileEstate> {
                   final result =
                       await Navigator.of(context).push(MaterialPageRoute(
                           builder: (context) => QRViewScan(
-                                ID: estate['IDEstate'].toString(),
+                                expectedID: estate['IDEstate'].toString(),
                               )));
                   if (result) {
                     SharedPreferences sharedPreferences =
@@ -651,6 +651,7 @@ class _ProfileEstateState extends State<ProfileEstate> {
                               builder: (context) => QRImage(
                                     userId: estate['IDUser'],
                                     userName: estate['NameEn'],
+                                    estateId: estate['IDEstate'].toString(),
                                   )));
                         },
                       ),
