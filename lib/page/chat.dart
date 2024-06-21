@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:ui';
 import 'package:diamond_booking/constants/colors.dart';
+import 'package:diamond_booking/page/qrViewScan.dart';
 import 'package:diamond_booking/private.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +11,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:cloud_functions/cloud_functions.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../constants/styles.dart';
 import '../resources/user_services.dart';
@@ -31,14 +34,14 @@ class _State extends State<Chat> {
   final ValueNotifier<String> _messageNotifier = ValueNotifier<String>("");
   final ValueNotifier<int> _charCountNotifier = ValueNotifier<int>(0);
 
-  late Timer _timer;
-  final int _chatDuration = 180; // Chat duration in seconds (3 minutes)
-
   String idEstate;
   String Name;
   String Key;
   String? id = "";
   User? currentUser;
+  bool hasAccess = false;
+  Timer? accessTimer;
+  String userType = "1";
 
   HttpsCallable callable = FirebaseFunctions.instance.httpsCallable(
       'sendNotificationsadmin',
@@ -51,37 +54,77 @@ class _State extends State<Chat> {
     super.initState();
     id = FirebaseAuth.instance.currentUser?.uid;
     currentUser = UserService().getCurrentUser();
-    startChatTimer();
+    fetchUserType();
   }
 
   @override
   void dispose() {
-    _timer.cancel();
+    accessTimer?.cancel();
     super.dispose();
   }
 
-  void startChatTimer() {
-    _timer = Timer(Duration(seconds: _chatDuration), deleteChat);
+  Future<void> fetchUserType() async {
+    try {
+      User? user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        String uid = user.uid;
+        DatabaseReference userTypeRef =
+            databaseReference.ref().child('App/User/$uid/TypeUser');
+        DataSnapshot snapshot = await userTypeRef.get();
+        if (snapshot.exists) {
+          setState(() {
+            userType = snapshot.value.toString();
+            if (userType == "2") {
+              hasAccess = true;
+            } else {
+              checkAccess();
+            }
+          });
+        }
+      }
+    } catch (e) {
+      print("Failed to fetch user type: $e");
+    }
   }
 
-  Future<void> deleteChat() async {
-    DatabaseReference refChat = FirebaseDatabase.instance
-        .ref("App")
-        .child("Chat")
-        .child(widget.idEstate)
-        .child(widget.Key);
+  Future<void> checkAccess() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    String accessTimeKey = 'access_time_$idEstate';
+    String? accessEndTimeString = sharedPreferences.getString(accessTimeKey);
 
-    DatabaseReference refChatList = FirebaseDatabase.instance
-        .ref("App")
-        .child("ChatList")
-        .child(widget.idEstate);
+    if (accessEndTimeString != null) {
+      DateTime accessEndTime = DateTime.parse(accessEndTimeString);
+      if (accessEndTime.isAfter(DateTime.now())) {
+        setState(() {
+          hasAccess = true;
+        });
+        startAccessTimer(accessEndTime.difference(DateTime.now()));
+      }
+    }
+  }
 
-    await refChat.remove();
-    await refChatList.child(id!).remove();
-    await refChatList.child(widget.Key).remove();
+  void startAccessTimer(Duration duration) {
+    accessTimer = Timer(duration, () {
+      setState(() {
+        hasAccess = false;
+      });
+    });
+  }
 
-    if (mounted) {
-      Navigator.pop(context); // Navigate back after chat deletion
+  Future<void> scanQRCode() async {
+    final result = await Navigator.of(context).push(
+        MaterialPageRoute(builder: (context) => QRViewScan(ID: idEstate)));
+    if (result == true) {
+      SharedPreferences sharedPreferences =
+          await SharedPreferences.getInstance();
+      String accessTimeKey = 'access_time_$idEstate';
+      DateTime accessEndTime = DateTime.now().add(Duration(minutes: 3));
+      sharedPreferences.setString(
+          accessTimeKey, accessEndTime.toIso8601String());
+      setState(() {
+        hasAccess = true;
+      });
+      startAccessTimer(Duration(minutes: 3));
     }
   }
 
@@ -172,181 +215,231 @@ class _State extends State<Chat> {
         centerTitle: true,
         iconTheme: kIconTheme,
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          Expanded(
-            child: StreamBuilder(
-              stream: refChat.onValue,
-              builder: (context, AsyncSnapshot<DatabaseEvent> snapshot) {
-                if (!snapshot.hasData) {
-                  return Center(child: CircularProgressIndicator());
-                }
-                if (snapshot.hasError) {
-                  return Text('Error: ${snapshot.error}');
-                }
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(child: CircularProgressIndicator());
-                }
+      body: Stack(
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              Expanded(
+                child: StreamBuilder(
+                  stream: refChat.onValue,
+                  builder: (context, AsyncSnapshot<DatabaseEvent> snapshot) {
+                    if (!snapshot.hasData) {
+                      return Center(child: CircularProgressIndicator());
+                    }
+                    if (snapshot.hasError) {
+                      return Text('Error: ${snapshot.error}');
+                    }
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Center(child: CircularProgressIndicator());
+                    }
 
-                List<DataSnapshot> items =
-                    snapshot.data!.snapshot.children.toList();
-                if (items.isEmpty) {
-                  return Center(child: Text('No messages yet'));
-                }
+                    List<DataSnapshot> items =
+                        snapshot.data!.snapshot.children.toList();
+                    if (items.isEmpty) {
+                      return Center(child: Text('No messages yet'));
+                    }
 
-                return ListView.builder(
-                  itemCount: items.length,
-                  itemBuilder: (context, index) {
-                    Map map = items[index].value as Map;
-                    map['Key'] = items[index].key;
+                    return ListView.builder(
+                      itemCount: items.length,
+                      itemBuilder: (context, index) {
+                        Map map = items[index].value as Map;
+                        map['Key'] = items[index].key;
 
-                    return FutureBuilder<String>(
-                      future: getUserFullName(map['SenderId']),
-                      builder: (context, asyncSnapshot) {
-                        if (asyncSnapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return Center(child: CircularProgressIndicator());
-                        }
-                        if (asyncSnapshot.hasError || !asyncSnapshot.hasData) {
-                          return Text('Error fetching user name');
-                        }
-                        String fullName = asyncSnapshot.data!;
-                        return Column(
-                          crossAxisAlignment:
-                              map['SenderId'] == currentUser?.uid
-                                  ? CrossAxisAlignment.end
-                                  : CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Container(
-                              margin: const EdgeInsets.all(5),
-                              decoration: BoxDecoration(
-                                color: map['SenderId'] == currentUser?.uid
-                                    ? kPrimaryColor
-                                    : Colors.grey[300],
-                                borderRadius:
-                                    map['SenderId'] == currentUser?.uid
-                                        ? kMessageBorderRadius2
-                                        : kMessageBorderRadius,
-                              ),
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 10.0, horizontal: 16.0),
-                              constraints: BoxConstraints(
-                                maxWidth:
-                                    MediaQuery.of(context).size.width * 0.75,
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: <Widget>[
-                                  Text(
-                                    fullName,
-                                    style: const TextStyle(
-                                        fontWeight: FontWeight.w900,
-                                        color: Colors.white,
-                                        fontSize: 10),
+                        return FutureBuilder<String>(
+                          future: getUserFullName(map['SenderId']),
+                          builder: (context, asyncSnapshot) {
+                            if (asyncSnapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return Center(child: CircularProgressIndicator());
+                            }
+                            if (asyncSnapshot.hasError ||
+                                !asyncSnapshot.hasData) {
+                              return Text('Error fetching user name');
+                            }
+                            String fullName = asyncSnapshot.data!;
+                            return Column(
+                              crossAxisAlignment:
+                                  map['SenderId'] == currentUser?.uid
+                                      ? CrossAxisAlignment.end
+                                      : CrossAxisAlignment.start,
+                              children: <Widget>[
+                                Container(
+                                  margin: const EdgeInsets.all(5),
+                                  decoration: BoxDecoration(
+                                    color: map['SenderId'] == currentUser?.uid
+                                        ? kPrimaryColor
+                                        : Colors.grey[300],
+                                    borderRadius:
+                                        map['SenderId'] == currentUser?.uid
+                                            ? kMessageBorderRadius2
+                                            : kMessageBorderRadius,
                                   ),
-                                  const SizedBox(height: 5),
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        child: Text(
-                                          map['message'] ?? "",
-                                          style: TextStyle(
-                                              color: map['SenderId'] ==
-                                                      currentUser?.uid
-                                                  ? Colors.white
-                                                  : Colors.black,
-                                              fontSize: 15.0),
-                                        ),
-                                      ),
-                                      const SizedBox(width: 10),
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 10.0, horizontal: 16.0),
+                                  constraints: BoxConstraints(
+                                    maxWidth:
+                                        MediaQuery.of(context).size.width *
+                                            0.75,
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: <Widget>[
                                       Text(
-                                        map['time'] ?? "",
+                                        fullName,
                                         style: const TextStyle(
-                                            fontWeight: FontWeight.w400,
+                                            fontWeight: FontWeight.w900,
                                             color: Colors.white,
                                             fontSize: 10),
                                       ),
+                                      const SizedBox(height: 5),
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                            child: Text(
+                                              map['message'] ?? "",
+                                              style: TextStyle(
+                                                  color: map['SenderId'] ==
+                                                          currentUser?.uid
+                                                      ? Colors.white
+                                                      : Colors.black,
+                                                  fontSize: 15.0),
+                                            ),
+                                          ),
+                                          const SizedBox(width: 10),
+                                          Text(
+                                            map['time'] ?? "",
+                                            style: const TextStyle(
+                                                fontWeight: FontWeight.w400,
+                                                color: Colors.white,
+                                                fontSize: 10),
+                                          ),
+                                        ],
+                                      ),
                                     ],
                                   ),
-                                ],
-                              ),
-                            ),
-                          ],
+                                ),
+                              ],
+                            );
+                          },
                         );
                       },
                     );
                   },
-                );
-              },
-            ),
-          ),
-          Container(
-            decoration: BoxDecoration(
-              border:
-                  Border(top: const BorderSide(color: Colors.grey, width: 1.0)),
-            ),
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  ValueListenableBuilder<int>(
-                    valueListenable: _charCountNotifier,
-                    builder: (context, count, child) {
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 4.0),
-                        child: Text(
-                          '$count / 500',
-                          style: TextStyle(
-                              color: count > 500 ? Colors.red : Colors.grey),
-                        ),
-                      );
-                    },
-                  ),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: <Widget>[
-                      Expanded(
-                        child: TextField(
-                          controller: _textController,
-                          maxLength: 500,
-                          maxLines: null,
-                          decoration: const InputDecoration(
-                            contentPadding: EdgeInsets.all(16.0),
-                            hintText: 'Type a message...',
-                            border: InputBorder.none,
-                            counterText: "", // Hide the counter text
-                          ),
-                          onChanged: (text) {
-                            _messageNotifier.value = text;
-                            _charCountNotifier.value = text.length;
-                          },
-                          onSubmitted: (text) {
-                            if (text.isNotEmpty) {
-                              sendMessage(text);
-                            }
-                          },
-                        ),
-                      ),
-                      ValueListenableBuilder<String>(
-                        valueListenable: _messageNotifier,
-                        builder: (context, value, child) {
-                          return IconButton(
-                            icon: const Icon(Icons.send),
-                            color: value.isEmpty ? Colors.grey : kPrimaryColor,
-                            onPressed: value.isEmpty
-                                ? null
-                                : () {
-                                    sendMessage(_textController.text);
-                                  },
+                ),
+              ),
+              Container(
+                decoration: BoxDecoration(
+                  border: Border(
+                      top: const BorderSide(color: Colors.grey, width: 1.0)),
+                ),
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      ValueListenableBuilder<int>(
+                        valueListenable: _charCountNotifier,
+                        builder: (context, count, child) {
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 4.0),
+                            child: Text(
+                              '$count / 500',
+                              style: TextStyle(
+                                  color:
+                                      count > 500 ? Colors.red : Colors.grey),
+                            ),
                           );
                         },
                       ),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: <Widget>[
+                          Expanded(
+                            child: TextField(
+                              controller: _textController,
+                              maxLength: 500,
+                              maxLines: null,
+                              decoration: const InputDecoration(
+                                contentPadding: EdgeInsets.all(16.0),
+                                hintText: 'Type a message...',
+                                border: InputBorder.none,
+                                counterText: "", // Hide the counter text
+                              ),
+                              onChanged: (text) {
+                                _messageNotifier.value = text;
+                                _charCountNotifier.value = text.length;
+                              },
+                              onSubmitted: (text) {
+                                if (text.isNotEmpty && hasAccess) {
+                                  sendMessage(text);
+                                }
+                              },
+                              enabled: hasAccess, // Disable typing if no access
+                            ),
+                          ),
+                          if (userType == "1")
+                            IconButton(
+                              icon: Icon(Icons.qr_code_scanner),
+                              color: kPrimaryColor,
+                              onPressed: scanQRCode,
+                            ),
+                          ValueListenableBuilder<String>(
+                            valueListenable: _messageNotifier,
+                            builder: (context, value, child) {
+                              return IconButton(
+                                icon: const Icon(Icons.send),
+                                color: value.isEmpty || !hasAccess
+                                    ? Colors.grey
+                                    : kPrimaryColor,
+                                onPressed: value.isEmpty || !hasAccess
+                                    ? null
+                                    : () {
+                                        sendMessage(_textController.text);
+                                      },
+                              );
+                            },
+                          ),
+                        ],
+                      ),
                     ],
                   ),
-                ],
+                ),
+              ),
+            ],
+          ),
+          if (!hasAccess && userType == "1")
+            Positioned.fill(
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                child: Container(
+                  color: Colors.black.withOpacity(0.5),
+                  child: Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          "Scan the QR code to access chat",
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold),
+                        ),
+                        SizedBox(height: 20),
+                        ElevatedButton.icon(
+                          icon: Icon(Icons.qr_code_scanner),
+                          label: Text("Scan QR Code"),
+                          onPressed: scanQRCode,
+                          style: ElevatedButton.styleFrom(
+                            foregroundColor: Colors.white,
+                            backgroundColor: kPrimaryColor,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ),
             ),
-          ),
         ],
       ),
     );

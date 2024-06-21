@@ -657,6 +657,7 @@ class _ProfileEstateState extends State<ProfileEstate> {
                     ],
                   ),
                 ),
+              // Replacing the "Scan QR Code" button with a "Chat with Estate" button
               if (userType == "1")
                 Align(
                   alignment: Alignment.bottomCenter,
@@ -759,31 +760,19 @@ class _ProfileEstateState extends State<ProfileEstate> {
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Center(
-                            child: Text(getTranslated(context, "Scan QR Code"),
+                            child: Text(
+                                getTranslated(context, "Chat with Estate"),
                                 style: const TextStyle(color: Colors.white)),
                           ),
                         ),
                         onTap: () {
-                          Navigator.of(context)
-                              .push(MaterialPageRoute(
-                            builder: (context) => QRViewScan(
-                              ID: estate['IDEstate'].toString(),
+                          Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) => Chat(
+                              idEstate: estate['IDEstate'].toString(),
+                              Name: estate['NameEn'],
+                              Key: estate['IDUser'],
                             ),
-                          ))
-                              .then((scanned) {
-                            if (scanned == true) {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => Chat(
-                                    idEstate: estate['IDEstate'].toString(),
-                                    Name: estate['NameEn'],
-                                    Key: estate['IDUser'],
-                                  ),
-                                ),
-                              );
-                            }
-                          });
+                          ));
                         },
                       ),
                     ],
