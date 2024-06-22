@@ -119,13 +119,13 @@ class _State extends State<Chat> {
       SharedPreferences sharedPreferences =
           await SharedPreferences.getInstance();
       String accessTimeKey = 'access_time_$idEstate';
-      DateTime accessEndTime = DateTime.now().add(Duration(hours: 3));
+      DateTime accessEndTime = DateTime.now().add(Duration(minutes: 3));
       sharedPreferences.setString(
           accessTimeKey, accessEndTime.toIso8601String());
       setState(() {
         hasAccess = true;
       });
-      startAccessTimer(Duration(hours: 3));
+      startAccessTimer(Duration(minutes: 3));
       print('Access granted');
     } else {
       print('Access denied');
@@ -214,8 +214,8 @@ class _State extends State<Chat> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Chat with ${widget.Name}',
-            style: TextStyle(color: kPrimaryColor)),
+        title:
+            Text('Chat ${widget.Name}', style: TextStyle(color: kPrimaryColor)),
         centerTitle: true,
         iconTheme: kIconTheme,
       ),

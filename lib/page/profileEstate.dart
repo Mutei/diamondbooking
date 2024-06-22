@@ -762,7 +762,7 @@ class _ProfileEstateState extends State<ProfileEstate> {
                           ),
                           child: Center(
                             child: Text(
-                                getTranslated(context, "Chat with Estate"),
+                                getTranslated(context, "Chat with Group"),
                                 style: const TextStyle(color: Colors.white)),
                           ),
                         ),
