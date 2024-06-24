@@ -656,13 +656,13 @@ class _MainScreenState extends State<MainScreen> {
                   ),
                   label: upgrade,
                 ),
-                BottomNavigationBarItem(
-                  icon: const Icon(
-                    Icons.chat,
-                    color: kPrimaryColor,
-                  ),
-                  label: chatU,
-                ),
+                // BottomNavigationBarItem(
+                //   icon: const Icon(
+                //     Icons.chat,
+                //     color: kPrimaryColor,
+                //   ),
+                //   label: chatU,
+                // ),
                 BottomNavigationBarItem(
                   icon: const Icon(
                     Icons.circle,
@@ -703,13 +703,13 @@ class _MainScreenState extends State<MainScreen> {
                   ),
                   label: request,
                 ),
-                BottomNavigationBarItem(
-                  icon: const Icon(
-                    Icons.chat,
-                    color: kPrimaryColor,
-                  ),
-                  label: chat,
-                ),
+                // BottomNavigationBarItem(
+                //   icon: const Icon(
+                //     Icons.chat,
+                //     color: kPrimaryColor,
+                //   ),
+                //   label: chat,
+                // ),
                 BottomNavigationBarItem(
                   icon: const Icon(
                     Icons.circle,
@@ -753,7 +753,7 @@ class _MainScreenState extends State<MainScreen> {
                 ),
                 NotificationUser(),
                 UpgradeAccount(),
-                TypeEstate(Check: "chatuser"),
+                // TypeEstate(Check: "chatuser"),
                 AllPostsScreen(),
               ]
             : [
@@ -767,7 +767,7 @@ class _MainScreenState extends State<MainScreen> {
                   onFilterChanged: _onFilterChanged, // Add this line
                 ),
                 Request(),
-                TypeEstate(Check: "chat"),
+                // TypeEstate(Check: "chat"),
                 AllPostsScreen(),
               ],
       ),
