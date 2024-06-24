@@ -271,6 +271,11 @@ class _State extends State<Chat> {
                                       : CrossAxisAlignment.start,
                               children: <Widget>[
                                 Container(
+                                  constraints: BoxConstraints(
+                                    maxWidth:
+                                        MediaQuery.of(context).size.width *
+                                            0.75,
+                                  ),
                                   margin: const EdgeInsets.all(5),
                                   decoration: BoxDecoration(
                                     color: map['SenderId'] == currentUser?.uid
@@ -283,53 +288,53 @@ class _State extends State<Chat> {
                                   ),
                                   padding: const EdgeInsets.symmetric(
                                       vertical: 10.0, horizontal: 16.0),
-                                  constraints: BoxConstraints(
-                                    maxWidth:
-                                        MediaQuery.of(context).size.width *
-                                            0.75,
-                                  ),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: <Widget>[
-                                      Text(
-                                        fullName,
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.w900,
-                                            color: map['SenderId'] ==
-                                                    currentUser?.uid
-                                                ? kSenderTextMessage
-                                                : kReceiverTextMessage,
-                                            fontSize: 10),
-                                      ),
-                                      const SizedBox(height: 5),
-                                      Row(
-                                        children: [
-                                          Expanded(
-                                            child: Text(
-                                              map['message'] ?? "",
+                                  child: IntrinsicWidth(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: <Widget>[
+                                        Text(
+                                          fullName,
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.w900,
+                                              color: map['SenderId'] ==
+                                                      currentUser?.uid
+                                                  ? kSenderTextMessage
+                                                  : kReceiverTextMessage,
+                                              fontSize: 10),
+                                        ),
+                                        const SizedBox(height: 5),
+                                        Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.end,
+                                          children: [
+                                            Expanded(
+                                              child: Text(
+                                                map['message'] ?? "",
+                                                style: TextStyle(
+                                                    color: map['SenderId'] ==
+                                                            currentUser?.uid
+                                                        ? kSenderTextMessage
+                                                        : kReceiverTextMessage,
+                                                    fontSize: 15.0),
+                                                softWrap: true,
+                                              ),
+                                            ),
+                                            const SizedBox(width: 10),
+                                            Text(
+                                              map['time'] ?? "",
                                               style: TextStyle(
+                                                  fontWeight: FontWeight.w400,
                                                   color: map['SenderId'] ==
                                                           currentUser?.uid
                                                       ? kSenderTextMessage
                                                       : kReceiverTextMessage,
-                                                  fontSize: 15.0),
+                                                  fontSize: 10),
                                             ),
-                                          ),
-                                          const SizedBox(width: 10),
-                                          Text(
-                                            map['time'] ?? "",
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.w400,
-                                                color: map['SenderId'] ==
-                                                        currentUser?.uid
-                                                    ? kSenderTextMessage
-                                                    : kReceiverTextMessage,
-                                                fontSize: 10),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
+                                          ],
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ],
