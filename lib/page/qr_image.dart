@@ -1,5 +1,8 @@
+import 'package:diamond_booking/constants/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+
+import '../constants/styles.dart';
 
 class QRImage extends StatelessWidget {
   final String userId;
@@ -21,7 +24,7 @@ class QRImage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: const Color(0xFF84A5FA),
+        iconTheme: kIconTheme,
       ),
       body: Center(
         child: QrImageView(
