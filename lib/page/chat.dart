@@ -147,6 +147,8 @@ class _State extends State<Chat> {
   }
 
   void sendMessage(String message) async {
+    if (userType == "2") return; // Prevent Providers from sending messages
+
     _textController.clear();
     _messageNotifier.value = "";
     _charCountNotifier.value = 0;
@@ -346,82 +348,85 @@ class _State extends State<Chat> {
                   },
                 ),
               ),
-              Container(
-                decoration: BoxDecoration(
-                  border: Border(
-                      top: const BorderSide(color: Colors.grey, width: 1.0)),
-                ),
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      ValueListenableBuilder<int>(
-                        valueListenable: _charCountNotifier,
-                        builder: (context, count, child) {
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 4.0),
-                            child: Text(
-                              '$count / 125',
-                              style: TextStyle(
-                                  color:
-                                      count > 500 ? Colors.red : Colors.grey),
-                            ),
-                          );
-                        },
-                      ),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: <Widget>[
-                          Expanded(
-                            child: TextField(
-                              controller: _textController,
-                              maxLength: 125,
-                              maxLines: null,
-                              decoration: const InputDecoration(
-                                contentPadding: EdgeInsets.all(16.0),
-                                hintText: 'Type a message...',
-                                border: InputBorder.none,
-                                counterText: "", // Hide the counter text
+              if (userType == "1")
+                Container(
+                  decoration: BoxDecoration(
+                    border: Border(
+                        top: const BorderSide(color: Colors.grey, width: 1.0)),
+                  ),
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        ValueListenableBuilder<int>(
+                          valueListenable: _charCountNotifier,
+                          builder: (context, count, child) {
+                            return Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 4.0),
+                              child: Text(
+                                '$count / 125',
+                                style: TextStyle(
+                                    color:
+                                        count > 500 ? Colors.red : Colors.grey),
                               ),
-                              onChanged: (text) {
-                                _messageNotifier.value = text;
-                                _charCountNotifier.value = text.length;
-                              },
-                              onSubmitted: (text) {
-                                if (text.isNotEmpty && hasAccess) {
-                                  sendMessage(text);
-                                }
-                              },
-                              enabled: hasAccess, // Disable typing if no access
+                            );
+                          },
+                        ),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: <Widget>[
+                            Expanded(
+                              child: TextField(
+                                controller: _textController,
+                                maxLength: 125,
+                                maxLines: null,
+                                decoration: const InputDecoration(
+                                  contentPadding: EdgeInsets.all(16.0),
+                                  hintText: 'Type a message...',
+                                  border: InputBorder.none,
+                                  counterText: "", // Hide the counter text
+                                ),
+                                onChanged: (text) {
+                                  _messageNotifier.value = text;
+                                  _charCountNotifier.value = text.length;
+                                },
+                                onSubmitted: (text) {
+                                  if (text.isNotEmpty && hasAccess) {
+                                    sendMessage(text);
+                                  }
+                                },
+                                enabled:
+                                    hasAccess, // Disable typing if no access
+                              ),
                             ),
-                          ),
-                          if (userType == "1")
-                            IconButton(
-                              icon: Icon(Icons.qr_code_scanner),
-                              color: kPrimaryColor,
-                              onPressed: scanQRCode,
+                            if (userType == "1")
+                              IconButton(
+                                icon: Icon(Icons.qr_code_scanner),
+                                color: kPrimaryColor,
+                                onPressed: scanQRCode,
+                              ),
+                            ValueListenableBuilder<String>(
+                              valueListenable: _messageNotifier,
+                              builder: (context, value, child) {
+                                return IconButton(
+                                  icon: const Icon(Icons.send),
+                                  color: value.isEmpty || !hasAccess
+                                      ? Colors.grey
+                                      : kPrimaryColor,
+                                  onPressed: value.isEmpty || !hasAccess
+                                      ? null
+                                      : () {
+                                          sendMessage(_textController.text);
+                                        },
+                                );
+                              },
                             ),
-                          ValueListenableBuilder<String>(
-                            valueListenable: _messageNotifier,
-                            builder: (context, value, child) {
-                              return IconButton(
-                                icon: const Icon(Icons.send),
-                                color: value.isEmpty || !hasAccess
-                                    ? Colors.grey
-                                    : kPrimaryColor,
-                                onPressed: value.isEmpty || !hasAccess
-                                    ? null
-                                    : () {
-                                        sendMessage(_textController.text);
-                                      },
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                    ],
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
             ],
           ),
           if (!hasAccess && userType == "1")
