@@ -292,9 +292,12 @@ class _State extends State<Chat> {
                                     children: <Widget>[
                                       Text(
                                         fullName,
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                             fontWeight: FontWeight.w900,
-                                            color: Colors.white,
+                                            color: map['SenderId'] ==
+                                                    currentUser?.uid
+                                                ? kSenderTextMessage
+                                                : kReceiverTextMessage,
                                             fontSize: 10),
                                       ),
                                       const SizedBox(height: 5),
@@ -306,17 +309,20 @@ class _State extends State<Chat> {
                                               style: TextStyle(
                                                   color: map['SenderId'] ==
                                                           currentUser?.uid
-                                                      ? Colors.white
-                                                      : Colors.black,
+                                                      ? kSenderTextMessage
+                                                      : kReceiverTextMessage,
                                                   fontSize: 15.0),
                                             ),
                                           ),
                                           const SizedBox(width: 10),
                                           Text(
                                             map['time'] ?? "",
-                                            style: const TextStyle(
+                                            style: TextStyle(
                                                 fontWeight: FontWeight.w400,
-                                                color: Colors.white,
+                                                color: map['SenderId'] ==
+                                                        currentUser?.uid
+                                                    ? kSenderTextMessage
+                                                    : kReceiverTextMessage,
                                                 fontSize: 10),
                                           ),
                                         ],
@@ -347,7 +353,7 @@ class _State extends State<Chat> {
                           return Padding(
                             padding: const EdgeInsets.symmetric(vertical: 4.0),
                             child: Text(
-                              '$count / 500',
+                              '$count / 125',
                               style: TextStyle(
                                   color:
                                       count > 500 ? Colors.red : Colors.grey),
@@ -361,7 +367,7 @@ class _State extends State<Chat> {
                           Expanded(
                             child: TextField(
                               controller: _textController,
-                              maxLength: 500,
+                              maxLength: 125,
                               maxLines: null,
                               decoration: const InputDecoration(
                                 contentPadding: EdgeInsets.all(16.0),

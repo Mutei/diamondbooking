@@ -9,3 +9,5 @@ const kTypeUserTextColor = Colors.white;
 const kConfirmTextColor = Colors.green;
 const kCloseTextColor = Colors.red;
 const kTextButtonColor = Colors.blue;
+const kSenderTextMessage = Colors.white;
+const kReceiverTextMessage = Colors.black;
