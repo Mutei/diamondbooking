@@ -52,7 +52,7 @@ class _RequestState extends State<Request> {
                   color: value["Status"] == "1"
                       ? Colors.white
                       : value["Status"] == "2"
-                          ? Colors.green[200]
+                          ? Colors.lightGreen
                           : Colors.red[100],
                   child: InkWell(
                     onTap: () {

@@ -698,7 +698,7 @@ class _State extends State<Chat> {
     return Scaffold(
       appBar: AppBar(
         title:
-            Text('Chat ${widget.Name}', style: TextStyle(color: kPrimaryColor)),
+            Text('${widget.Name} Chat', style: TextStyle(color: kPrimaryColor)),
         centerTitle: true,
         iconTheme: kIconTheme,
       ),
