@@ -14,6 +14,7 @@ import 'package:cloud_functions/cloud_functions.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../constants/styles.dart';
+import '../global/censor_message.dart';
 import '../resources/user_services.dart';
 
 class Chat extends StatefulWidget {
@@ -150,6 +151,7 @@ class _State extends State<Chat> {
     _messageNotifier.value = "";
     _charCountNotifier.value = 0;
 
+    String censoredMessage = censorMessage(message);
     String fullName = await getUserFullName(id!);
     String? hour = TimeOfDay.now().hour.toString().padLeft(2, '0');
     String? minute = TimeOfDay.now().minute.toString().padLeft(2, '0');
@@ -166,7 +168,7 @@ class _State extends State<Chat> {
         .child(widget.idEstate);
 
     await refChat.push().set({
-      'message': message,
+      'message': censoredMessage,
       'timestamp': DateTime.now().millisecondsSinceEpoch,
       'SenderId': id,
       'IDEstate': idEstate,
@@ -189,7 +191,7 @@ class _State extends State<Chat> {
     });
 
     String? token = await firebaseMessaging.getToken();
-    fetchPost('New Message For $Name', message);
+    fetchPost('New Message For $Name', censoredMessage);
   }
 
   void fetchPost(String title, String message) async {
