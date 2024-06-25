@@ -736,7 +736,7 @@ class _ProfileEstateState extends State<ProfileEstate> {
                                         rating: feedback['rating'].toDouble(),
                                         itemBuilder: (context, _) => const Icon(
                                           Icons.star,
-                                          color: kPrimaryColor,
+                                          color: Colors.amber,
                                         ),
                                         itemCount: 5,
                                         itemSize: 20.0,
