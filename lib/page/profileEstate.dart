@@ -220,7 +220,7 @@ class _ProfileEstateState extends State<ProfileEstate> {
             itemCount: 5,
             itemBuilder: (context, _) => const Icon(
               Icons.star,
-              color: kPrimaryColor,
+              color: Colors.amber,
             ),
             onRatingUpdate: (rating) {
               setState(() {
@@ -291,6 +291,25 @@ class _ProfileEstateState extends State<ProfileEstate> {
         context,
       );
     }
+  }
+
+  Future<List<Map<String, dynamic>>> getFeedback() async {
+    List<Map<String, dynamic>> feedbackList = [];
+    DatabaseReference feedbackRef =
+        databaseRef.child('App/Feedback/${estate['IDEstate']}');
+    DataSnapshot snapshot = await feedbackRef.get();
+    if (snapshot.exists) {
+      Map<dynamic, dynamic> feedbackData =
+          snapshot.value as Map<dynamic, dynamic>;
+      feedbackData.forEach((key, value) {
+        feedbackList.add({
+          'userName': value['userName'],
+          'rating': value['rating'],
+          'feedback': value['feedback'],
+        });
+      });
+    }
+    return feedbackList;
   }
 
   @override
@@ -677,7 +696,63 @@ class _ProfileEstateState extends State<ProfileEstate> {
                         .child(estate['IDEstate'].toString())
                         .orderByChild("Date"),
                   ),
-                  const SizedBox(height: 150),
+                  const SizedBox(height: 20),
+                  // Feedback section
+                  FutureBuilder<List<Map<String, dynamic>>>(
+                    future: getFeedback(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      } else if (snapshot.hasError) {
+                        return Text(
+                            getTranslated(context, "Error loading feedback"));
+                      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                        return Text(getTranslated(context, "No feedback yet"));
+                      }
+
+                      return SizedBox(
+                        height: 200,
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: snapshot.data!.length,
+                          itemBuilder: (context, index) {
+                            var feedback = snapshot.data![index];
+                            return Container(
+                              width: 300,
+                              margin:
+                                  const EdgeInsets.symmetric(horizontal: 10),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Text(
+                                        feedback['userName'],
+                                        style: const TextStyle(
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                      const SizedBox(width: 10),
+                                      RatingBarIndicator(
+                                        rating: feedback['rating'].toDouble(),
+                                        itemBuilder: (context, _) => const Icon(
+                                          Icons.star,
+                                          color: kPrimaryColor,
+                                        ),
+                                        itemCount: 5,
+                                        itemSize: 20.0,
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 5),
+                                  Text(feedback['feedback']),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                      );
+                    },
+                  ),
                 ],
               ),
               if (userType == '2')
