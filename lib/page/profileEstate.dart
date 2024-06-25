@@ -55,11 +55,13 @@ class _ProfileEstateState extends State<ProfileEstate> {
   final databaseRef = FirebaseDatabase.instance.ref();
   String userType = "2";
   DateTime selectedDate = DateTime.now();
-  TimeOfDay? sTime = TimeOfDay?.now();
+  TimeOfDay? sTime = TimeOfDay.now();
   bool flagDate = false;
   bool flagTime = false;
   double rating = 0.0;
   final TextEditingController feedbackController = TextEditingController();
+  late ScaffoldFeatureController<SnackBar, SnackBarClosedReason>
+      snackBarController;
 
   _ProfileEstateState(this.estate, this.icon, this.VisEdit);
 
@@ -68,6 +70,13 @@ class _ProfileEstateState extends State<ProfileEstate> {
     super.initState();
     getData();
     fetchUserType();
+  }
+
+  @override
+  void dispose() {
+    snackBarController.close();
+    feedbackController.dispose();
+    super.dispose();
   }
 
   Future<void> fetchUserType() async {
@@ -232,8 +241,16 @@ class _ProfileEstateState extends State<ProfileEstate> {
             children: [
               TextButton(
                 onPressed: () {
-                  _saveRatingAndFeedback();
-                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                  if (rating == 0) {
+                    Provider.of<GeneralProvider>(context, listen: false)
+                        .FunSnackBarPage(
+                      getTranslated(context, "Please provide a rating"),
+                      context,
+                    );
+                  } else {
+                    _saveRatingAndFeedback();
+                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                  }
                 },
                 child: Text(getTranslated(context, "Send")),
               ),
@@ -248,7 +265,7 @@ class _ProfileEstateState extends State<ProfileEstate> {
         ],
       ),
     );
-    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    snackBarController = ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
   Future<void> _saveRatingAndFeedback() async {
@@ -270,7 +287,9 @@ class _ProfileEstateState extends State<ProfileEstate> {
       );
     } catch (e) {
       Provider.of<GeneralProvider>(context, listen: false).FunSnackBarPage(
-          getTranslated(context, "Failed to submit feedback"), context);
+        getTranslated(context, "Failed to submit feedback"),
+        context,
+      );
     }
   }
 
