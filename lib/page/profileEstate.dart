@@ -11,6 +11,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sizer/sizer.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 
 import '../constants/styles.dart';
 import '../general_provider.dart';
@@ -57,6 +58,8 @@ class _ProfileEstateState extends State<ProfileEstate> {
   TimeOfDay? sTime = TimeOfDay?.now();
   bool flagDate = false;
   bool flagTime = false;
+  double rating = 0.0;
+  final TextEditingController feedbackController = TextEditingController();
 
   _ProfileEstateState(this.estate, this.icon, this.VisEdit);
 
@@ -180,6 +183,92 @@ class _ProfileEstateState extends State<ProfileEstate> {
     }
   }
 
+  Future<String> getUserFullName(String userId) async {
+    DatabaseReference userRef =
+        FirebaseDatabase.instance.ref("App").child("User").child(userId);
+    DataSnapshot snapshot = await userRef.get();
+    if (snapshot.exists) {
+      String firstName = snapshot.child("FirstName").value?.toString() ?? "";
+      String secondName = snapshot.child("SecondName").value?.toString() ?? "";
+      String lastName = snapshot.child("LastName").value?.toString() ?? "";
+      return "$firstName $secondName $lastName";
+    }
+    return "";
+  }
+
+  void _showRatingSnackbar(BuildContext context) {
+    final snackBar = SnackBar(
+      duration: const Duration(minutes: 5),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          RatingBar.builder(
+            initialRating: 0,
+            minRating: 1,
+            direction: Axis.horizontal,
+            allowHalfRating: false,
+            itemCount: 5,
+            itemBuilder: (context, _) => const Icon(
+              Icons.star,
+              color: Colors.amber,
+            ),
+            onRatingUpdate: (rating) {
+              setState(() {
+                this.rating = rating;
+              });
+            },
+          ),
+          TextField(
+            controller: feedbackController,
+            decoration: InputDecoration(
+              labelText: getTranslated(context, "Add a Feedback"),
+            ),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              TextButton(
+                onPressed: () {
+                  _saveRatingAndFeedback();
+                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                },
+                child: Text(getTranslated(context, "Send")),
+              ),
+              TextButton(
+                onPressed: () {
+                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                },
+                child: Text(getTranslated(context, "Cancel")),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
+  Future<void> _saveRatingAndFeedback() async {
+    try {
+      String estateId = estate['IDEstate'].toString();
+      String userId = FirebaseAuth.instance.currentUser?.uid ?? "";
+      String userName = await getUserFullName(userId);
+
+      await databaseRef.child('App/Feedback/$estateId/$userId').set({
+        'rating': rating,
+        'feedback': feedbackController.text,
+        'userName': userName,
+        'timestamp': DateTime.now().toIso8601String(),
+      });
+
+      Provider.of<GeneralProvider>(context, listen: false).FunSnackBarPage(
+          getTranslated(context, "Feedback submitted successfully"), context);
+    } catch (e) {
+      Provider.of<GeneralProvider>(context, listen: false).FunSnackBarPage(
+          getTranslated(context, "Failed to submit feedback"), context);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final objProvider = Provider.of<GeneralProvider>(context, listen: true);
@@ -202,68 +291,13 @@ class _ProfileEstateState extends State<ProfileEstate> {
             ),
             const SizedBox(width: 25),
           ],
-          InkWell(
-            child: Icon(Icons.message),
-            onTap: () {
-              if (ID != "null") {
-                Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => Chat(
-                          idEstate: estate['IDEstate'].toString(),
-                          Name: estate['NameEn'],
-                          Key: estate['IDUser'],
-                        )));
-              } else {
-                objProvider.FunSnackBarPage(
-                    getTranslated(context, "Please login first"), context);
-              }
-            },
-          ),
-          const SizedBox(width: 25),
-          InkWell(
-            child: Icon(Icons.map_outlined),
-            onTap: () {
-              if (ID != "null") {
-                _launchMaps();
-              } else {
-                objProvider.FunSnackBarPage(
-                    getTranslated(context, "Please login first"), context);
-              }
-            },
-          ),
-          const SizedBox(width: 25),
-          if (TypUser == "3" || TypUser == "4")
+          if (userType == '1') ...[
             InkWell(
-              child: Icon(Icons.qr_code),
-              onTap: () async {
-                if (ID != "null") {
-                  final result =
-                      await Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => QRViewScan(
-                                expectedID: estate['IDEstate'].toString(),
-                              )));
-                  if (result) {
-                    SharedPreferences sharedPreferences =
-                        await SharedPreferences.getInstance();
-                    sharedPreferences.setString(
-                        estate['IDEstate'].toString(), "1");
-                    setState(() {
-                      checkGroup = "1";
-                    });
-                  }
-                } else {
-                  objProvider.FunSnackBarPage(
-                      getTranslated(context, "Please login first"), context);
-                }
-              },
-            ),
-          const SizedBox(width: 25),
-          if (checkGroup == "1")
-            InkWell(
-              child: Icon(Icons.group),
-              onTap: () async {
+              child: Icon(Icons.message),
+              onTap: () {
                 if (ID != "null") {
                   Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => ChatGroup(
+                      builder: (context) => Chat(
                             idEstate: estate['IDEstate'].toString(),
                             Name: estate['NameEn'],
                             Key: estate['IDUser'],
@@ -274,7 +308,27 @@ class _ProfileEstateState extends State<ProfileEstate> {
                 }
               },
             ),
-          const SizedBox(width: 25),
+            const SizedBox(width: 25),
+            InkWell(
+              child: Icon(Icons.map_outlined),
+              onTap: () {
+                if (ID != "null") {
+                  _launchMaps();
+                } else {
+                  objProvider.FunSnackBarPage(
+                      getTranslated(context, "Please login first"), context);
+                }
+              },
+            ),
+            const SizedBox(width: 25),
+            InkWell(
+              child: const Icon(Icons.star),
+              onTap: () {
+                _showRatingSnackbar(context);
+              },
+            ),
+            const SizedBox(width: 25),
+          ],
         ],
       ),
       body: Container(
@@ -658,7 +712,6 @@ class _ProfileEstateState extends State<ProfileEstate> {
                     ],
                   ),
                 ),
-              // Replacing the "Scan QR Code" button with a "Chat with Estate" button
               if (userType == "1")
                 Align(
                   alignment: Alignment.bottomCenter,
