@@ -198,6 +198,7 @@ class _ProfileEstateState extends State<ProfileEstate> {
 
   void _showRatingSnackbar(BuildContext context) {
     final snackBar = SnackBar(
+      backgroundColor: Colors.white, // Set the background color to white
       duration: const Duration(minutes: 5),
       content: Column(
         mainAxisSize: MainAxisSize.min,
@@ -210,7 +211,7 @@ class _ProfileEstateState extends State<ProfileEstate> {
             itemCount: 5,
             itemBuilder: (context, _) => const Icon(
               Icons.star,
-              color: Colors.amber,
+              color: kPrimaryColor,
             ),
             onRatingUpdate: (rating) {
               setState(() {
@@ -262,7 +263,9 @@ class _ProfileEstateState extends State<ProfileEstate> {
       });
 
       Provider.of<GeneralProvider>(context, listen: false).FunSnackBarPage(
-          getTranslated(context, "Feedback submitted successfully"), context);
+        getTranslated(context, "Feedback submitted successfully"),
+        context,
+      );
     } catch (e) {
       Provider.of<GeneralProvider>(context, listen: false).FunSnackBarPage(
           getTranslated(context, "Failed to submit feedback"), context);
