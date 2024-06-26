@@ -264,11 +264,43 @@ class _State extends State<Chat> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          '${widget.Name} Chat ($activeCustomers)',
-          style: TextStyle(color: kPrimaryColor),
+        title: Stack(
+          children: [
+            Center(
+              child: Container(
+                padding: const EdgeInsets.only(
+                  right: 55,
+                ),
+                child: Text(
+                  '${widget.Name} Chat',
+                  style: const TextStyle(color: kPrimaryColor),
+                ),
+              ),
+            ),
+            Positioned(
+              right: 0,
+              top: 0,
+              child: InkWell(
+                onTap: () {
+                  // Define the action to be performed when activeCustomers is tapped
+                  print('Active customers tapped: $activeCustomers');
+                  // Add your custom action here
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    '$activeCustomers',
+                    style: const TextStyle(
+                      color: kPrimaryColor,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
-        centerTitle: true,
         iconTheme: kIconTheme,
       ),
       body: Stack(
