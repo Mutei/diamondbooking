@@ -1,17 +1,19 @@
 import 'dart:async';
 import 'dart:ui';
-import 'package:diamond_booking/constants/colors.dart';
-import 'package:diamond_booking/page/qrViewScan.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cloud_functions/cloud_functions.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import '../screen/active_customer_screen.dart';
+import '../constants/colors.dart';
 import '../constants/styles.dart';
 import '../global/censor_message.dart';
 import '../resources/user_services.dart';
+import 'qrViewScan.dart';
 
 class Chat extends StatefulWidget {
   final String idEstate;
@@ -60,6 +62,9 @@ class _State extends State<Chat> {
   @override
   void dispose() {
     accessTimer?.cancel();
+    if (!hasAccess) {
+      removeActiveCustomer();
+    }
     super.dispose();
   }
 
@@ -280,11 +285,13 @@ class _State extends State<Chat> {
               right: 0,
               top: 0,
               child: InkWell(
-                onTap: () {
-                  // Define the action to be performed when activeCustomers is tapped
-                  print('Active customers tapped: $activeCustomers');
-                  // Add your custom action here
-                },
+                onTap: userType == "2"
+                    ? () {
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) =>
+                                ActiveCustomersScreen(idEstate: idEstate)));
+                      }
+                    : null,
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
