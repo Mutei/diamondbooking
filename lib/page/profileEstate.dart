@@ -63,6 +63,7 @@ class _ProfileEstateState extends State<ProfileEstate> {
   final TextEditingController feedbackController = TextEditingController();
   late ScaffoldFeatureController<SnackBar, SnackBarClosedReason>
       snackBarController;
+  bool isOwner = false;
 
   _ProfileEstateState(this.estate, this.icon, this.VisEdit);
 
@@ -71,6 +72,7 @@ class _ProfileEstateState extends State<ProfileEstate> {
     super.initState();
     getData();
     fetchUserType();
+    checkIfOwner();
   }
 
   @override
@@ -96,6 +98,15 @@ class _ProfileEstateState extends State<ProfileEstate> {
       }
     } catch (e) {
       print("Failed to fetch user type: $e");
+    }
+  }
+
+  Future<void> checkIfOwner() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      setState(() {
+        isOwner = estate['IDUser'] == user.uid;
+      });
     }
   }
 
@@ -322,7 +333,7 @@ class _ProfileEstateState extends State<ProfileEstate> {
         elevation: 0,
         iconTheme: kIconTheme,
         actions: [
-          if (userType == '2') ...[
+          if (userType == '2' && isOwner) ...[
             InkWell(
               child: Icon(Icons.message),
               onTap: () {
@@ -785,7 +796,7 @@ class _ProfileEstateState extends State<ProfileEstate> {
                   ),
                 ],
               ),
-              if (userType == '2')
+              if (userType == '2' && isOwner)
                 Align(
                   alignment: Alignment.bottomCenter,
                   child: Column(
