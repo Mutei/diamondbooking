@@ -60,7 +60,6 @@ class _State extends State<Chat> {
   @override
   void dispose() {
     accessTimer?.cancel();
-    removeActiveCustomer();
     super.dispose();
   }
 
