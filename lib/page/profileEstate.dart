@@ -1,4 +1,5 @@
 import 'package:diamond_booking/constants/colors.dart';
+import 'package:diamond_booking/extension/sized_box_extension.dart';
 import 'package:diamond_booking/page/qrViewScan.dart';
 import 'package:diamond_booking/page/qr_image.dart';
 import 'package:diamond_booking/widgets/text_header.dart';
@@ -323,6 +324,35 @@ class _ProfileEstateState extends State<ProfileEstate> {
         actions: [
           if (userType == '2') ...[
             InkWell(
+              child: Icon(Icons.message),
+              onTap: () {
+                if (ID != "null") {
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => Chat(
+                            idEstate: estate['IDEstate'].toString(),
+                            Name: estate['NameEn'],
+                            Key: estate['IDUser'],
+                          )));
+                } else {
+                  objProvider.FunSnackBarPage(
+                      getTranslated(context, "Please login first"), context);
+                }
+              },
+            ),
+            25.kW,
+            InkWell(
+              child: Icon(Icons.map_outlined),
+              onTap: () {
+                if (ID != "null") {
+                  _launchMaps();
+                } else {
+                  objProvider.FunSnackBarPage(
+                      getTranslated(context, "Please login first"), context);
+                }
+              },
+            ),
+            25.kW,
+            InkWell(
               child: const Icon(Icons.edit),
               onTap: () {
                 Navigator.of(context).push(MaterialPageRoute(
@@ -332,7 +362,7 @@ class _ProfileEstateState extends State<ProfileEstate> {
                         )));
               },
             ),
-            const SizedBox(width: 25),
+            25.kW,
           ],
           if (userType == '1') ...[
             InkWell(
@@ -351,7 +381,7 @@ class _ProfileEstateState extends State<ProfileEstate> {
                 }
               },
             ),
-            const SizedBox(width: 25),
+            25.kW,
             InkWell(
               child: Icon(Icons.map_outlined),
               onTap: () {
@@ -363,14 +393,14 @@ class _ProfileEstateState extends State<ProfileEstate> {
                 }
               },
             ),
-            const SizedBox(width: 25),
+            25.kW,
             InkWell(
               child: const Icon(Icons.star),
               onTap: () {
                 _showRatingSnackbar(context);
               },
             ),
-            const SizedBox(width: 25),
+            25.kW,
           ],
         ],
       ),
