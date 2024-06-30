@@ -2,6 +2,7 @@ import 'package:diamond_booking/constants/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:shared_preferences/shared_preferences.dart'; // Import this for shared preferences
 
 import '../constants/styles.dart';
 
@@ -57,8 +58,13 @@ class ActiveCustomersScreenState extends State<ActiveCustomersScreen> {
     return "";
   }
 
-  void removeCustomer(String userId) {
-    databaseReference
+  Future<void> removeCustomer(String userId) async {
+    // Clear shared preferences for the removed customer
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    sharedPreferences.remove('access_time_${widget.idEstate}_$userId');
+    sharedPreferences.remove('last_scan_time_${widget.idEstate}_$userId');
+
+    await databaseReference
         .child("App/ActiveCustomers/${widget.idEstate}/$userId")
         .remove();
     setState(() {

@@ -57,6 +57,7 @@ class _State extends State<Chat> {
     currentUser = UserService().getCurrentUser();
     fetchUserType();
     listenToActiveCustomers();
+    checkAccessPeriodically();
   }
 
   @override
@@ -94,7 +95,7 @@ class _State extends State<Chat> {
 
   Future<void> checkAccess() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    String accessTimeKey = 'access_time_$idEstate';
+    String accessTimeKey = 'access_time_${widget.idEstate}_$id';
     String? accessEndTimeString = sharedPreferences.getString(accessTimeKey);
 
     if (accessEndTimeString != null) {
@@ -107,7 +108,7 @@ class _State extends State<Chat> {
       }
     }
 
-    String lastScanTimeKey = 'last_scan_time_$idEstate';
+    String lastScanTimeKey = 'last_scan_time_${widget.idEstate}_$id';
     String? lastScanTimeString = sharedPreferences.getString(lastScanTimeKey);
     if (lastScanTimeString != null) {
       setState(() {
@@ -132,12 +133,12 @@ class _State extends State<Chat> {
     if (result == true) {
       SharedPreferences sharedPreferences =
           await SharedPreferences.getInstance();
-      String accessTimeKey = 'access_time_$idEstate';
+      String accessTimeKey = 'access_time_${widget.idEstate}_$id';
       DateTime accessEndTime = DateTime.now().add(Duration(minutes: 3));
       sharedPreferences.setString(
           accessTimeKey, accessEndTime.toIso8601String());
 
-      String lastScanTimeKey = 'last_scan_time_$idEstate';
+      String lastScanTimeKey = 'last_scan_time_${widget.idEstate}_$id';
       DateTime now = DateTime.now();
       sharedPreferences.setString(lastScanTimeKey, now.toIso8601String());
       setState(() {
@@ -169,16 +170,40 @@ class _State extends State<Chat> {
   void listenToActiveCustomers() {
     DatabaseReference activeCustomersRef =
         databaseReference.ref("App/ActiveCustomers/$idEstate");
-    activeCustomersRef.onValue.listen((event) {
+    activeCustomersRef.onValue.listen((event) async {
       if (event.snapshot.exists) {
         Map activeUsers = event.snapshot.value as Map;
         setState(() {
           activeCustomers = activeUsers.length;
         });
+
+        if (!activeUsers.containsKey(id)) {
+          // User has been removed from active customers
+          setState(() {
+            hasAccess = false;
+          });
+
+          // Clear access time and last scan time from shared preferences
+          SharedPreferences sharedPreferences =
+              await SharedPreferences.getInstance();
+          sharedPreferences.remove('access_time_${widget.idEstate}_$id');
+          sharedPreferences.remove('last_scan_time_${widget.idEstate}_$id');
+        }
       } else {
         setState(() {
           activeCustomers = 0;
         });
+      }
+    });
+  }
+
+  void checkAccessPeriodically() {
+    Timer.periodic(Duration(seconds: 5), (timer) async {
+      if (!hasAccess) {
+        SharedPreferences sharedPreferences =
+            await SharedPreferences.getInstance();
+        sharedPreferences.remove('access_time_${widget.idEstate}_$id');
+        sharedPreferences.remove('last_scan_time_${widget.idEstate}_$id');
       }
     });
   }
@@ -197,6 +222,8 @@ class _State extends State<Chat> {
   }
 
   void sendMessage(String message) async {
+    if (!hasAccess) return; // Prevent sending messages if no access
+
     if (userType == "2") return; // Prevent Providers from sending messages
 
     _textController.clear();
