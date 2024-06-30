@@ -1,5 +1,9 @@
+import 'package:diamond_booking/constants/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+
+import '../constants/styles.dart';
 
 class ActiveCustomersScreen extends StatefulWidget {
   final String idEstate;
@@ -13,6 +17,7 @@ class ActiveCustomersScreen extends StatefulWidget {
 class ActiveCustomersScreenState extends State<ActiveCustomersScreen> {
   final DatabaseReference databaseReference = FirebaseDatabase.instance.ref();
   List<Map<String, dynamic>> activeCustomers = [];
+  Set<String> ratedCustomers = Set<String>();
 
   @override
   void initState() {
@@ -52,17 +57,49 @@ class ActiveCustomersScreenState extends State<ActiveCustomersScreen> {
     return "";
   }
 
+  void removeCustomer(String userId) {
+    databaseReference
+        .child("App/ActiveCustomers/${widget.idEstate}/$userId")
+        .remove();
+    setState(() {
+      activeCustomers.removeWhere((customer) => customer['id'] == userId);
+    });
+  }
+
+  void rateCustomer(String userId, double rating) {
+    DatabaseReference feedbackRef =
+        databaseReference.child("App/ProviderFeedbackToCustomer/$userId");
+    feedbackRef.push().set({
+      'rating': rating,
+      'timestamp': DateTime.now().millisecondsSinceEpoch,
+    });
+    setState(() {
+      ratedCustomers.add(userId);
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('User rated $rating stars')),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Active Customers'),
+        title: const Text(
+          'Active Customers',
+          style: TextStyle(
+            color: kPrimaryColor,
+          ),
+        ),
+        centerTitle: true,
+        iconTheme: kIconTheme,
       ),
       body: ListView.builder(
         itemCount: activeCustomers.length,
         itemBuilder: (context, index) {
+          String userId = activeCustomers[index]['id'];
           return FutureBuilder<String>(
-            future: getUserFullName(activeCustomers[index]['id']),
+            future: getUserFullName(userId),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const ListTile(
@@ -78,6 +115,46 @@ class ActiveCustomersScreenState extends State<ActiveCustomersScreen> {
                 title: Text(snapshot.data!),
                 subtitle: Text(
                     'Active since: ${DateTime.fromMillisecondsSinceEpoch(activeCustomers[index]['timestamp'])}'),
+                trailing: PopupMenuButton<String>(
+                  onSelected: (value) {
+                    if (value == 'rate' && !ratedCustomers.contains(userId)) {
+                      showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: Text('Rate ${snapshot.data!}'),
+                          content: RatingBar.builder(
+                            initialRating: 3,
+                            minRating: 1,
+                            direction: Axis.horizontal,
+                            allowHalfRating: true,
+                            itemCount: 5,
+                            itemBuilder: (context, _) => const Icon(
+                              Icons.star,
+                              color: Colors.amber,
+                            ),
+                            onRatingUpdate: (rating) {
+                              Navigator.of(context).pop();
+                              rateCustomer(userId, rating);
+                            },
+                          ),
+                        ),
+                      );
+                    } else if (value == 'remove') {
+                      removeCustomer(userId);
+                    }
+                  },
+                  itemBuilder: (context) => [
+                    if (!ratedCustomers.contains(userId))
+                      const PopupMenuItem(
+                        value: 'rate',
+                        child: Text('Rate'),
+                      ),
+                    const PopupMenuItem(
+                      value: 'remove',
+                      child: Text('Remove'),
+                    ),
+                  ],
+                ),
               );
             },
           );
