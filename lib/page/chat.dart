@@ -134,7 +134,7 @@ class _State extends State<Chat> {
       SharedPreferences sharedPreferences =
           await SharedPreferences.getInstance();
       String accessTimeKey = 'access_time_${widget.idEstate}_$id';
-      DateTime accessEndTime = DateTime.now().add(Duration(minutes: 3));
+      DateTime accessEndTime = DateTime.now().add(Duration(minutes: 1));
       sharedPreferences.setString(
           accessTimeKey, accessEndTime.toIso8601String());
 
@@ -145,7 +145,7 @@ class _State extends State<Chat> {
         lastScanTime = now;
         hasAccess = true;
       });
-      startAccessTimer(Duration(minutes: 3));
+      startAccessTimer(Duration(minutes: 1));
       print('Access granted');
       addActiveCustomer();
     } else {

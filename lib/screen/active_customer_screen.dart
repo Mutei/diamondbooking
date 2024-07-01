@@ -131,6 +131,7 @@ class ActiveCustomersScreenState extends State<ActiveCustomersScreen> {
                   ),
                 ),
                 trailing: PopupMenuButton<String>(
+                  iconColor: kPrimaryColor,
                   onSelected: (value) {
                     if (value == 'rate' && !ratedCustomers.contains(userId)) {
                       showDialog(
