@@ -310,6 +310,21 @@ class CustomDrawer extends StatelessWidget {
               hint: getTranslated(context, "Show the Post "),
             ),
             Visibility(
+              visible: userType == "1",
+              child: DrawerItem(
+                icon: const Icon(Icons.point_of_sale, color: kPrimaryColor),
+                onTap: () {},
+                hint: getTranslated(
+                  context,
+                  "From here you can get points and discounts",
+                ),
+                text: getTranslated(
+                  context,
+                  "My Points",
+                ),
+              ),
+            ),
+            Visibility(
               visible: userType != "1",
               child: DrawerItem(
                 icon: const Icon(Icons.add, color: kPrimaryColor),
