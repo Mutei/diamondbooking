@@ -1,3 +1,4 @@
+import 'package:diamond_booking/screen/customer_points.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sizer/sizer.dart';
@@ -304,8 +305,8 @@ class CustomDrawer extends StatelessWidget {
               text: getTranslated(context, "Posts"),
               icon: const Icon(Icons.person, color: kPrimaryColor),
               onTap: () {
-                Navigator.of(context).push(
-                    MaterialPageRoute(builder: (context) => AllPostsScreen()));
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => const AllPostsScreen()));
               },
               hint: getTranslated(context, "Show the Post "),
             ),
@@ -313,7 +314,10 @@ class CustomDrawer extends StatelessWidget {
               visible: userType == "1",
               child: DrawerItem(
                 icon: const Icon(Icons.point_of_sale, color: kPrimaryColor),
-                onTap: () {},
+                onTap: () {
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => const CustomerPoints()));
+                },
                 hint: getTranslated(
                   context,
                   "From here you can get points and discounts",
@@ -388,7 +392,7 @@ class CustomDrawer extends StatelessWidget {
                         : badges.Badge(
                             badgeContent: Text(
                               provider.newRequestCount.toString(),
-                              style: TextStyle(color: Colors.white),
+                              style: const TextStyle(color: Colors.white),
                             ),
                             child: const Icon(
                               Icons.account_box,
