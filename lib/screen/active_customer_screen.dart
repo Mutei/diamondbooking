@@ -131,6 +131,7 @@ class ActiveCustomersScreenState extends State<ActiveCustomersScreen> {
                   ),
                 ),
                 trailing: PopupMenuButton<String>(
+                  color: kPrimaryColor,
                   onSelected: (value) {
                     if (value == 'rate' && !ratedCustomers.contains(userId)) {
                       showDialog(
@@ -162,11 +163,21 @@ class ActiveCustomersScreenState extends State<ActiveCustomersScreen> {
                     if (!ratedCustomers.contains(userId))
                       const PopupMenuItem(
                         value: 'rate',
-                        child: Text('Rate'),
+                        child: Text(
+                          'Rate',
+                          style: TextStyle(
+                            color: kPrimaryColor,
+                          ),
+                        ),
                       ),
                     const PopupMenuItem(
                       value: 'remove',
-                      child: Text('Remove'),
+                      child: Text(
+                        'Remove',
+                        style: TextStyle(
+                          color: kPrimaryColor,
+                        ),
+                      ),
                     ),
                   ],
                 ),
