@@ -118,9 +118,18 @@ class ActiveCustomersScreenState extends State<ActiveCustomersScreen> {
                 );
               }
               return ListTile(
-                title: Text(snapshot.data!),
+                title: Text(
+                  snapshot.data!,
+                  style: const TextStyle(
+                    color: kPrimaryColor,
+                  ),
+                ),
                 subtitle: Text(
-                    'Active since: ${DateTime.fromMillisecondsSinceEpoch(activeCustomers[index]['timestamp'])}'),
+                  'Active since: ${DateTime.fromMillisecondsSinceEpoch(activeCustomers[index]['timestamp'])}',
+                  style: const TextStyle(
+                    color: kPrimaryColor,
+                  ),
+                ),
                 trailing: PopupMenuButton<String>(
                   onSelected: (value) {
                     if (value == 'rate' && !ratedCustomers.contains(userId)) {
