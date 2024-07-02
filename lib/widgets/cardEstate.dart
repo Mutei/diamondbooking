@@ -17,6 +17,9 @@ class CardEstate extends StatefulWidget {
   bool VisEdit;
   String image;
   bool? Visimage;
+  final int? ratings; // Add this line
+  final double? totalRating; // Add this line
+
   CardEstate({
     required this.context,
     required this.obj,
@@ -24,11 +27,13 @@ class CardEstate extends StatefulWidget {
     required this.VisEdit,
     required this.image,
     this.Visimage,
+    this.ratings, // Add this line
+    this.totalRating, // Add this line
   });
 
   @override
-  _State createState() =>
-      _State(context, obj, icon, VisEdit, image, Visimage ?? true);
+  _State createState() => _State(context, obj, icon, VisEdit, image,
+      Visimage ?? true, ratings!, totalRating!); // Modify this line
 }
 
 class _State extends State<CardEstate> {
@@ -38,6 +43,8 @@ class _State extends State<CardEstate> {
   bool VisEdit;
   String image;
   bool Visimage;
+  final int ratings; // Add this line
+  final double totalRating; // Add this line
 
   final storageRef = FirebaseStorage.instance.ref();
   final databaseRef = FirebaseDatabase.instance.ref();
@@ -50,6 +57,8 @@ class _State extends State<CardEstate> {
     this.VisEdit,
     this.image,
     this.Visimage,
+    this.ratings, // Add this line
+    this.totalRating, // Add this line
   );
 
   @override
@@ -99,15 +108,6 @@ class _State extends State<CardEstate> {
 
   Widget build(BuildContext context) {
     final objProvider = Provider.of<GeneralProvider>(context, listen: false);
-
-    // Debugging: Print the values of the keys being used
-    print('IDEstate: ${obj['IDEstate']}');
-    print('NameEn: ${obj['NameEn']}');
-    print('NameAr: ${obj['NameAr']}');
-    print('State: ${obj['State']}');
-    print('Type: ${obj['Type']}');
-    print('Sessions: ${obj['Sessions']}');
-    print('TypeofRestaurant: ${obj['TypeofRestaurant']}');
 
     return InkWell(
       child: Container(
@@ -183,7 +183,7 @@ class _State extends State<CardEstate> {
                                   style: TextStyle(fontSize: 12),
                                 ),
                               ),
-                            )
+                            ),
                           ],
                         )
                       : Text(
@@ -191,36 +191,18 @@ class _State extends State<CardEstate> {
                               'Unknown', // Handle null value for State
                           style: TextStyle(fontSize: 12),
                         ),
-                  trailing: !Visimage
-                      ? SizedBox(
-                          width: 75,
-                          height: 100,
-                          child: FutureBuilder<String>(
-                            future: obj['IDEstate'] != null
-                                ? getimages(obj['IDEstate'].toString())
-                                : Future.value(""),
-                            builder: (context, snapshot) {
-                              if (snapshot.hasData &&
-                                  snapshot.connectionState ==
-                                      ConnectionState.done) {
-                                return snapshot.data != ""
-                                    ? Image(
-                                        image: NetworkImage(snapshot.data!),
-                                        fit: BoxFit.fill,
-                                      )
-                                    : Container();
-                              }
-                              return Center(
-                                child: CircularProgressIndicator(),
-                              );
-                            },
-                          ),
-                        )
-                      : Container(
-                          width: 35,
-                          height: 35,
-                          child: Text(""),
+                  trailing: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(
+                          top: 20.0,
                         ),
+                        child: Text(
+                            '($ratings)  ${totalRating.toStringAsFixed(1)} ⭐'),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),

@@ -592,6 +592,31 @@ class _MainScreenState extends State<MainScreen> {
     return 'assets/images/default_image.png';
   }
 
+  Future<Map<String, dynamic>> _getEstateRatings(String estateId) async {
+    Map<String, dynamic> ratingsData = {"totalRating": 0.0, "ratingCount": 0};
+
+    DatabaseReference feedbackRef =
+        FirebaseDatabase.instance.ref('App/Feedback/$estateId');
+    DataSnapshot snapshot = await feedbackRef.get();
+
+    if (snapshot.exists) {
+      Map<dynamic, dynamic> feedbackData =
+          snapshot.value as Map<dynamic, dynamic>;
+      double totalRating = 0.0;
+      int ratingCount = 0;
+
+      feedbackData.forEach((key, value) {
+        totalRating += value['rating'];
+        ratingCount += 1;
+      });
+
+      ratingsData['totalRating'] = totalRating / ratingCount;
+      ratingsData['ratingCount'] = ratingCount;
+    }
+
+    return ratingsData;
+  }
+
   @override
   Widget build(BuildContext context) {
     final objProvider = Provider.of<GeneralProvider>(context, listen: false);
@@ -750,6 +775,7 @@ class _MainScreenState extends State<MainScreen> {
                   objProvider: objProvider,
                   selectedFilter: _selectedFilter, // Add this line
                   onFilterChanged: _onFilterChanged, // Add this line
+                  getEstateRatings: _getEstateRatings, // Add this line
                 ),
                 NotificationUser(),
                 UpgradeAccount(),
@@ -765,6 +791,7 @@ class _MainScreenState extends State<MainScreen> {
                   objProvider: objProvider,
                   selectedFilter: _selectedFilter, // Add this line
                   onFilterChanged: _onFilterChanged, // Add this line
+                  getEstateRatings: _getEstateRatings, // Add this line
                 ),
                 Request(),
                 // TypeEstate(Check: "chat"),
@@ -783,6 +810,8 @@ class ReusedEstatePage extends StatelessWidget {
   final GeneralProvider objProvider;
   final String selectedFilter; // Add this line
   final Function(String) onFilterChanged; // Add this line
+  final Future<Map<String, dynamic>> Function(String)
+      getEstateRatings; // Add this line
 
   const ReusedEstatePage({
     Key? key,
@@ -793,6 +822,7 @@ class ReusedEstatePage extends StatelessWidget {
     required this.objProvider,
     required this.selectedFilter, // Add this line
     required this.onFilterChanged, // Add this line
+    required this.getEstateRatings, // Add this line
   }) : super(key: key);
 
   @override
@@ -846,18 +876,18 @@ class ReusedEstatePage extends StatelessWidget {
           Divider(),
           CustomWidgets.buildSectionTitle(context, 'Hotel'),
           if (selectedFilter == 'All' || selectedFilter == 'Hotel')
-            CustomWidgets.buildFirebaseAnimatedList(
-                queryHotel, 'assets/images/hotel.png', getImages),
+            CustomWidgets.buildFirebaseAnimatedListWithRatings(queryHotel,
+                'assets/images/hotel.png', getImages, getEstateRatings),
           Divider(),
           CustomWidgets.buildSectionTitle(context, 'Coffee'),
           if (selectedFilter == 'All' || selectedFilter == 'Coffee')
-            CustomWidgets.buildFirebaseAnimatedList(
-                queryCoffee, 'assets/images/coffee.png', getImages),
+            CustomWidgets.buildFirebaseAnimatedListWithRatings(queryCoffee,
+                'assets/images/coffee.png', getImages, getEstateRatings),
           Divider(),
           CustomWidgets.buildSectionTitle(context, 'Restaurant'),
           if (selectedFilter == 'All' || selectedFilter == 'Restaurant')
-            CustomWidgets.buildFirebaseAnimatedList(
-                queryRestaurant, 'assets/images/restaurant.png', getImages),
+            CustomWidgets.buildFirebaseAnimatedListWithRatings(queryRestaurant,
+                'assets/images/restaurant.png', getImages, getEstateRatings),
         ],
       ),
     );
