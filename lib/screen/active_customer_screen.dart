@@ -72,13 +72,42 @@ class ActiveCustomersScreenState extends State<ActiveCustomersScreen> {
     });
   }
 
-  void rateCustomer(String userId, double rating) {
-    DatabaseReference feedbackRef =
-        databaseReference.child("App/ProviderFeedbackToCustomer/$userId");
-    feedbackRef.push().set({
+  void rateCustomer(String userId, double rating) async {
+    DatabaseReference feedbackRef = databaseReference
+        .child("App/ProviderFeedbackToCustomer/$userId/ratings");
+
+    DataSnapshot snapshot = await feedbackRef.get();
+    double totalRating = 0;
+    int ratingCount = 0;
+
+    if (snapshot.exists) {
+      Map<dynamic, dynamic> ratings = snapshot.value as Map<dynamic, dynamic>;
+      ratings.forEach((key, value) {
+        totalRating += value['rating'];
+        ratingCount++;
+      });
+
+      totalRating += rating;
+      ratingCount++;
+    } else {
+      totalRating = rating;
+      ratingCount = 1;
+    }
+
+    double averageRating = totalRating / ratingCount;
+
+    await databaseReference
+        .child("App/ProviderFeedbackToCustomer/$userId")
+        .update({
+      'averageRating': averageRating,
+      'ratingCount': ratingCount,
+    });
+
+    await feedbackRef.push().set({
       'rating': rating,
       'timestamp': DateTime.now().millisecondsSinceEpoch,
     });
+
     setState(() {
       ratedCustomers.add(userId);
     });
