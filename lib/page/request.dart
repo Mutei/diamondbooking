@@ -23,6 +23,19 @@ class _RequestState extends State<Request> {
     Provider.of<GeneralProvider>(context, listen: false).resetNewRequestCount();
   }
 
+  Future<double?> fetchUserRating(String userId) async {
+    DatabaseReference ratingRef = FirebaseDatabase.instance
+        .ref("App")
+        .child("ProviderFeedbackToCustomer")
+        .child(userId)
+        .child("averageRating");
+    DataSnapshot snapshot = await ratingRef.get();
+    if (snapshot.exists) {
+      return snapshot.value as double?;
+    }
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     final objProvider = Provider.of<GeneralProvider>(context);
@@ -45,93 +58,121 @@ class _RequestState extends State<Request> {
             value['Key'] = snapshot.key;
             String? id = FirebaseAuth.instance.currentUser?.uid;
             if (value["IDOwner"] == id) {
-              return Container(
-                margin: EdgeInsets.all(10),
-                width: MediaQuery.of(context).size.width,
-                child: Card(
-                  color: value["Status"] == "1"
-                      ? Colors.white
-                      : value["Status"] == "2"
-                          ? Colors.lightGreen
-                          : Colors.red[100],
-                  child: InkWell(
-                    onTap: () {
-                      if (value["Status"] == "1") {
-                        if (value["EndDate"].toString() != "") {
-                          _showMyDialog(value);
-                        } else {
-                          _showMyDialogCoffe(value);
-                        }
-                      }
-                    },
-                    child: Wrap(
-                      children: [
-                        Row(
+              return FutureBuilder<double?>(
+                future: fetchUserRating(value['IDUser']),
+                builder: (context, ratingSnapshot) {
+                  if (ratingSnapshot.connectionState ==
+                      ConnectionState.waiting) {
+                    return Container(); // or any loading indicator
+                  }
+                  double? userRating = ratingSnapshot.data;
+                  return Container(
+                    margin: EdgeInsets.all(10),
+                    width: MediaQuery.of(context).size.width,
+                    child: Card(
+                      color: value["Status"] == "1"
+                          ? Colors.white
+                          : value["Status"] == "2"
+                              ? Colors.lightGreen
+                              : Colors.red[100],
+                      child: InkWell(
+                        onTap: () {
+                          if (value["Status"] == "1") {
+                            if (value["EndDate"].toString() != "") {
+                              _showMyDialog(value);
+                            } else {
+                              _showMyDialogCoffe(value);
+                            }
+                          }
+                        },
+                        child: Wrap(
                           children: [
-                            Expanded(
-                              child: ItemInCard(
-                                  Icon(Icons.calendar_month),
-                                  value["StartDate"].toString(),
-                                  // .split(" ")[2]
-                                  getTranslated(context, "FromDate")),
-                            ),
-                            Expanded(
-                              child: value["EndDate"].toString() != ""
-                                  ? ItemInCard(
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: ItemInCard(
                                       Icon(Icons.calendar_month),
-                                      value["EndDate"].toString(),
-                                      getTranslated(context, "ToDate"))
-                                  : Container(),
-                            )
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: ItemInCard(
-                                  Icon(Icons.bookmark_added_sharp),
-                                  value["IDBook"].toString(),
-                                  // .split(" ")[2]
-                                  getTranslated(context, "Booking ID")),
+                                      value["StartDate"].toString(),
+                                      // .split(" ")[2]
+                                      getTranslated(context, "FromDate")),
+                                ),
+                                Expanded(
+                                  child: value["EndDate"].toString() != ""
+                                      ? ItemInCard(
+                                          Icon(Icons.calendar_month),
+                                          value["EndDate"].toString(),
+                                          getTranslated(context, "ToDate"))
+                                      : Container(),
+                                )
+                              ],
                             ),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: ItemInCard(
-                                  Icon(Icons.timer),
-                                  value["Clock"].toString(),
-                                  // .split(" ")[2]
-                                  getTranslated(context, "Time")),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: ItemInCard(
+                                      Icon(Icons.bookmark_added_sharp),
+                                      value["IDBook"].toString(),
+                                      // .split(" ")[2]
+                                      getTranslated(context, "Booking ID")),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                        Row(
-                          children: [
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: ItemInCard(
+                                      Icon(Icons.timer),
+                                      value["Clock"].toString(),
+                                      // .split(" ")[2]
+                                      getTranslated(context, "Time")),
+                                ),
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: ItemInCard(
+                                    Icon(Icons.person),
+                                    value['NameUser'] ?? "",
+                                    getTranslated(context, "UserName"),
+                                  ),
+                                ),
+                                Expanded(
+                                  child: value["NetTotal"].toString() != "null"
+                                      ? ItemInCard(
+                                          Icon(Icons.money),
+                                          value["NetTotal"].toString(),
+                                          getTranslated(context, "Total"))
+                                      : Container(),
+                                )
+                              ],
+                            ),
                             Expanded(
-                              child: ItemInCard(
-                                Icon(Icons.person),
-                                value['NameUser'] ?? "",
-                                getTranslated(context, "UserName"),
+                              child: Padding(
+                                padding: const EdgeInsets.only(
+                                  left: 16,
+                                ),
+                                child: Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.star,
+                                      color: kPrimaryColor,
+                                    ),
+                                    const SizedBox(width: 20),
+                                    Text(userRating.toString(),
+                                        style: const TextStyle(fontSize: 12)),
+                                  ],
+                                ),
                               ),
                             ),
-                            Expanded(
-                              child: value["NetTotal"].toString() != "null"
-                                  ? ItemInCard(
-                                      Icon(Icons.money),
-                                      value["NetTotal"].toString(),
-                                      getTranslated(context, "Total"))
-                                  : Container(),
-                            )
+                            ItemInCard(Icon(Icons.business), value["NameEn"],
+                                getTranslated(context, "Hottel Name")),
                           ],
                         ),
-                        ItemInCard(Icon(Icons.business), value["NameEn"],
-                            getTranslated(context, "Hottel Name")),
-                      ],
+                      ),
                     ),
-                  ),
-                ),
+                  );
+                },
               );
             } else {
               return Container();
@@ -449,7 +490,7 @@ class _RequestState extends State<Request> {
     );
   }
 
-  ItemInCard(Icon icon, String data, String label) {
+  ItemInCard(Icon icon, String data, String label, {Widget? additionalWidget}) {
     return Container(
       child: ListTile(
         leading: icon,
@@ -458,9 +499,15 @@ class _RequestState extends State<Request> {
           label,
           style: TextStyle(fontSize: 12),
         ),
-        subtitle: Text(
-          data,
-          style: TextStyle(fontSize: 12),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              data,
+              style: TextStyle(fontSize: 12),
+            ),
+            if (additionalWidget != null) additionalWidget,
+          ],
         ),
       ),
     );
