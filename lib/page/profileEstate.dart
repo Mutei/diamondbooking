@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:diamond_booking/constants/colors.dart';
 import 'package:diamond_booking/extension/sized_box_extension.dart';
 import 'package:diamond_booking/page/points_helper.dart';
@@ -137,6 +139,51 @@ class _ProfileEstateState extends State<ProfileEstate> {
         sTime = selectedTime;
         flagTime = true;
       });
+    }
+  }
+
+  String generateUniqueID() {
+    var random = Random();
+    return (random.nextInt(90000) + 10000)
+        .toString(); // Generates a 5-digit number
+  }
+
+  Future<void> _createBooking() async {
+    if (flagDate && flagTime) {
+      String uniqueID = generateUniqueID();
+      String IDBook = uniqueID;
+
+      DatabaseReference ref =
+          FirebaseDatabase.instance.ref("App").child("Booking");
+      String? id = FirebaseAuth.instance.currentUser?.uid;
+
+      String? hour = sTime?.hour.toString().padLeft(2, '0');
+      String? minute = sTime?.minute.toString().padLeft(2, '0');
+
+      await ref.child("Book").child(IDBook.toString()).set({
+        "IDEstate": estate['IDEstate'].toString(),
+        "IDBook": IDBook,
+        "NameEn": estate['NameEn'],
+        "NameAr": estate['NameAr'],
+        "Status": "1",
+        "IDUser": id,
+        "IDOwner": estate['IDUser'],
+        "StartDate":
+            "${selectedDate.year}-${selectedDate.month}-${selectedDate.day}",
+        "Clock": "${hour!}:${minute!}",
+        "EndDate": "",
+        "Type": estate['Type'],
+        "Country": estate["Country"],
+        "State": estate["State"],
+        "City": estate["City"],
+        "NameUser":
+            "${estate['FirstName']} ${estate['SecondName']} ${estate['LastName']}",
+      });
+
+      Provider.of<GeneralProvider>(context, listen: false).FunSnackBarPage(
+        getTranslated(context, "Successfully"),
+        context,
+      );
     }
   }
 
@@ -899,48 +946,7 @@ class _ProfileEstateState extends State<ProfileEstate> {
                             } else {
                               await _selectDate(context);
                               await selectTime(context);
-                              DatabaseReference ref = FirebaseDatabase.instance
-                                  .ref("App")
-                                  .child("Booking");
-
-                              String? id =
-                                  FirebaseAuth.instance.currentUser?.uid;
-                              if (flagDate && flagTime) {
-                                String? hour =
-                                    sTime?.hour.toString().padLeft(2, '0');
-                                String? minute =
-                                    sTime?.minute.toString().padLeft(2, '0');
-                                String IDBook = (estate['IDEstate'].toString() +
-                                    selectedDate.toString().split(" ")[0] +
-                                    id!);
-                                SharedPreferences sharedPreferences =
-                                    await SharedPreferences.getInstance();
-                                await ref
-                                    .child("Book")
-                                    .child(IDBook.toString())
-                                    .set({
-                                  "IDEstate": estate['IDEstate'].toString(),
-                                  "IDBook": IDBook,
-                                  "NameEn": estate['NameEn'],
-                                  "NameAr": estate['NameAr'],
-                                  "Status": "1",
-                                  "IDUser": id,
-                                  "IDOwner": estate['IDUser'],
-                                  "StartDate":
-                                      "${selectedDate.year}-${selectedDate.month}-${selectedDate.day}",
-                                  "Clock": "${hour!}:${minute!}",
-                                  "EndDate": "",
-                                  "Type": estate['Type'],
-                                  "Country": estate["Country"],
-                                  "State": estate["State"],
-                                  "City": estate["City"],
-                                  "NameUser":
-                                      "${estate['FirstName']} ${estate['SecondName']} ${estate['LastName']}",
-                                });
-                                objProvider.FunSnackBarPage(
-                                    getTranslated(context, "Successfully"),
-                                    context);
-                              }
+                              await _createBooking();
                             }
                           } else {
                             objProvider.FunSnackBarPage(
