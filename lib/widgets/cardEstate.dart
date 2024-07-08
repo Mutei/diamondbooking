@@ -11,12 +11,12 @@ import '../general_provider.dart';
 import '../page/profileEstate.dart';
 
 class CardEstate extends StatefulWidget {
-  BuildContext context;
-  Map obj;
-  String icon;
-  bool VisEdit;
-  String image;
-  bool? Visimage;
+  final BuildContext context;
+  final Map obj;
+  final String icon;
+  final bool VisEdit;
+  final String image;
+  final bool? Visimage;
   final int? ratings; // Add this line
   final double? totalRating; // Add this line
 
@@ -37,12 +37,12 @@ class CardEstate extends StatefulWidget {
 }
 
 class _State extends State<CardEstate> {
-  BuildContext context;
-  Map obj;
-  String icon;
-  bool VisEdit;
-  String image;
-  bool Visimage;
+  final BuildContext context;
+  final Map obj;
+  final String icon;
+  final bool VisEdit;
+  final String image;
+  final bool Visimage;
   final int ratings; // Add this line
   final double totalRating; // Add this line
 
@@ -106,12 +106,13 @@ class _State extends State<CardEstate> {
     }
   }
 
+  @override
   Widget build(BuildContext context) {
     final objProvider = Provider.of<GeneralProvider>(context, listen: false);
 
     return InkWell(
       child: Container(
-        width: MediaQuery.of(context).size.width - 100,
+        width: MediaQuery.of(context).size.width,
         margin: const EdgeInsets.only(left: 10, right: 10, top: 5),
         child: Column(
           children: [
@@ -141,68 +142,69 @@ class _State extends State<CardEstate> {
                 },
               ),
             ),
-            Expanded(
-              child: Container(
-                margin: const EdgeInsets.only(left: 10, right: 10),
-                child: ListTile(
-                  title: Text(
-                    objProvider.CheckLangValue
-                        ? (obj['NameEn'] ??
-                            'Unknown') // Handle null value for NameEn
-                        : (obj['NameAr'] ??
-                            'Unknown'), // Handle null value for NameAr
-                  ),
-                  subtitle: !Visimage
-                      ? Wrap(
-                          runSpacing: 5.0,
-                          spacing: 5.0,
-                          children: [
-                            Expanded(
+            Container(
+              margin: const EdgeInsets.only(left: 10, right: 10),
+              child: ListTile(
+                title: Text(
+                  objProvider.CheckLangValue
+                      ? (obj['NameEn'] ??
+                          'Unknown') // Handle null value for NameEn
+                      : (obj['NameAr'] ??
+                          'Unknown'), // Handle null value for NameAr
+                ),
+                subtitle: !Visimage
+                    ? Wrap(
+                        runSpacing: 5.0,
+                        spacing: 5.0,
+                        children: [
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width / 3,
+                            child: Text(
+                              obj['State'] ??
+                                  'Unknown', // Handle null value for State
+                              style: TextStyle(fontSize: 12),
+                            ),
+                          ),
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width / 3,
+                            child: Visibility(
+                              visible: obj["Type"] == 1 ? false : true,
                               child: Text(
-                                obj['State'] ??
-                                    'Unknown', // Handle null value for State
+                                obj["Sessions"]?.toString() ??
+                                    " ", // Handle null value for Sessions
                                 style: TextStyle(fontSize: 12),
                               ),
                             ),
-                            Expanded(
-                              child: Visibility(
-                                visible: obj["Type"] == 1 ? false : true,
-                                child: Text(
-                                  obj["Sessions"]?.toString() ??
-                                      " ", // Handle null value for Sessions
-                                  style: TextStyle(fontSize: 12),
-                                ),
+                          ),
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width / 3,
+                            child: Visibility(
+                              visible: obj["Type"] == 1 ? false : true,
+                              child: Text(
+                                obj["TypeofRestaurant"]?.toString() ??
+                                    " ", // Handle null value for TypeofRestaurant
+                                style: TextStyle(fontSize: 12),
                               ),
                             ),
-                            Expanded(
-                              child: Visibility(
-                                visible: obj["Type"] == 1 ? false : true,
-                                child: Text(
-                                  obj["TypeofRestaurant"]?.toString() ??
-                                      " ", // Handle null value for TypeofRestaurant
-                                  style: TextStyle(fontSize: 12),
-                                ),
-                              ),
-                            ),
-                          ],
-                        )
-                      : Text(
-                          obj['State'] ??
-                              'Unknown', // Handle null value for State
-                          style: TextStyle(fontSize: 12),
-                        ),
-                  trailing: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(
-                          top: 20.0,
-                        ),
-                        child: Text(
-                            '($ratings)  ${totalRating.toStringAsFixed(1)} ⭐'),
+                          ),
+                        ],
+                      )
+                    : Text(
+                        obj['State'] ??
+                            'Unknown', // Handle null value for State
+                        style: TextStyle(fontSize: 12),
                       ),
-                    ],
-                  ),
+                trailing: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(
+                        top: 20.0,
+                      ),
+                      child: Text(
+                          '($ratings)  ${totalRating.toStringAsFixed(1)} ⭐'),
+                    ),
+                  ],
                 ),
               ),
             ),

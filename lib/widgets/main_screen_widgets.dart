@@ -20,13 +20,18 @@ class CustomWidgets {
       Query query,
       String icon,
       Future<String> Function(String key) getImageUrl,
-      Future<Map<String, dynamic>> Function(String) getRatings) {
+      Future<Map<String, dynamic>> Function(String) getRatings,
+      String selectedFilter) {
+    bool isVertical = selectedFilter != 'All';
+
     return Container(
-      height: 200,
+      height: isVertical ? null : 200, // Adjust height for vertical layout
       child: FirebaseAnimatedList(
-        shrinkWrap: true,
+        shrinkWrap: isVertical,
         defaultChild: const Center(child: CircularProgressIndicator()),
-        scrollDirection: Axis.horizontal,
+        scrollDirection: isVertical
+            ? Axis.vertical
+            : Axis.horizontal, // Adjust scroll direction
         itemBuilder: (context, snapshot, animation, index) {
           Map map = snapshot.value as Map;
           map['Key'] = snapshot.key;

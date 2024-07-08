@@ -808,10 +808,9 @@ class ReusedEstatePage extends StatelessWidget {
   final Query queryRestaurant;
   final Future<String> Function(String) getImages;
   final GeneralProvider objProvider;
-  final String selectedFilter; // Add this line
-  final Function(String) onFilterChanged; // Add this line
-  final Future<Map<String, dynamic>> Function(String)
-      getEstateRatings; // Add this line
+  final String selectedFilter;
+  final Function(String) onFilterChanged;
+  final Future<Map<String, dynamic>> Function(String) getEstateRatings;
 
   const ReusedEstatePage({
     Key? key,
@@ -820,9 +819,9 @@ class ReusedEstatePage extends StatelessWidget {
     required this.queryRestaurant,
     required this.getImages,
     required this.objProvider,
-    required this.selectedFilter, // Add this line
-    required this.onFilterChanged, // Add this line
-    required this.getEstateRatings, // Add this line
+    required this.selectedFilter,
+    required this.onFilterChanged,
+    required this.getEstateRatings,
   }) : super(key: key);
 
   @override
@@ -847,7 +846,6 @@ class ReusedEstatePage extends StatelessWidget {
           //     },
           //   ),
           // ),
-          // Add filter buttons here
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
@@ -874,20 +872,35 @@ class ReusedEstatePage extends StatelessWidget {
             ],
           ),
           Divider(),
-          CustomWidgets.buildSectionTitle(context, 'Hotel'),
           if (selectedFilter == 'All' || selectedFilter == 'Hotel')
-            CustomWidgets.buildFirebaseAnimatedListWithRatings(queryHotel,
-                'assets/images/hotel.png', getImages, getEstateRatings),
+            CustomWidgets.buildSectionTitle(context, 'Hotel'),
+          if (selectedFilter == 'All' || selectedFilter == 'Hotel')
+            CustomWidgets.buildFirebaseAnimatedListWithRatings(
+                queryHotel,
+                'assets/images/hotel.png',
+                getImages,
+                getEstateRatings,
+                selectedFilter),
           Divider(),
-          CustomWidgets.buildSectionTitle(context, 'Coffee'),
           if (selectedFilter == 'All' || selectedFilter == 'Coffee')
-            CustomWidgets.buildFirebaseAnimatedListWithRatings(queryCoffee,
-                'assets/images/coffee.png', getImages, getEstateRatings),
+            CustomWidgets.buildSectionTitle(context, 'Coffee'),
+          if (selectedFilter == 'All' || selectedFilter == 'Coffee')
+            CustomWidgets.buildFirebaseAnimatedListWithRatings(
+                queryCoffee,
+                'assets/images/coffee.png',
+                getImages,
+                getEstateRatings,
+                selectedFilter),
           Divider(),
-          CustomWidgets.buildSectionTitle(context, 'Restaurant'),
           if (selectedFilter == 'All' || selectedFilter == 'Restaurant')
-            CustomWidgets.buildFirebaseAnimatedListWithRatings(queryRestaurant,
-                'assets/images/restaurant.png', getImages, getEstateRatings),
+            CustomWidgets.buildSectionTitle(context, 'Restaurant'),
+          if (selectedFilter == 'All' || selectedFilter == 'Restaurant')
+            CustomWidgets.buildFirebaseAnimatedListWithRatings(
+                queryRestaurant,
+                'assets/images/restaurant.png',
+                getImages,
+                getEstateRatings,
+                selectedFilter),
         ],
       ),
     );
