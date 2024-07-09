@@ -244,71 +244,60 @@ class _ReusedEstatePageState extends State<ReusedEstatePage> {
     return Container(
       color: Colors.white,
       margin: const EdgeInsets.only(top: 5, bottom: 20, left: 10, right: 10),
-      child: ListView(
-        children: [
-          Container(height: 20),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              FilterButton(
-                label: 'All',
-                isSelected: widget.selectedFilter == 'All',
-                onTap: () => widget.onFilterChanged('All'),
-              ),
-              FilterButton(
-                label: 'Restaurant',
-                isSelected: widget.selectedFilter == 'Restaurant',
-                onTap: () => widget.onFilterChanged('Restaurant'),
-              ),
-              FilterButton(
-                label: 'Hotel',
-                isSelected: widget.selectedFilter == 'Hotel',
-                onTap: () => widget.onFilterChanged('Hotel'),
-              ),
-              FilterButton(
-                label: 'Coffee',
-                isSelected: widget.selectedFilter == 'Coffee',
-                onTap: () => widget.onFilterChanged('Coffee'),
-              ),
-            ],
-          ),
-          const Divider(),
-          if (widget.selectedFilter == 'All' ||
-              widget.selectedFilter == 'Hotel')
-            _buildSectionWithFilterIcon(context, 'Hotel'),
-          if (widget.selectedFilter == 'All' ||
-              widget.selectedFilter == 'Hotel')
-            CustomWidgets.buildFirebaseAnimatedListWithRatings(
-                widget.queryHotel,
-                'assets/images/hotel.png',
-                widget.getImages,
-                widget.getEstateRatings,
-                widget.selectedFilter),
-          const Divider(),
-          if (widget.selectedFilter == 'All' ||
-              widget.selectedFilter == 'Coffee')
-            _buildSectionWithFilterIcon(context, 'Coffee'),
-          if (widget.selectedFilter == 'All' ||
-              widget.selectedFilter == 'Coffee')
-            CustomWidgets.buildFirebaseAnimatedListWithRatings(
-                widget.queryCoffee,
-                'assets/images/coffee.png',
-                widget.getImages,
-                widget.getEstateRatings,
-                widget.selectedFilter),
-          const Divider(),
-          if (widget.selectedFilter == 'All' ||
-              widget.selectedFilter == 'Restaurant')
-            _buildSectionWithFilterIcon(context, 'Restaurant'),
-          if (widget.selectedFilter == 'All' ||
-              widget.selectedFilter == 'Restaurant')
-            CustomWidgets.buildFirebaseAnimatedListWithRatings(
-                widget.queryRestaurant,
-                'assets/images/restaurant.png',
-                widget.getImages,
-                widget.getEstateRatings,
-                widget.selectedFilter),
-        ],
+      child: SingleChildScrollView(
+        scrollDirection: Axis.vertical,
+        child: Column(
+          children: [
+            Container(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                FilterButton(
+                  label: 'All',
+                  isSelected: widget.selectedFilter == 'All',
+                  onTap: () => widget.onFilterChanged('All'),
+                ),
+                FilterButton(
+                  label: 'Restaurant',
+                  isSelected: widget.selectedFilter == 'Restaurant',
+                  onTap: () => widget.onFilterChanged('Restaurant'),
+                ),
+                FilterButton(
+                  label: 'Hotel',
+                  isSelected: widget.selectedFilter == 'Hotel',
+                  onTap: () => widget.onFilterChanged('Hotel'),
+                ),
+                FilterButton(
+                  label: 'Coffee',
+                  isSelected: widget.selectedFilter == 'Coffee',
+                  onTap: () => widget.onFilterChanged('Coffee'),
+                ),
+              ],
+            ),
+            const Divider(),
+            if (widget.selectedFilter == 'All' ||
+                widget.selectedFilter == 'Hotel')
+              _buildSectionWithFilterIcon(context, 'Hotel'),
+            if (widget.selectedFilter == 'All' ||
+                widget.selectedFilter == 'Hotel')
+              _buildEstateList(widget.queryHotel, 'assets/images/hotel.png'),
+            const Divider(),
+            if (widget.selectedFilter == 'All' ||
+                widget.selectedFilter == 'Coffee')
+              _buildSectionWithFilterIcon(context, 'Coffee'),
+            if (widget.selectedFilter == 'All' ||
+                widget.selectedFilter == 'Coffee')
+              _buildEstateList(widget.queryCoffee, 'assets/images/coffee.png'),
+            const Divider(),
+            if (widget.selectedFilter == 'All' ||
+                widget.selectedFilter == 'Restaurant')
+              _buildSectionWithFilterIcon(context, 'Restaurant'),
+            if (widget.selectedFilter == 'All' ||
+                widget.selectedFilter == 'Restaurant')
+              _buildEstateList(
+                  widget.queryRestaurant, 'assets/images/restaurant.png'),
+          ],
+        ),
       ),
     );
   }
@@ -323,6 +312,19 @@ class _ReusedEstatePageState extends State<ReusedEstatePage> {
           onPressed: () => _openFilterSheet(context, estateType),
         ),
       ],
+    );
+  }
+
+  Widget _buildEstateList(Query query, String icon) {
+    return SizedBox(
+      height: 200, // Adjust height as needed
+      child: CustomWidgets.buildFirebaseAnimatedListWithRatings(
+        query,
+        icon,
+        widget.getImages,
+        widget.getEstateRatings,
+        widget.selectedFilter,
+      ),
     );
   }
 }

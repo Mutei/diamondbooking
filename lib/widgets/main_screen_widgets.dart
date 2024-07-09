@@ -22,59 +22,50 @@ class CustomWidgets {
       Future<String> Function(String key) getImageUrl,
       Future<Map<String, dynamic>> Function(String) getRatings,
       String selectedFilter) {
-    bool isVertical = selectedFilter != 'All';
-
-    return Container(
-      height: isVertical ? null : 200, // Adjust height for vertical layout
-      child: FirebaseAnimatedList(
-        shrinkWrap: isVertical,
-        defaultChild: const Center(child: CircularProgressIndicator()),
-        scrollDirection: isVertical
-            ? Axis.vertical
-            : Axis.horizontal, // Adjust scroll direction
-        itemBuilder: (context, snapshot, animation, index) {
-          Map map = snapshot.value as Map;
-          map['Key'] = snapshot.key;
-          return FutureBuilder<Map<String, dynamic>>(
-            future: getRatings(map['Key']),
-            builder: (context, ratingsSnapshot) {
-              if (ratingsSnapshot.connectionState == ConnectionState.waiting) {
-                return Center(child: CircularProgressIndicator());
-              } else if (ratingsSnapshot.hasError) {
-                return Text('Error: ${ratingsSnapshot.error}');
-              } else {
-                Map<String, dynamic> ratingsData = ratingsSnapshot.data!;
-                double totalRating = ratingsData['totalRating'];
-                int ratingCount = ratingsData['ratingCount'];
-                return FutureBuilder<String>(
-                  future: getImageUrl(map['Key']),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return Center(child: CircularProgressIndicator());
-                    } else if (snapshot.hasError) {
-                      return Text('Error: ${snapshot.error}');
-                    } else {
-                      String imageUrl =
-                          snapshot.data ?? 'assets/images/default_image.png';
-                      return CardEstate(
-                        context: context,
-                        obj: map,
-                        icon: icon,
-                        VisEdit: false,
-                        image: imageUrl,
-                        Visimage: true,
-                        ratings: ratingCount,
-                        totalRating: totalRating,
-                      );
-                    }
-                  },
-                );
-              }
-            },
-          );
-        },
-        query: query,
-      ),
+    return FirebaseAnimatedList(
+      scrollDirection: Axis.horizontal, // Always scroll horizontally
+      itemBuilder: (context, snapshot, animation, index) {
+        Map map = snapshot.value as Map;
+        map['Key'] = snapshot.key;
+        return FutureBuilder<Map<String, dynamic>>(
+          future: getRatings(map['Key']),
+          builder: (context, ratingsSnapshot) {
+            if (ratingsSnapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: CircularProgressIndicator());
+            } else if (ratingsSnapshot.hasError) {
+              return Text('Error: ${ratingsSnapshot.error}');
+            } else {
+              Map<String, dynamic> ratingsData = ratingsSnapshot.data!;
+              double totalRating = ratingsData['totalRating'];
+              int ratingCount = ratingsData['ratingCount'];
+              return FutureBuilder<String>(
+                future: getImageUrl(map['Key']),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(child: CircularProgressIndicator());
+                  } else if (snapshot.hasError) {
+                    return Text('Error: ${snapshot.error}');
+                  } else {
+                    String imageUrl =
+                        snapshot.data ?? 'assets/images/default_image.png';
+                    return CardEstate(
+                      context: context,
+                      obj: map,
+                      icon: icon,
+                      VisEdit: false,
+                      image: imageUrl,
+                      Visimage: true,
+                      ratings: ratingCount,
+                      totalRating: totalRating,
+                    );
+                  }
+                },
+              );
+            }
+          },
+        );
+      },
+      query: query,
     );
   }
 }
