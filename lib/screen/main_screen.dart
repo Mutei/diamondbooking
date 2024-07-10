@@ -50,6 +50,8 @@ class _MainScreenState extends State<MainScreen> {
   PageController _pageController = PageController();
   int _selectedIndex = 0;
   String _selectedFilter = 'All'; // Add this line
+  TextEditingController _searchController =
+      TextEditingController(); // Add this line
 
   @override
   void initState() {
@@ -151,6 +153,11 @@ class _MainScreenState extends State<MainScreen> {
     });
   }
 
+  void _onSearchTextChanged(String text) {
+    // Add this method
+    setState(() {});
+  }
+
   Future<String> _getImages(String key) async {
     // Implement your image fetching logic here
     return 'assets/images/default_image.png';
@@ -245,13 +252,6 @@ class _MainScreenState extends State<MainScreen> {
                   ),
                   label: upgrade,
                 ),
-                // BottomNavigationBarItem(
-                //   icon: const Icon(
-                //     Icons.chat,
-                //     color: kPrimaryColor,
-                //   ),
-                //   label: chatU,
-                // ),
                 BottomNavigationBarItem(
                   icon: const Icon(
                     Icons.circle,
@@ -292,13 +292,6 @@ class _MainScreenState extends State<MainScreen> {
                   ),
                   label: request,
                 ),
-                // BottomNavigationBarItem(
-                //   icon: const Icon(
-                //     Icons.chat,
-                //     color: kPrimaryColor,
-                //   ),
-                //   label: chat,
-                // ),
                 BottomNavigationBarItem(
                   icon: const Icon(
                     Icons.circle,
@@ -320,6 +313,31 @@ class _MainScreenState extends State<MainScreen> {
         centerTitle: true,
         backgroundColor: Colors.white,
         iconTheme: kIconTheme, // Set the background color to white
+        actions: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: SizedBox(
+              width: 200, // Adjust the width as needed
+              child: TextField(
+                controller: _searchController,
+                onChanged: _onSearchTextChanged, // Add this line
+                decoration: InputDecoration(
+                  hintText: getTranslated(context, "Search..."),
+                  hintStyle: TextStyle(color: Colors.grey),
+                  prefixIcon: Icon(Icons.search, color: kPrimaryColor),
+                  filled: true,
+                  fillColor: Colors.white,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(25.0),
+                    borderSide: BorderSide.none,
+                  ),
+                  contentPadding: EdgeInsets.symmetric(vertical: 0),
+                ),
+                style: TextStyle(color: kPrimaryColor),
+              ),
+            ),
+          ),
+        ],
       ),
       drawer: CustomDrawer(userType: userType, id: ID),
       body: PageView(
@@ -340,10 +358,10 @@ class _MainScreenState extends State<MainScreen> {
                   selectedFilter: _selectedFilter, // Add this line
                   onFilterChanged: _onFilterChanged, // Add this line
                   getEstateRatings: _getEstateRatings, // Add this line
+                  searchQuery: _searchController.text, // Add this line
                 ),
                 NotificationUser(),
                 UpgradeAccount(),
-                // TypeEstate(Check: "chatuser"),
                 AllPostsScreen(),
               ]
             : [
@@ -356,9 +374,9 @@ class _MainScreenState extends State<MainScreen> {
                   selectedFilter: _selectedFilter, // Add this line
                   onFilterChanged: _onFilterChanged, // Add this line
                   getEstateRatings: _getEstateRatings, // Add this line
+                  searchQuery: _searchController.text, // Add this line
                 ),
                 Request(),
-                // TypeEstate(Check: "chat"),
                 AllPostsScreen(),
               ],
       ),

@@ -21,12 +21,24 @@ class CustomWidgets {
       String icon,
       Future<String> Function(String key) getImageUrl,
       Future<Map<String, dynamic>> Function(String) getRatings,
-      String selectedFilter) {
+      String selectedFilter,
+      String searchQuery // Add this line
+      ) {
     return FirebaseAnimatedList(
       scrollDirection: Axis.horizontal, // Always scroll horizontally
       itemBuilder: (context, snapshot, animation, index) {
         Map map = snapshot.value as Map;
         map['Key'] = snapshot.key;
+
+        if (searchQuery.isNotEmpty &&
+            !map['NameEn']
+                .toString()
+                .toLowerCase()
+                .contains(searchQuery.toLowerCase())) {
+          // Add this line
+          return Container(); // Add this line
+        } // Add this line
+
         return FutureBuilder<Map<String, dynamic>>(
           future: getRatings(map['Key']),
           builder: (context, ratingsSnapshot) {

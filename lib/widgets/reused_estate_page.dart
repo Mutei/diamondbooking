@@ -14,6 +14,7 @@ class ReusedEstatePage extends StatefulWidget {
   final String selectedFilter;
   final Function(String) onFilterChanged;
   final Future<Map<String, dynamic>> Function(String) getEstateRatings;
+  final String searchQuery; // Add this line
 
   const ReusedEstatePage({
     super.key,
@@ -25,6 +26,7 @@ class ReusedEstatePage extends StatefulWidget {
     required this.selectedFilter,
     required this.onFilterChanged,
     required this.getEstateRatings,
+    required this.searchQuery, // Add this line
   });
 
   @override
@@ -249,6 +251,7 @@ class _ReusedEstatePageState extends State<ReusedEstatePage> {
         widget.getImages,
         widget.getEstateRatings,
         widget.selectedFilter,
+        widget.searchQuery, // Add this line
       ),
     );
   }
