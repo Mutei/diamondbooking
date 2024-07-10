@@ -1,13 +1,11 @@
 import 'dart:async';
 import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import '../screen/active_customer_screen.dart';
 import '../constants/colors.dart';
 import '../constants/styles.dart';
@@ -192,7 +190,14 @@ class _State extends State<Chat> {
       } else {
         setState(() {
           activeCustomers = 0;
+          hasAccess = false;
         });
+
+        // Clear access time and last scan time from shared preferences
+        SharedPreferences sharedPreferences =
+            await SharedPreferences.getInstance();
+        sharedPreferences.remove('access_time_${widget.idEstate}_$id');
+        sharedPreferences.remove('last_scan_time_${widget.idEstate}_$id');
       }
     });
   }

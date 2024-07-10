@@ -70,6 +70,14 @@ class ActiveCustomersScreenState extends State<ActiveCustomersScreen> {
     setState(() {
       activeCustomers.removeWhere((customer) => customer['id'] == userId);
     });
+
+    // Notify chat screen about removal
+    DatabaseReference refChat = FirebaseDatabase.instance
+        .ref("App")
+        .child("Chat")
+        .child(widget.idEstate)
+        .child(userId);
+    await refChat.remove();
   }
 
   void rateCustomer(String userId, double rating) async {
