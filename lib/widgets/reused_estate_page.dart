@@ -1,9 +1,9 @@
 import 'package:diamond_booking/localization/language_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
-import '../general_provider.dart'; // Assuming you have a custom_widgets.dart file
+import '../general_provider.dart';
 import 'filter_button.dart';
-import 'main_screen_widgets.dart'; // Import the FilterButton widget
+import 'main_screen_widgets.dart';
 
 class ReusedEstatePage extends StatefulWidget {
   final Query queryHotel;
@@ -32,6 +32,47 @@ class ReusedEstatePage extends StatefulWidget {
 }
 
 class _ReusedEstatePageState extends State<ReusedEstatePage> {
+  Map<String, bool> restaurantFilters = {
+    'popular restaurant': false,
+    'Indian Restaurant': false,
+    'Italian': false,
+    'Seafood Restaurant': false,
+    'Fast Food': false,
+    'Steak': false,
+    'Grills': false,
+    'healthy': false,
+  };
+
+  Map<String, bool> hotelFilters = {
+    'Single': false,
+    'Double': false,
+    'Swite': false,
+    'Family': false,
+  };
+
+  Map<String, bool> coffeeFilters = {
+    'Familial': false,
+    'Single': false,
+    'mixed': false,
+  };
+
+  void _updateFilterSelection(
+      String filterType, String filterOption, bool value) {
+    setState(() {
+      switch (filterType) {
+        case 'Restaurant':
+          restaurantFilters[filterOption] = value;
+          break;
+        case 'Hotel':
+          hotelFilters[filterOption] = value;
+          break;
+        case 'Coffee':
+          coffeeFilters[filterOption] = value;
+          break;
+      }
+    });
+  }
+
   void _openFilterSheet(BuildContext context, String estateType) {
     showModalBottomSheet(
       context: context,
@@ -55,187 +96,71 @@ class _ReusedEstatePageState extends State<ReusedEstatePage> {
   }
 
   Widget _buildRestaurantFilterOptions() {
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          ListTile(
-            title: Text(
-              getTranslated(context, 'Type of Restaurant'),
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+    return StatefulBuilder(
+      builder: (context, setState) {
+        return SingleChildScrollView(
+          child: Column(
+            children: restaurantFilters.keys.map((filterOption) {
+              return CheckboxListTile(
+                title: Text(getTranslated(context, filterOption)),
+                value: restaurantFilters[filterOption],
+                onChanged: (bool? value) {
+                  setState(() {
+                    restaurantFilters[filterOption] = value!;
+                  });
+                  _updateFilterSelection('Restaurant', filterOption, value!);
+                },
+              );
+            }).toList(),
           ),
-          CheckboxListTile(
-            title: Text(
-              getTranslated(context, 'popular restaurant'),
-            ),
-            value: false,
-            onChanged: (bool? value) {},
-          ),
-          CheckboxListTile(
-            title: Text(
-              getTranslated(context, 'Indian Restaurant'),
-            ),
-            value: false,
-            onChanged: (bool? value) {},
-          ),
-          CheckboxListTile(
-            title: Text(
-              getTranslated(context, 'Italian'),
-            ),
-            value: false,
-            onChanged: (bool? value) {},
-          ),
-          CheckboxListTile(
-            title: Text(
-              getTranslated(context, 'Seafood Restaurant'),
-            ),
-            value: false,
-            onChanged: (bool? value) {},
-          ),
-          CheckboxListTile(
-            title: Text(
-              getTranslated(context, 'Fast Food'),
-            ),
-            value: false,
-            onChanged: (bool? value) {},
-          ),
-          CheckboxListTile(
-            title: Text(
-              getTranslated(context, 'Steak'),
-            ),
-            value: false,
-            onChanged: (bool? value) {},
-          ),
-          CheckboxListTile(
-            title: Text(
-              getTranslated(context, 'Grills'),
-            ),
-            value: false,
-            onChanged: (bool? value) {},
-          ),
-          CheckboxListTile(
-            title: Text(
-              getTranslated(context, 'healthy'),
-            ),
-            value: false,
-            onChanged: (bool? value) {},
-          ),
-          // Add more filter options here...
-        ],
-      ),
+        );
+      },
     );
   }
 
   Widget _buildHotelFilterOptions() {
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          ListTile(
-            title: Text(
-              getTranslated(
-                context,
-                'What We have ?',
-              ),
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+    return StatefulBuilder(
+      builder: (context, setState) {
+        return SingleChildScrollView(
+          child: Column(
+            children: hotelFilters.keys.map((filterOption) {
+              return CheckboxListTile(
+                title: Text(getTranslated(context, filterOption)),
+                value: hotelFilters[filterOption],
+                onChanged: (bool? value) {
+                  setState(() {
+                    hotelFilters[filterOption] = value!;
+                  });
+                  _updateFilterSelection('Hotel', filterOption, value!);
+                },
+              );
+            }).toList(),
           ),
-
-          CheckboxListTile(
-            title: Text(
-              getTranslated(
-                context,
-                'Single',
-              ),
-            ),
-            value: false,
-            onChanged: (bool? value) {},
-          ),
-          CheckboxListTile(
-            title: Text(
-              getTranslated(
-                context,
-                'Double',
-              ),
-            ),
-            value: false,
-            onChanged: (bool? value) {},
-          ),
-          CheckboxListTile(
-            title: Text(
-              getTranslated(
-                context,
-                'Swite',
-              ),
-            ),
-            value: false,
-            onChanged: (bool? value) {},
-          ),
-          CheckboxListTile(
-            title: Text(
-              getTranslated(
-                context,
-                'Family',
-              ),
-            ),
-            value: false,
-            onChanged: (bool? value) {},
-          ),
-          // Add more filter options here...
-        ],
-      ),
+        );
+      },
     );
   }
 
   Widget _buildCoffeeFilterOptions() {
-    return Column(
-      children: [
-        ListTile(
-          title: Text(
-            getTranslated(
-              context,
-              'Entry allowed',
-            ),
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-            ),
+    return StatefulBuilder(
+      builder: (context, setState) {
+        return SingleChildScrollView(
+          child: Column(
+            children: coffeeFilters.keys.map((filterOption) {
+              return CheckboxListTile(
+                title: Text(getTranslated(context, filterOption)),
+                value: coffeeFilters[filterOption],
+                onChanged: (bool? value) {
+                  setState(() {
+                    coffeeFilters[filterOption] = value!;
+                  });
+                  _updateFilterSelection('Coffee', filterOption, value!);
+                },
+              );
+            }).toList(),
           ),
-        ),
-        CheckboxListTile(
-          title: Text(
-            getTranslated(
-              context,
-              'Familial',
-            ),
-          ),
-          value: false,
-          onChanged: (bool? value) {},
-        ),
-        CheckboxListTile(
-          title: Text(
-            getTranslated(
-              context,
-              'Single',
-            ),
-          ),
-          value: false,
-          onChanged: (bool? value) {},
-        ),
-        CheckboxListTile(
-          title: Text(
-            getTranslated(
-              context,
-              'mixed',
-            ),
-          ),
-          value: false,
-          onChanged: (bool? value) {},
-        ),
-        // Add more filter options here...
-      ],
+        );
+      },
     );
   }
 
