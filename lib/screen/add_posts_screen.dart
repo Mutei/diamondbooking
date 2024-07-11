@@ -90,7 +90,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
         estates.forEach((key, value) {
           print('Estate Key: $key, Value: $value');
           if (value['IDUser'] == userId) {
-            userEstates.add({'type': estateType, 'data': value});
+            userEstates.add({'type': estateType, 'data': value, 'id': key});
           }
         });
       });
@@ -100,8 +100,8 @@ class _AddPostScreenState extends State<AddPostScreen> {
         print('User Estates: $_userEstates');
         // Ensure _selectedEstate has a valid value
         if (_userEstates.isNotEmpty &&
-            !_userEstates.any((estate) => estate['type'] == _selectedEstate)) {
-          _selectedEstate = _userEstates.first['type'];
+            !_userEstates.any((estate) => estate['id'] == _selectedEstate)) {
+          _selectedEstate = _userEstates.first['id'];
         }
       });
     } else {
@@ -132,7 +132,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
 
         Map<dynamic, dynamic> selectedEstate = _selectedEstate != null
             ? _userEstates.firstWhere(
-                (estate) => estate['type'] == _selectedEstate,
+                (estate) => estate['id'] == _selectedEstate,
                 orElse: () => {},
               )
             : {};
@@ -189,7 +189,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
           'Text': _textController.text,
           'Date': DateTime.now().millisecondsSinceEpoch,
           'EstateName': estateName,
-          'EstateType': _selectedEstate,
+          'EstateType': selectedEstate['type'],
           'userId': userId,
           'userType': userType,
           'typeAccount': typeAccount,
@@ -228,22 +228,14 @@ class _AddPostScreenState extends State<AddPostScreen> {
                   DropdownButtonFormField<String>(
                     value: _selectedEstate,
                     hint: Text("Select Estate"),
-                    items: _userEstates
-                        .map((estate) {
-                          return estate['type'];
-                        })
-                        .toSet() // Ensure uniqueness
-                        .map((type) {
-                          final estate = _userEstates
-                              .firstWhere((estate) => estate['type'] == type);
-                          print(
-                              'Dropdown Item: $type, Estate Name: ${estate['data']['NameEn']}');
-                          return DropdownMenuItem<String>(
-                            value: type,
-                            child: Text(estate['data']['NameEn']),
-                          );
-                        })
-                        .toList(),
+                    items: _userEstates.map((estate) {
+                      return DropdownMenuItem<String>(
+                        value:
+                            estate['id'], // Use estate ID as the unique value
+                        child: Text(
+                            '${estate['data']['NameEn']} (${estate['type']})'),
+                      );
+                    }).toList(),
                     onChanged: (value) {
                       setState(() {
                         _selectedEstate = value;
