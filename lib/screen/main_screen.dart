@@ -188,6 +188,40 @@ class _MainScreenState extends State<MainScreen> {
     return ratingsData;
   }
 
+  void _showSearchDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        String searchQuery = '';
+
+        return AlertDialog(
+          title: Text(getTranslated(context, "Search")),
+          content: TextField(
+            onChanged: (value) {
+              searchQuery = value;
+            },
+            decoration: InputDecoration(
+              hintText: getTranslated(
+                  context, "Search for Restaurant, Cafe, or Hotel"),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                setState(() {
+                  _searchController.text = searchQuery;
+                });
+                // Perform search or filter logic here
+              },
+              child: Text(getTranslated(context, "Search")),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final objProvider = Provider.of<GeneralProvider>(context, listen: false);
@@ -314,28 +348,9 @@ class _MainScreenState extends State<MainScreen> {
         backgroundColor: Colors.white,
         iconTheme: kIconTheme, // Set the background color to white
         actions: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: SizedBox(
-              width: 200, // Adjust the width as needed
-              child: TextField(
-                controller: _searchController,
-                onChanged: _onSearchTextChanged, // Add this line
-                decoration: InputDecoration(
-                  hintText: getTranslated(context, "Search..."),
-                  hintStyle: TextStyle(color: Colors.grey),
-                  prefixIcon: Icon(Icons.search, color: kPrimaryColor),
-                  filled: true,
-                  fillColor: Colors.white,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(25.0),
-                    borderSide: BorderSide.none,
-                  ),
-                  contentPadding: EdgeInsets.symmetric(vertical: 0),
-                ),
-                style: TextStyle(color: kPrimaryColor),
-              ),
-            ),
+          IconButton(
+            icon: Icon(Icons.search, color: kPrimaryColor),
+            onPressed: _showSearchDialog,
           ),
         ],
       ),
