@@ -65,7 +65,7 @@ class _ReusedAllPostsCardsState extends State<ReusedAllPostsCards> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(widget.post['Description'] ?? 'Description is Empty'),
-                  Text(widget.post['Text'] ?? 'Text is Empty'),
+                  // Text(widget.post['Text'] ?? 'Text is Empty'),
                 ],
               ),
               trailing: Text(widget.post['RelativeDate'] ?? 'Unknown Date'),

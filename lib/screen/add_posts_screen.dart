@@ -250,6 +250,8 @@ class _AddPostScreenState extends State<AddPostScreen> {
                   ),
                 TextFormField(
                   controller: _titleController,
+                  maxLength: 120,
+                  maxLines: null,
                   decoration: InputDecoration(labelText: "Title"),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -258,10 +260,10 @@ class _AddPostScreenState extends State<AddPostScreen> {
                     return null;
                   },
                 ),
-                TextFormField(
-                  controller: _textController,
-                  decoration: InputDecoration(labelText: "Text"),
-                ),
+                // TextFormField(
+                //   controller: _textController,
+                //   decoration: InputDecoration(labelText: "Text"),
+                // ),
                 SizedBox(height: 20),
                 _imageFiles.isEmpty
                     ? Text("No images selected.")
