@@ -18,12 +18,8 @@ class AllPostsScreen extends StatefulWidget {
 class _AllPostsScreenState extends State<AllPostsScreen> {
   final DatabaseReference _postsRef =
       FirebaseDatabase.instance.ref("App").child("AllPosts");
-  final DatabaseReference _hotelRef =
-      FirebaseDatabase.instance.ref("App").child("Estate").child("Hottel");
-  final DatabaseReference _coffeeRef =
-      FirebaseDatabase.instance.ref("App").child("Estate").child("Coffee");
-  final DatabaseReference _restaurantRef =
-      FirebaseDatabase.instance.ref("App").child("Estate").child("Restaurant");
+  final DatabaseReference _userRef =
+      FirebaseDatabase.instance.ref("App").child("User");
 
   String userType = "2";
   String? currentUserId;
@@ -79,18 +75,31 @@ class _AllPostsScreenState extends State<AllPostsScreen> {
 
       if (postsData != null) {
         List<Map<dynamic, dynamic>> postsList = [];
-        postsData.forEach((key, value) {
-          value['postId'] = key;
-          if (value['Date'] != null && value['Date'] is int) {
-            int timestamp = value['Date'];
+        for (var entry in postsData.entries) {
+          Map<dynamic, dynamic> post = entry.value;
+          post['postId'] = entry.key;
+          if (post['Date'] != null && post['Date'] is int) {
+            int timestamp = post['Date'];
             DateTime date = DateTime.fromMillisecondsSinceEpoch(timestamp);
             String relativeDate = timeago.format(date, allowFromNow: true);
-            value['RelativeDate'] = relativeDate;
+            post['RelativeDate'] = relativeDate;
           } else {
-            value['RelativeDate'] = 'Invalid Date';
+            post['RelativeDate'] = 'Invalid Date';
           }
-          postsList.add(value);
-        });
+          if (post['userType'] == '1' && post['typeAccount'] == '3') {
+            DataSnapshot userSnapshot =
+                await _userRef.child(post['userId']).get();
+            if (userSnapshot.exists) {
+              Map<dynamic, dynamic> userData =
+                  userSnapshot.value as Map<dynamic, dynamic>;
+              post['UserName'] =
+                  '${userData['FirstName']} ${userData['SecondName']} ${userData['LastName']}';
+            } else {
+              post['UserName'] = 'Unknown User';
+            }
+          }
+          postsList.add(post);
+        }
 
         setState(() {
           _posts = postsList;
@@ -201,127 +210,3 @@ class _AllPostsScreenState extends State<AllPostsScreen> {
     );
   }
 }
-
-// class AllPost extends StatefulWidget {
-//   const AllPost({super.key});
-//
-//   @override
-//   State<AllPost> createState() => _AllPostState();
-// }
-//
-// class _AllPostState extends State<AllPost> {
-//   final storageRef = FirebaseStorage.instance.ref();
-//
-//   final GlobalKey<ScaffoldState> _scaffoldKey1 = new GlobalKey<ScaffoldState>();
-//
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         elevation: 0,
-//         backgroundColor: kPrimaryColor,
-//         actions: [IconButton(onPressed: () {}, icon: Icon(Icons.add))],
-//       ),
-//       body: Container(
-//         child: FirebaseAnimatedList(
-//             shrinkWrap: true,
-//             physics: const NeverScrollableScrollPhysics(),
-//             defaultChild: const Center(
-//               child: CircularProgressIndicator(),
-//             ),
-//             itemBuilder: (context, snapshot, animation, index) {
-//               Map map = snapshot.value as Map;
-//
-//               return Container(
-//                 width: MediaQuery.of(context).size.width,
-//                 child: Column(
-//                   children: [
-//                     ListTile(
-//                       title: Text(map["NameEn"] ?? ""),
-//                       subtitle: Text(map["Text"]),
-//                       trailing: Text(map["Date"]),
-//                     ),
-//                     FutureBuilder<String>(
-//                       future: getimages(map["IDEstate"], map["IDPost"]),
-//                       builder: (context, snapshot) {
-//                         if (snapshot.hasData &&
-//                             snapshot.connectionState == ConnectionState.done) {
-//                           return Container(
-//                             width: MediaQuery.of(context).size.width,
-//                             child: snapshot.data != ""
-//                                 ? Image(
-//                                     image: NetworkImage(snapshot.data!),
-//                                     fit: BoxFit.cover)
-//                                 : Container(),
-//                           );
-//                         }
-//
-//                         // ignore: prefer_const_constructors
-//                         return Center(
-//                           child: const CircularProgressIndicator(),
-//                         );
-//                       },
-//                     )
-//                   ],
-//                 ),
-//               );
-//             },
-//             query: FirebaseDatabase.instance.ref("App").child("AllPost")),
-//       ),
-//     );
-//   }
-//
-//   Future<String> getimages(String EID, String id) async {
-//     try {
-//       String imageUrl;
-//       imageUrl = await storageRef
-//           .child("Post")
-//           .child(EID + ".jpg")
-//           .child(id)
-//           .getDownloadURL()
-//           .onError((error, stackTrace) => '')
-//           .then((value) => value);
-//       print(imageUrl.toString());
-//       return imageUrl.toString();
-//     } catch (e) {
-//       return "";
-//     }
-//   }
-// }
-//
-// class YourObject {
-//   final DateTime date;
-//   final String text;
-//   final String name;
-//   final String id;
-//   final String idEstate;
-//   final String idPost;
-//   final String type;
-//
-//   YourObject({
-//     required this.date,
-//     required this.text,
-//     required this.name,
-//     required this.id,
-//     required this.idEstate,
-//     required this.idPost,
-//     required this.type,
-//   });
-//
-//   static List<YourObject> parseObjectToObjects(Object object) {
-//     if (object is Map<String, dynamic>) {
-//       return [
-//         YourObject(
-//           date: DateTime.parse(object['Date']),
-//           text: object['Text'],
-//           name: object['Name'],
-//           id: object['ID'],
-//           idEstate: object['IDEstate'],
-//           idPost: object['IDPost'],
-//           type: object['Type'],
-//         )
-//       ];
-//     } else {
-//       throw Exception("Invalid object format.");
-//     }
-//   }
-// }

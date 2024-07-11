@@ -27,6 +27,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
   String? _selectedEstate;
   List<Map<dynamic, dynamic>> _userEstates = [];
   String userType = "2";
+  String? typeAccount;
 
   @override
   void initState() {
@@ -35,9 +36,11 @@ class _AddPostScreenState extends State<AddPostScreen> {
       _postId = widget.post!['postId'];
       _titleController.text = widget.post!['Description'];
       _textController.text = widget.post!['Text'];
+      _selectedEstate = widget.post!['EstateType'];
     }
     _fetchUserEstates();
     _loadUserType();
+    _loadTypeAccount();
   }
 
   Future<void> _loadUserType() async {
@@ -46,6 +49,24 @@ class _AddPostScreenState extends State<AddPostScreen> {
       userType = prefs.getString("TypeUser") ?? "2";
       print("Loaded User Type: $userType");
     });
+  }
+
+  Future<void> _loadTypeAccount() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      DatabaseReference typeAccountRef = FirebaseDatabase.instance
+          .ref("App")
+          .child("User")
+          .child(user.uid)
+          .child("TypeAccount");
+      DataSnapshot snapshot = await typeAccountRef.get();
+      if (snapshot.exists) {
+        setState(() {
+          typeAccount = snapshot.value.toString();
+          print("Loaded Type Account: $typeAccount");
+        });
+      }
+    }
   }
 
   Future<void> _fetchUserEstates() async {
@@ -64,16 +85,27 @@ class _AddPostScreenState extends State<AddPostScreen> {
 
     if (estatesData != null) {
       List<Map<dynamic, dynamic>> userEstates = [];
+      print('Estates Data: $estatesData');
       estatesData.forEach((estateType, estates) {
         estates.forEach((key, value) {
+          print('Estate Key: $key, Value: $value');
           if (value['IDUser'] == userId) {
             userEstates.add({'type': estateType, 'data': value});
           }
         });
       });
+
       setState(() {
         _userEstates = userEstates;
+        print('User Estates: $_userEstates');
+        // Ensure _selectedEstate has a valid value
+        if (_userEstates.isNotEmpty &&
+            !_userEstates.any((estate) => estate['type'] == _selectedEstate)) {
+          _selectedEstate = _userEstates.first['type'];
+        }
       });
+    } else {
+      print('No estates data found.');
     }
   }
 
@@ -133,14 +165,34 @@ class _AddPostScreenState extends State<AddPostScreen> {
           imageUrls.add(imageUrl);
         }
 
+        String? estateName;
+        if (userType == "2") {
+          estateName = selectedEstate['data']['NameEn'];
+        } else {
+          DataSnapshot userSnapshot = await FirebaseDatabase.instance
+              .ref("App")
+              .child("User")
+              .child(userId)
+              .get();
+          if (userSnapshot.exists) {
+            Map<dynamic, dynamic> userData =
+                userSnapshot.value as Map<dynamic, dynamic>;
+            estateName =
+                '${userData['FirstName']} ${userData['SecondName']} ${userData['LastName']}';
+          } else {
+            estateName = 'Unknown User';
+          }
+        }
+
         await postsRef.child(_postId).set({
           'Description': _titleController.text,
           'Text': _textController.text,
           'Date': DateTime.now().millisecondsSinceEpoch,
-          'EstateName':
-              userType == "2" ? selectedEstate['data']['NameEn'] : null,
+          'EstateName': estateName,
           'EstateType': _selectedEstate,
           'userId': userId,
+          'userType': userType,
+          'typeAccount': typeAccount,
           'ImageUrls': imageUrls,
         });
 
@@ -172,23 +224,33 @@ class _AddPostScreenState extends State<AddPostScreen> {
             padding: const EdgeInsets.all(16.0),
             child: Column(
               children: [
-                if (userType == "2")
+                if (userType == "2" || (userType == "1" && typeAccount == "3"))
                   DropdownButtonFormField<String>(
                     value: _selectedEstate,
                     hint: Text("Select Estate"),
-                    items: _userEstates.map((estate) {
-                      return DropdownMenuItem<String>(
-                        value: estate['type'],
-                        child: Text(estate['data']['NameEn']),
-                      );
-                    }).toList(),
+                    items: _userEstates
+                        .map((estate) {
+                          return estate['type'];
+                        })
+                        .toSet() // Ensure uniqueness
+                        .map((type) {
+                          final estate = _userEstates
+                              .firstWhere((estate) => estate['type'] == type);
+                          print(
+                              'Dropdown Item: $type, Estate Name: ${estate['data']['NameEn']}');
+                          return DropdownMenuItem<String>(
+                            value: type,
+                            child: Text(estate['data']['NameEn']),
+                          );
+                        })
+                        .toList(),
                     onChanged: (value) {
                       setState(() {
                         _selectedEstate = value;
                       });
                     },
                     validator: (value) {
-                      if (value == null) {
+                      if (value == null && userType == "2") {
                         return 'Please select an estate';
                       }
                       return null;
