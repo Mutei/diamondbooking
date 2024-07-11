@@ -291,7 +291,7 @@ class _ProfileEstateState extends State<ProfileEstate> {
           ),
           TextField(
             controller: feedbackController,
-            maxLength: 50,
+            maxLength: 30,
             maxLines: null,
             decoration: InputDecoration(
               labelText: getTranslated(context, "Add a Feedback"),
