@@ -222,6 +222,13 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
+  Future<void> _refreshPage() async {
+    // Clear the search query to reset the view
+    setState(() {
+      _searchController.clear();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final objProvider = Provider.of<GeneralProvider>(context, listen: false);
@@ -364,35 +371,62 @@ class _MainScreenState extends State<MainScreen> {
         },
         children: userType == "1"
             ? [
-                ReusedEstatePage(
-                  queryHotel: queryHotel,
-                  queryCoffee: queryCoffee,
-                  queryRestaurant: queryRestaurant,
-                  getImages: _getImages,
-                  objProvider: objProvider,
-                  selectedFilter: _selectedFilter, // Add this line
-                  onFilterChanged: _onFilterChanged, // Add this line
-                  getEstateRatings: _getEstateRatings, // Add this line
-                  searchQuery: _searchController.text, // Add this line
+                RefreshIndicator(
+                  onRefresh: _refreshPage,
+                  child: SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    child: ReusedEstatePage(
+                      queryHotel: queryHotel,
+                      queryCoffee: queryCoffee,
+                      queryRestaurant: queryRestaurant,
+                      getImages: _getImages,
+                      objProvider: objProvider,
+                      selectedFilter: _selectedFilter, // Add this line
+                      onFilterChanged: _onFilterChanged, // Add this line
+                      getEstateRatings: _getEstateRatings, // Add this line
+                      searchQuery: _searchController.text, // Add this line
+                    ),
+                  ),
                 ),
-                NotificationUser(),
-                UpgradeAccount(),
-                AllPostsScreen(),
+                RefreshIndicator(
+                  onRefresh: _refreshPage,
+                  child: NotificationUser(),
+                ),
+                RefreshIndicator(
+                  onRefresh: _refreshPage,
+                  child: UpgradeAccount(),
+                ),
+                RefreshIndicator(
+                  onRefresh: _refreshPage,
+                  child: AllPostsScreen(),
+                ),
               ]
             : [
-                ReusedEstatePage(
-                  queryHotel: queryHotel,
-                  queryCoffee: queryCoffee,
-                  queryRestaurant: queryRestaurant,
-                  getImages: _getImages,
-                  objProvider: objProvider,
-                  selectedFilter: _selectedFilter, // Add this line
-                  onFilterChanged: _onFilterChanged, // Add this line
-                  getEstateRatings: _getEstateRatings, // Add this line
-                  searchQuery: _searchController.text, // Add this line
+                RefreshIndicator(
+                  onRefresh: _refreshPage,
+                  child: SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    child: ReusedEstatePage(
+                      queryHotel: queryHotel,
+                      queryCoffee: queryCoffee,
+                      queryRestaurant: queryRestaurant,
+                      getImages: _getImages,
+                      objProvider: objProvider,
+                      selectedFilter: _selectedFilter, // Add this line
+                      onFilterChanged: _onFilterChanged, // Add this line
+                      getEstateRatings: _getEstateRatings, // Add this line
+                      searchQuery: _searchController.text, // Add this line
+                    ),
+                  ),
                 ),
-                Request(),
-                AllPostsScreen(),
+                RefreshIndicator(
+                  onRefresh: _refreshPage,
+                  child: Request(),
+                ),
+                RefreshIndicator(
+                  onRefresh: _refreshPage,
+                  child: AllPostsScreen(),
+                ),
               ],
       ),
     );
