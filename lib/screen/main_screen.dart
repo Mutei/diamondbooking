@@ -21,8 +21,8 @@ import '../page/type_estate.dart';
 import '../page/upgrade_account.dart';
 import '../resources/firebase_services.dart';
 import '../widgets/custom_drawer.dart';
-import '../widgets/reused_estate_page.dart'; // Import ReusedEstatePage
-import '../widgets/filter_button.dart'; // Import FilterButton
+import '../widgets/reused_estate_page.dart';
+import '../widgets/filter_button.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -49,9 +49,9 @@ class _MainScreenState extends State<MainScreen> {
 
   PageController _pageController = PageController();
   int _selectedIndex = 0;
-  String _selectedFilter = 'All'; // Add this line
-  TextEditingController _searchController =
-      TextEditingController(); // Add this line
+  String _selectedFilter = 'All';
+  TextEditingController _searchController = TextEditingController();
+  bool _isSearching = false; // Add this line
 
   @override
   void initState() {
@@ -62,15 +62,13 @@ class _MainScreenState extends State<MainScreen> {
     _firebaseServices.getUserType(setUserType, setPermissionStatus);
     Provider.of<GeneralProvider>(context, listen: false).fetchNewRequestCount();
     _loadUserType();
-    _requestPermissions(); // Request permissions
+    _requestPermissions();
   }
 
   void _requestPermissions() async {
-    // Request location permission
     var status = await Permission.location.request();
     setPermissionStatus(status);
 
-    // Request notification permission
     FirebaseMessaging messaging = FirebaseMessaging.instance;
     NotificationSettings settings = await messaging.requestPermission(
       alert: true,
@@ -154,38 +152,7 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   void _onSearchTextChanged(String text) {
-    // Add this method
     setState(() {});
-  }
-
-  Future<String> _getImages(String key) async {
-    // Implement your image fetching logic here
-    return 'assets/images/default_image.png';
-  }
-
-  Future<Map<String, dynamic>> _getEstateRatings(String estateId) async {
-    Map<String, dynamic> ratingsData = {"totalRating": 0.0, "ratingCount": 0};
-
-    DatabaseReference feedbackRef =
-        FirebaseDatabase.instance.ref('App/Feedback/$estateId');
-    DataSnapshot snapshot = await feedbackRef.get();
-
-    if (snapshot.exists) {
-      Map<dynamic, dynamic> feedbackData =
-          snapshot.value as Map<dynamic, dynamic>;
-      double totalRating = 0.0;
-      int ratingCount = 0;
-
-      feedbackData.forEach((key, value) {
-        totalRating += value['rating'];
-        ratingCount += 1;
-      });
-
-      ratingsData['totalRating'] = totalRating / ratingCount;
-      ratingsData['ratingCount'] = ratingCount;
-    }
-
-    return ratingsData;
   }
 
   void _showSearchDialog() {
@@ -223,8 +190,50 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   Future<void> _refreshPage() async {
-    // Clear the search query to reset the view
     setState(() {
+      _searchController.clear();
+    });
+  }
+
+  void _startSearch() {
+    setState(() {
+      _isSearching = true;
+    });
+  }
+
+  Future<String> _getImages(String key) async {
+    // Implement your image fetching logic here
+    return 'assets/images/default_image.png';
+  }
+
+  Future<Map<String, dynamic>> _getEstateRatings(String estateId) async {
+    Map<String, dynamic> ratingsData = {"totalRating": 0.0, "ratingCount": 0};
+
+    DatabaseReference feedbackRef =
+        FirebaseDatabase.instance.ref('App/Feedback/$estateId');
+    DataSnapshot snapshot = await feedbackRef.get();
+
+    if (snapshot.exists) {
+      Map<dynamic, dynamic> feedbackData =
+          snapshot.value as Map<dynamic, dynamic>;
+      double totalRating = 0.0;
+      int ratingCount = 0;
+
+      feedbackData.forEach((key, value) {
+        totalRating += value['rating'];
+        ratingCount += 1;
+      });
+
+      ratingsData['totalRating'] = totalRating / ratingCount;
+      ratingsData['ratingCount'] = ratingCount;
+    }
+
+    return ratingsData;
+  }
+
+  void _stopSearch() {
+    setState(() {
+      _isSearching = false;
       _searchController.clear();
     });
   }
@@ -244,7 +253,7 @@ class _MainScreenState extends State<MainScreen> {
     String estates = getTranslated(context, "Estates");
 
     return Scaffold(
-      backgroundColor: Colors.white, // Set the background color to white
+      backgroundColor: Colors.white,
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
@@ -342,23 +351,35 @@ class _MainScreenState extends State<MainScreen> {
                 ),
               ],
       ),
-
       appBar: AppBar(
         elevation: 0,
-        title: Text(
-          getTranslated(context, "Diamond Booking"),
-          style: const TextStyle(
-            color: kPrimaryColor,
-          ),
-        ),
+        title: _isSearching
+            ? TextField(
+                controller: _searchController,
+                onChanged: _onSearchTextChanged,
+                style: const TextStyle(color: kPrimaryColor),
+                decoration: InputDecoration(
+                  hintText: getTranslated(context, "Search..."),
+                  hintStyle: const TextStyle(color: kPrimaryColor),
+                  suffixIcon: IconButton(
+                    icon: const Icon(Icons.clear, color: kPrimaryColor),
+                    onPressed: _stopSearch,
+                  ),
+                ),
+              )
+            : Text(
+                getTranslated(context, "Diamond Booking"),
+                style: const TextStyle(color: kPrimaryColor),
+              ),
         centerTitle: true,
         backgroundColor: Colors.white,
-        iconTheme: kIconTheme, // Set the background color to white
+        iconTheme: kIconTheme,
         actions: [
-          IconButton(
-            icon: Icon(Icons.search, color: kPrimaryColor),
-            onPressed: _showSearchDialog,
-          ),
+          if (!_isSearching)
+            IconButton(
+              icon: const Icon(Icons.search, color: kPrimaryColor),
+              onPressed: _startSearch,
+            ),
         ],
       ),
       drawer: CustomDrawer(userType: userType, id: ID),
@@ -381,10 +402,10 @@ class _MainScreenState extends State<MainScreen> {
                       queryRestaurant: queryRestaurant,
                       getImages: _getImages,
                       objProvider: objProvider,
-                      selectedFilter: _selectedFilter, // Add this line
-                      onFilterChanged: _onFilterChanged, // Add this line
-                      getEstateRatings: _getEstateRatings, // Add this line
-                      searchQuery: _searchController.text, // Add this line
+                      selectedFilter: _selectedFilter,
+                      onFilterChanged: _onFilterChanged,
+                      getEstateRatings: _getEstateRatings,
+                      searchQuery: _searchController.text,
                     ),
                   ),
                 ),
@@ -412,10 +433,10 @@ class _MainScreenState extends State<MainScreen> {
                       queryRestaurant: queryRestaurant,
                       getImages: _getImages,
                       objProvider: objProvider,
-                      selectedFilter: _selectedFilter, // Add this line
-                      onFilterChanged: _onFilterChanged, // Add this line
-                      getEstateRatings: _getEstateRatings, // Add this line
-                      searchQuery: _searchController.text, // Add this line
+                      selectedFilter: _selectedFilter,
+                      onFilterChanged: _onFilterChanged,
+                      getEstateRatings: _getEstateRatings,
+                      searchQuery: _searchController.text,
                     ),
                   ),
                 ),
