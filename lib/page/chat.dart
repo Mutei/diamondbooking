@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:ui';
+import 'package:diamond_booking/extension/sized_box_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -44,7 +45,7 @@ class _State extends State<Chat> {
 
   HttpsCallable callable = FirebaseFunctions.instance.httpsCallable(
       'sendNotificationsadmin',
-      options: HttpsCallableOptions(timeout: Duration(seconds: 5)));
+      options: HttpsCallableOptions(timeout: const Duration(seconds: 5)));
 
   _State(this.idEstate, this.Name, this.Key);
 
@@ -132,7 +133,7 @@ class _State extends State<Chat> {
       SharedPreferences sharedPreferences =
           await SharedPreferences.getInstance();
       String accessTimeKey = 'access_time_${widget.idEstate}_$id';
-      DateTime accessEndTime = DateTime.now().add(Duration(minutes: 1));
+      DateTime accessEndTime = DateTime.now().add(const Duration(minutes: 1));
       sharedPreferences.setString(
           accessTimeKey, accessEndTime.toIso8601String());
 
@@ -143,7 +144,7 @@ class _State extends State<Chat> {
         lastScanTime = now;
         hasAccess = true;
       });
-      startAccessTimer(Duration(minutes: 1));
+      startAccessTimer(const Duration(minutes: 1));
       print('Access granted');
       addActiveCustomer();
     } else {
@@ -203,7 +204,7 @@ class _State extends State<Chat> {
   }
 
   void checkAccessPeriodically() {
-    Timer.periodic(Duration(seconds: 5), (timer) async {
+    Timer.periodic(const Duration(seconds: 5), (timer) async {
       if (!hasAccess) {
         SharedPreferences sharedPreferences =
             await SharedPreferences.getInstance();
@@ -222,6 +223,16 @@ class _State extends State<Chat> {
       String secondName = snapshot.child("SecondName").value?.toString() ?? "";
       String lastName = snapshot.child("LastName").value?.toString() ?? "";
       return "$firstName $secondName $lastName";
+    }
+    return "";
+  }
+
+  Future<String> getUserGender(String userId) async {
+    DatabaseReference userRef =
+        FirebaseDatabase.instance.ref("App").child("User").child(userId);
+    DataSnapshot snapshot = await userRef.get();
+    if (snapshot.exists) {
+      return snapshot.child("Gender").value?.toString() ?? "";
     }
     return "";
   }
@@ -351,19 +362,19 @@ class _State extends State<Chat> {
                   stream: refChat.onValue,
                   builder: (context, AsyncSnapshot<DatabaseEvent> snapshot) {
                     if (!snapshot.hasData) {
-                      return Center(child: CircularProgressIndicator());
+                      return const Center(child: CircularProgressIndicator());
                     }
                     if (snapshot.hasError) {
                       return Text('Error: ${snapshot.error}');
                     }
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return Center(child: CircularProgressIndicator());
+                      return const Center(child: CircularProgressIndicator());
                     }
 
                     List<DataSnapshot> items =
                         snapshot.data!.snapshot.children.toList();
                     if (items.isEmpty) {
-                      return Center(child: Text('No messages yet'));
+                      return const Center(child: Text('No messages yet'));
                     }
 
                     return ListView.builder(
@@ -376,7 +387,7 @@ class _State extends State<Chat> {
                         if (lastScanTime != null &&
                             map['timestamp'] <
                                 lastScanTime!.millisecondsSinceEpoch) {
-                          return SizedBox.shrink(); // Hide old messages
+                          return const SizedBox.shrink(); // Hide old messages
                         }
 
                         return FutureBuilder<String>(
@@ -384,87 +395,108 @@ class _State extends State<Chat> {
                           builder: (context, asyncSnapshot) {
                             if (asyncSnapshot.connectionState ==
                                 ConnectionState.waiting) {
-                              return Center(child: CircularProgressIndicator());
+                              return const Center(
+                                  child: CircularProgressIndicator());
                             }
                             if (asyncSnapshot.hasError ||
                                 !asyncSnapshot.hasData) {
-                              return Text('Error fetching user name');
+                              return const Text('Error fetching user name');
                             }
                             String fullName = asyncSnapshot.data!;
-                            return Column(
-                              crossAxisAlignment:
-                                  map['SenderId'] == currentUser?.uid
-                                      ? CrossAxisAlignment.end
-                                      : CrossAxisAlignment.start,
-                              children: <Widget>[
-                                Container(
-                                  constraints: BoxConstraints(
-                                    maxWidth:
-                                        MediaQuery.of(context).size.width *
-                                            0.75,
-                                  ),
-                                  margin: const EdgeInsets.all(5),
-                                  decoration: BoxDecoration(
-                                    color: map['SenderId'] == currentUser?.uid
-                                        ? kPrimaryColor
-                                        : Colors.grey[300],
-                                    borderRadius:
-                                        map['SenderId'] == currentUser?.uid
-                                            ? kMessageBorderRadius2
-                                            : kMessageBorderRadius,
-                                  ),
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 10.0, horizontal: 16.0),
-                                  child: IntrinsicWidth(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: <Widget>[
-                                        Text(
-                                          fullName,
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.w900,
-                                              color: map['SenderId'] ==
-                                                      currentUser?.uid
-                                                  ? kSenderTextMessage
-                                                  : kReceiverTextMessage,
-                                              fontSize: 10),
-                                        ),
-                                        const SizedBox(height: 5),
-                                        Row(
+                            return FutureBuilder<String>(
+                              future: getUserGender(map['SenderId']),
+                              builder: (context, genderSnapshot) {
+                                if (genderSnapshot.connectionState ==
+                                    ConnectionState.waiting) {
+                                  return const Center(
+                                      child: CircularProgressIndicator());
+                                }
+                                if (genderSnapshot.hasError ||
+                                    !genderSnapshot.hasData) {
+                                  return const Text(
+                                      'Error fetching user gender');
+                                }
+                                String gender = genderSnapshot.data!;
+                                Color nameColor = (gender == 'Female')
+                                    ? Colors.pink
+                                    : (gender == 'Male')
+                                        ? Colors.blue
+                                        : Colors.black;
+                                return Column(
+                                  crossAxisAlignment:
+                                      map['SenderId'] == currentUser?.uid
+                                          ? CrossAxisAlignment.end
+                                          : CrossAxisAlignment.start,
+                                  children: <Widget>[
+                                    Container(
+                                      constraints: BoxConstraints(
+                                        maxWidth:
+                                            MediaQuery.of(context).size.width *
+                                                0.75,
+                                      ),
+                                      margin: const EdgeInsets.all(5),
+                                      decoration: BoxDecoration(
+                                        color:
+                                            map['SenderId'] == currentUser?.uid
+                                                ? kPrimaryColor
+                                                : Colors.grey[300],
+                                        borderRadius:
+                                            map['SenderId'] == currentUser?.uid
+                                                ? kMessageBorderRadius2
+                                                : kMessageBorderRadius,
+                                      ),
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 10.0, horizontal: 16.0),
+                                      child: IntrinsicWidth(
+                                        child: Column(
                                           crossAxisAlignment:
-                                              CrossAxisAlignment.end,
-                                          children: [
-                                            Expanded(
-                                              child: Text(
-                                                map['message'] ?? "",
-                                                style: TextStyle(
-                                                    color: map['SenderId'] ==
-                                                            currentUser?.uid
-                                                        ? kSenderTextMessage
-                                                        : kReceiverTextMessage,
-                                                    fontSize: 15.0),
-                                                softWrap: true,
-                                              ),
-                                            ),
-                                            const SizedBox(width: 10),
+                                              CrossAxisAlignment.start,
+                                          children: <Widget>[
                                             Text(
-                                              map['time'] ?? "",
+                                              fullName,
                                               style: TextStyle(
-                                                  fontWeight: FontWeight.w400,
-                                                  color: map['SenderId'] ==
-                                                          currentUser?.uid
-                                                      ? kSenderTextMessage
-                                                      : kReceiverTextMessage,
+                                                  fontWeight: FontWeight.w900,
+                                                  color: nameColor,
                                                   fontSize: 10),
+                                            ),
+                                            const SizedBox(height: 5),
+                                            Row(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.end,
+                                              children: [
+                                                Expanded(
+                                                  child: Text(
+                                                    map['message'] ?? "",
+                                                    style: TextStyle(
+                                                        color: map['SenderId'] ==
+                                                                currentUser?.uid
+                                                            ? kSenderTextMessage
+                                                            : kReceiverTextMessage,
+                                                        fontSize: 15.0),
+                                                    softWrap: true,
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 10),
+                                                Text(
+                                                  map['time'] ?? "",
+                                                  style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.w400,
+                                                      color: map['SenderId'] ==
+                                                              currentUser?.uid
+                                                          ? kSenderTextMessage
+                                                          : kReceiverTextMessage,
+                                                      fontSize: 10),
+                                                ),
+                                              ],
                                             ),
                                           ],
                                         ),
-                                      ],
+                                      ),
                                     ),
-                                  ),
-                                ),
-                              ],
+                                  ],
+                                );
+                              },
                             );
                           },
                         );
@@ -475,9 +507,9 @@ class _State extends State<Chat> {
               ),
               if (userType == "1")
                 Container(
-                  decoration: BoxDecoration(
-                    border: Border(
-                        top: const BorderSide(color: Colors.grey, width: 1.0)),
+                  decoration: const BoxDecoration(
+                    border:
+                        Border(top: BorderSide(color: Colors.grey, width: 1.0)),
                   ),
                   child: SingleChildScrollView(
                     child: Column(
@@ -526,7 +558,7 @@ class _State extends State<Chat> {
                             ),
                             if (userType == "1")
                               IconButton(
-                                icon: Icon(Icons.qr_code_scanner),
+                                icon: const Icon(Icons.qr_code_scanner),
                                 color: kPrimaryColor,
                                 onPressed: scanQRCode,
                               ),
@@ -564,17 +596,17 @@ class _State extends State<Chat> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text(
+                        const Text(
                           "Scan the QR code to access chat",
                           style: TextStyle(
                               color: Colors.white,
                               fontSize: 18,
                               fontWeight: FontWeight.bold),
                         ),
-                        SizedBox(height: 20),
+                        20.kH,
                         ElevatedButton.icon(
-                          icon: Icon(Icons.qr_code_scanner),
-                          label: Text("Scan QR Code"),
+                          icon: const Icon(Icons.qr_code_scanner),
+                          label: const Text("Scan QR Code"),
                           onPressed: scanQRCode,
                           style: ElevatedButton.styleFrom(
                             foregroundColor: Colors.white,
