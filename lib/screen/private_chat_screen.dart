@@ -96,19 +96,18 @@ class _PrivateChatScreenState extends State<PrivateChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    DatabaseReference refChatSender = databaseReference
+    DatabaseReference refChat = databaseReference
         .ref("App/PrivateChat")
         .child(id!)
         .child(widget.userId);
 
-    DatabaseReference refChatReceiver = databaseReference
-        .ref("App/PrivateChat")
-        .child(widget.userId)
-        .child(id!);
-
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.fullName),
+        title: Text(
+          widget.fullName,
+          style: const TextStyle(color: kPrimaryColor),
+        ),
+        iconTheme: kIconTheme,
       ),
       body: Stack(
         children: [
@@ -117,136 +116,104 @@ class _PrivateChatScreenState extends State<PrivateChatScreen> {
             children: <Widget>[
               Expanded(
                 child: StreamBuilder(
-                  stream: refChatSender.onValue,
-                  builder:
-                      (context, AsyncSnapshot<DatabaseEvent> snapshotSender) {
-                    if (!snapshotSender.hasData) {
+                  stream: refChat.onValue,
+                  builder: (context, AsyncSnapshot<DatabaseEvent> snapshot) {
+                    if (!snapshot.hasData) {
                       return const Center(child: CircularProgressIndicator());
                     }
-                    if (snapshotSender.hasError) {
-                      return Text('Error: ${snapshotSender.error}');
+                    if (snapshot.hasError) {
+                      return Text('Error: ${snapshot.error}');
                     }
-                    if (snapshotSender.connectionState ==
-                        ConnectionState.waiting) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
                       return const Center(child: CircularProgressIndicator());
                     }
 
-                    List<DataSnapshot> itemsSender =
-                        snapshotSender.data!.snapshot.children.toList();
+                    List<DataSnapshot> items =
+                        snapshot.data!.snapshot.children.toList();
 
-                    return StreamBuilder(
-                      stream: refChatReceiver.onValue,
-                      builder: (context,
-                          AsyncSnapshot<DatabaseEvent> snapshotReceiver) {
-                        if (!snapshotReceiver.hasData) {
-                          return const Center(
-                              child: CircularProgressIndicator());
-                        }
-                        if (snapshotReceiver.hasError) {
-                          return Text('Error: ${snapshotReceiver.error}');
-                        }
-                        if (snapshotReceiver.connectionState ==
-                            ConnectionState.waiting) {
-                          return const Center(
-                              child: CircularProgressIndicator());
-                        }
+                    items.sort((a, b) {
+                      int aTimestamp = (a.child('timestamp').value ?? 0) as int;
+                      int bTimestamp = (b.child('timestamp').value ?? 0) as int;
+                      return aTimestamp.compareTo(bTimestamp);
+                    });
 
-                        List<DataSnapshot> itemsReceiver =
-                            snapshotReceiver.data!.snapshot.children.toList();
-                        List<DataSnapshot> allItems = [
-                          ...itemsSender,
-                          ...itemsReceiver
-                        ];
+                    if (items.isEmpty) {
+                      return const Center(child: Text('No messages yet'));
+                    }
 
-                        allItems.sort((a, b) {
-                          int aTimestamp =
-                              (a.child('timestamp').value ?? 0) as int;
-                          int bTimestamp =
-                              (b.child('timestamp').value ?? 0) as int;
-                          return aTimestamp.compareTo(bTimestamp);
-                        });
+                    return ListView.builder(
+                      itemCount: items.length,
+                      itemBuilder: (context, index) {
+                        Map map = items[index].value as Map;
+                        map['Key'] = items[index].key;
 
-                        if (allItems.isEmpty) {
-                          return const Center(child: Text('No messages yet'));
-                        }
-
-                        return ListView.builder(
-                          itemCount: allItems.length,
-                          itemBuilder: (context, index) {
-                            Map map = allItems[index].value as Map;
-                            map['Key'] = allItems[index].key;
-
-                            return Column(
-                              crossAxisAlignment: map['SenderId'] == id
-                                  ? CrossAxisAlignment.end
-                                  : CrossAxisAlignment.start,
-                              children: <Widget>[
-                                Container(
-                                  constraints: BoxConstraints(
-                                    maxWidth:
-                                        MediaQuery.of(context).size.width *
-                                            0.75,
-                                  ),
-                                  margin: const EdgeInsets.all(5),
-                                  decoration: BoxDecoration(
-                                    color: map['SenderId'] == id
-                                        ? kPrimaryColor
-                                        : Colors.grey[300],
-                                    borderRadius: map['SenderId'] == id
-                                        ? kMessageBorderRadius2
-                                        : kMessageBorderRadius,
-                                  ),
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 10.0, horizontal: 16.0),
-                                  child: IntrinsicWidth(
-                                    child: Column(
+                        return Column(
+                          crossAxisAlignment: map['SenderId'] == id
+                              ? CrossAxisAlignment.end
+                              : CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Container(
+                              constraints: BoxConstraints(
+                                maxWidth:
+                                    MediaQuery.of(context).size.width * 0.75,
+                              ),
+                              margin: const EdgeInsets.all(5),
+                              decoration: BoxDecoration(
+                                color: map['SenderId'] == id
+                                    ? kPrimaryColor
+                                    : Colors.grey[300],
+                                borderRadius: map['SenderId'] == id
+                                    ? kMessageBorderRadius2
+                                    : kMessageBorderRadius,
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 10.0, horizontal: 16.0),
+                              child: IntrinsicWidth(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: <Widget>[
+                                    Text(
+                                      map['Name'] ?? '',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.w900,
+                                          color: map['SenderId'] == id
+                                              ? Colors.white
+                                              : Colors.black,
+                                          fontSize: 10),
+                                    ),
+                                    const SizedBox(height: 5),
+                                    Row(
                                       crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: <Widget>[
-                                        Text(
-                                          map['Name'] ?? '',
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.w900,
-                                              color: map['SenderId'] == id
-                                                  ? Colors.white
-                                                  : Colors.black,
-                                              fontSize: 10),
+                                          CrossAxisAlignment.end,
+                                      children: [
+                                        Expanded(
+                                          child: Text(
+                                            map['message'] ?? "",
+                                            style: TextStyle(
+                                                color: map['SenderId'] == id
+                                                    ? kSenderTextMessage
+                                                    : kReceiverTextMessage,
+                                                fontSize: 15.0),
+                                            softWrap: true,
+                                          ),
                                         ),
-                                        const SizedBox(height: 5),
-                                        Row(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.end,
-                                          children: [
-                                            Expanded(
-                                              child: Text(
-                                                map['message'] ?? "",
-                                                style: TextStyle(
-                                                    color: map['SenderId'] == id
-                                                        ? kSenderTextMessage
-                                                        : kReceiverTextMessage,
-                                                    fontSize: 15.0),
-                                                softWrap: true,
-                                              ),
-                                            ),
-                                            const SizedBox(width: 10),
-                                            Text(
-                                              map['time'] ?? "",
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.w400,
-                                                  color: map['SenderId'] == id
-                                                      ? kSenderTextMessage
-                                                      : kReceiverTextMessage,
-                                                  fontSize: 10),
-                                            ),
-                                          ],
+                                        const SizedBox(width: 10),
+                                        Text(
+                                          map['time'] ?? "",
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.w400,
+                                              color: map['SenderId'] == id
+                                                  ? kSenderTextMessage
+                                                  : kReceiverTextMessage,
+                                              fontSize: 10),
                                         ),
                                       ],
                                     ),
-                                  ),
+                                  ],
                                 ),
-                              ],
-                            );
-                          },
+                              ),
+                            ),
+                          ],
                         );
                       },
                     );
