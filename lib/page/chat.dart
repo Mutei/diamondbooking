@@ -306,6 +306,11 @@ class _State extends State<Chat> {
   }
 
   void _showProfileDialog(String userId) async {
+    if (userId == id) {
+      // Do nothing if the clicked user is the current user
+      return;
+    }
+
     DatabaseReference userRef =
         FirebaseDatabase.instance.ref("App").child("User").child(userId);
     DataSnapshot snapshot = await userRef.get();
@@ -694,6 +699,7 @@ class _State extends State<Chat> {
     );
   }
 }
+
 // import 'dart:async';
 // import 'dart:ui';
 // import 'package:diamond_booking/extension/sized_box_extension.dart';
