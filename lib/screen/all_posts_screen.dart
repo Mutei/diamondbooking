@@ -116,16 +116,16 @@ class _AllPostsScreenState extends State<AllPostsScreen> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text('Delete Post'),
-          content: Text('Are you sure you want to delete this post?'),
+          title: const Text('Delete Post'),
+          content: const Text('Are you sure you want to delete this post?'),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
-              child: Text('Cancel'),
+              child: const Text('Cancel'),
             ),
             TextButton(
               onPressed: () => Navigator.of(context).pop(true),
-              child: Text('Delete'),
+              child: const Text('Delete'),
             ),
           ],
         );
@@ -144,12 +144,12 @@ class _AllPostsScreenState extends State<AllPostsScreen> {
         _posts.removeWhere((post) => post['postId'] == postId);
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Post deleted successfully')),
+        const SnackBar(content: Text('Post deleted successfully')),
       );
     } catch (e) {
       print('Error deleting post: $e');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to delete post')),
+        const SnackBar(content: Text('Failed to delete post')),
       );
     }
   }
@@ -186,7 +186,7 @@ class _AllPostsScreenState extends State<AllPostsScreen> {
         ],
       ),
       body: _posts.isEmpty
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : ListView(
               children: [
                 Container(height: 20),
@@ -199,7 +199,7 @@ class _AllPostsScreenState extends State<AllPostsScreen> {
   Widget _buildPostsList() {
     return ListView.builder(
       shrinkWrap: true,
-      physics: NeverScrollableScrollPhysics(),
+      physics: const NeverScrollableScrollPhysics(),
       itemCount: _posts.length,
       itemBuilder: (context, index) {
         Map<dynamic, dynamic> post = _posts[index];
@@ -207,6 +207,7 @@ class _AllPostsScreenState extends State<AllPostsScreen> {
           post: post,
           currentUserId: currentUserId,
           onDelete: () => _confirmDeletePost(post['postId']),
+          currentUserTypeAccount: typeAccount, // Pass currentUserTypeAccount
         );
       },
     );

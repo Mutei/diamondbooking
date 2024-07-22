@@ -3,12 +3,14 @@ import 'package:flutter/material.dart';
 class ReusedAllPostsCards extends StatefulWidget {
   final Map post;
   final String? currentUserId;
+  final String? currentUserTypeAccount; // Add this line
   final VoidCallback onDelete;
 
   const ReusedAllPostsCards({
     super.key,
     required this.post,
     required this.currentUserId,
+    required this.currentUserTypeAccount, // Add this line
     required this.onDelete,
   });
 
@@ -58,7 +60,7 @@ class _ReusedAllPostsCardsState extends State<ReusedAllPostsCards> {
                     ? NetworkImage(widget.post['ProfileImageUrl'])
                     : null,
                 child: widget.post['ProfileImageUrl'] == null
-                    ? Icon(Icons.person)
+                    ? const Icon(Icons.person)
                     : null,
               ),
               title: Text(displayName),
@@ -105,7 +107,7 @@ class _ReusedAllPostsCardsState extends State<ReusedAllPostsCards> {
                     bottom: 8,
                     right: 16,
                     child: Container(
-                      padding: EdgeInsets.symmetric(
+                      padding: const EdgeInsets.symmetric(
                         vertical: 4,
                         horizontal: 8,
                       ),
@@ -115,20 +117,20 @@ class _ReusedAllPostsCardsState extends State<ReusedAllPostsCards> {
                       ),
                       child: Text(
                         '${_currentPage + 1}/${imageUrls.length}',
-                        style: TextStyle(color: Colors.white),
+                        style: const TextStyle(color: Colors.white),
                       ),
                     ),
                   ),
                 ],
               ),
             if (widget.post['userId'] == widget.currentUserId &&
-                (widget.post['typeAccount'] == '3' ||
-                    widget.post['typeAccount'] == '4'))
+                (widget.currentUserTypeAccount == '3' ||
+                    widget.currentUserTypeAccount == '4'))
               Row(
                 children: [
                   TextButton(
                     onPressed: widget.onDelete,
-                    child: Text("Delete Post"),
+                    child: const Text("Delete Post"),
                   ),
                 ],
               ),
