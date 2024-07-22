@@ -154,6 +154,10 @@ class _AllPostsScreenState extends State<AllPostsScreen> {
     }
   }
 
+  Future<void> _refreshPosts() async {
+    await _fetchPosts();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -185,14 +189,17 @@ class _AllPostsScreenState extends State<AllPostsScreen> {
             ),
         ],
       ),
-      body: _posts.isEmpty
-          ? const Center(child: CircularProgressIndicator())
-          : ListView(
-              children: [
-                Container(height: 20),
-                _buildPostsList(),
-              ],
-            ),
+      body: RefreshIndicator(
+        onRefresh: _refreshPosts,
+        child: _posts.isEmpty
+            ? const Center(child: CircularProgressIndicator())
+            : ListView(
+                children: [
+                  Container(height: 20),
+                  _buildPostsList(),
+                ],
+              ),
+      ),
     );
   }
 
