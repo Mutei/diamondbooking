@@ -86,7 +86,8 @@ class _AllPostsScreenState extends State<AllPostsScreen> {
           } else {
             post['RelativeDate'] = 'Invalid Date';
           }
-          if (post['userType'] == '1' && post['typeAccount'] == '3') {
+          if (post['userType'] == '1' &&
+              (post['typeAccount'] == '3' || post['typeAccount'] == '4')) {
             DataSnapshot userSnapshot =
                 await _userRef.child(post['userId']).get();
             if (userSnapshot.exists) {
@@ -166,7 +167,8 @@ class _AllPostsScreenState extends State<AllPostsScreen> {
           ),
         ),
         actions: [
-          if (userType == '2' || (userType == '1' && typeAccount == '3'))
+          if (userType == '2' ||
+              (userType == '1' && (typeAccount == '3' || typeAccount == '4')))
             IconButton(
               icon: const Icon(
                 Icons.add,

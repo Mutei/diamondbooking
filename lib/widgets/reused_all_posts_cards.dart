@@ -40,10 +40,11 @@ class _ReusedAllPostsCardsState extends State<ReusedAllPostsCards> {
   @override
   Widget build(BuildContext context) {
     List imageUrls = widget.post['ImageUrls'] ?? [];
-    String displayName =
-        widget.post['userType'] == '1' && widget.post['typeAccount'] == '3'
-            ? widget.post['UserName'] ?? 'Unknown User'
-            : widget.post['EstateName'] ?? 'Unknown User';
+    String displayName = widget.post['userType'] == '1' &&
+            (widget.post['typeAccount'] == '3' ||
+                widget.post['typeAccount'] == '4')
+        ? widget.post['UserName'] ?? 'Unknown User'
+        : widget.post['EstateName'] ?? 'Unknown User';
 
     return Card(
       child: Padding(
@@ -65,7 +66,6 @@ class _ReusedAllPostsCardsState extends State<ReusedAllPostsCards> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(widget.post['Description'] ?? 'Description is Empty'),
-                  // Text(widget.post['Text'] ?? 'Text is Empty'),
                 ],
               ),
               trailing: Text(widget.post['RelativeDate'] ?? 'Unknown Date'),
@@ -121,7 +121,9 @@ class _ReusedAllPostsCardsState extends State<ReusedAllPostsCards> {
                   ),
                 ],
               ),
-            if (widget.post['userId'] == widget.currentUserId)
+            if (widget.post['userId'] == widget.currentUserId &&
+                (widget.post['typeAccount'] == '3' ||
+                    widget.post['typeAccount'] == '4'))
               Row(
                 children: [
                   TextButton(
