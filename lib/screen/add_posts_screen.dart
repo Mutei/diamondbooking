@@ -239,6 +239,14 @@ class _AddPostScreenState extends State<AddPostScreen> {
         allowedPosts = 4;
       } else if (userType == '1' && typeAccount == '4') {
         allowedPosts = 10;
+      } else if (userType == '2' && typeAccount == '3') {
+        allowedPosts = 4;
+      } else if (userType == '2' && typeAccount == '4') {
+        allowedPosts = 8;
+      } else {
+        // If TypeAccount is not 3 or 4, user cannot add posts
+        _showPostLimitAlert(allowedPosts);
+        return false;
       }
 
       if (count >= allowedPosts) {

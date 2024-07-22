@@ -171,8 +171,8 @@ class _AllPostsScreenState extends State<AllPostsScreen> {
           ),
         ),
         actions: [
-          if (userType == '2' ||
-              (userType == '1' && (typeAccount == '3' || typeAccount == '4')))
+          if ((userType == '1' || userType == '2') &&
+              (typeAccount == '3' || typeAccount == '4'))
             IconButton(
               icon: const Icon(
                 Icons.add,
