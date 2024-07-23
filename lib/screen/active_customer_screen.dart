@@ -2,7 +2,7 @@ import 'package:diamond_booking/constants/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
-import 'package:shared_preferences/shared_preferences.dart'; // Import this for shared preferences
+import 'package:firebase_auth/firebase_auth.dart';
 
 import '../constants/styles.dart';
 
@@ -19,11 +19,13 @@ class ActiveCustomersScreenState extends State<ActiveCustomersScreen> {
   final DatabaseReference databaseReference = FirebaseDatabase.instance.ref();
   List<Map<String, dynamic>> activeCustomers = [];
   Set<String> ratedCustomers = Set<String>();
+  String? typeAccount;
 
   @override
   void initState() {
     super.initState();
     fetchActiveCustomers();
+    fetchTypeAccount();
   }
 
   void fetchActiveCustomers() {
@@ -45,6 +47,21 @@ class ActiveCustomersScreenState extends State<ActiveCustomersScreen> {
     });
   }
 
+  Future<void> fetchTypeAccount() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      DatabaseReference userRef =
+          databaseReference.child("App/User/${user.uid}/TypeAccount");
+      DataSnapshot snapshot = await userRef.get();
+      if (snapshot.exists) {
+        setState(() {
+          typeAccount = snapshot.value.toString();
+        });
+        print('TypeAccount: $typeAccount');
+      }
+    }
+  }
+
   Future<String> getUserFullName(String userId) async {
     DatabaseReference userRef =
         FirebaseDatabase.instance.ref("App").child("User").child(userId);
@@ -59,11 +76,6 @@ class ActiveCustomersScreenState extends State<ActiveCustomersScreen> {
   }
 
   Future<void> removeCustomer(String userId) async {
-    // Clear shared preferences for the removed customer
-    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    sharedPreferences.remove('access_time_${widget.idEstate}_$userId');
-    sharedPreferences.remove('last_scan_time_${widget.idEstate}_$userId');
-
     await databaseReference
         .child("App/ActiveCustomers/${widget.idEstate}/$userId")
         .remove();
@@ -80,7 +92,7 @@ class ActiveCustomersScreenState extends State<ActiveCustomersScreen> {
     await refChat.remove();
   }
 
-  void rateCustomer(String userId, double rating) async {
+  void rateCustomer(String userId, double rating, String comment) async {
     DatabaseReference feedbackRef = databaseReference
         .child("App/ProviderFeedbackToCustomer/$userId/ratings");
 
@@ -113,6 +125,7 @@ class ActiveCustomersScreenState extends State<ActiveCustomersScreen> {
 
     await feedbackRef.push().set({
       'rating': rating,
+      'comment': comment,
       'timestamp': DateTime.now().millisecondsSinceEpoch,
     });
 
@@ -120,7 +133,8 @@ class ActiveCustomersScreenState extends State<ActiveCustomersScreen> {
       ratedCustomers.add(userId);
     });
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('User rated $rating stars')),
+      SnackBar(
+          content: Text('User rated $rating stars with comment: $comment')),
     );
   }
 
@@ -175,20 +189,56 @@ class ActiveCustomersScreenState extends State<ActiveCustomersScreen> {
                         context: context,
                         builder: (context) => AlertDialog(
                           title: Text('Rate ${snapshot.data!}'),
-                          content: RatingBar.builder(
-                            initialRating: 3,
-                            minRating: 1,
-                            direction: Axis.horizontal,
-                            allowHalfRating: true,
-                            itemCount: 5,
-                            itemBuilder: (context, _) => const Icon(
-                              Icons.star,
-                              color: Colors.amber,
-                            ),
-                            onRatingUpdate: (rating) {
-                              Navigator.of(context).pop();
-                              rateCustomer(userId, rating);
-                            },
+                          content: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              RatingBar.builder(
+                                initialRating: 3,
+                                minRating: 1,
+                                direction: Axis.horizontal,
+                                allowHalfRating: true,
+                                itemCount: 5,
+                                itemBuilder: (context, _) => const Icon(
+                                  Icons.star,
+                                  color: Colors.amber,
+                                ),
+                                onRatingUpdate: (rating) {
+                                  // store rating temporarily
+                                  setState(() {
+                                    ratedCustomers.add(userId);
+                                  });
+                                  Navigator.of(context).pop();
+                                  // show comment dialog
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      TextEditingController commentController =
+                                          TextEditingController();
+                                      return AlertDialog(
+                                        title: Text(
+                                            'Add Comment for ${snapshot.data!}'),
+                                        content: TextField(
+                                          controller: commentController,
+                                          decoration: InputDecoration(
+                                            hintText: 'Enter comment',
+                                          ),
+                                        ),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () {
+                                              Navigator.of(context).pop();
+                                              rateCustomer(userId, rating,
+                                                  commentController.text);
+                                            },
+                                            child: Text('Submit'),
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
+                                },
+                              ),
+                            ],
                           ),
                         ),
                       );
@@ -197,16 +247,17 @@ class ActiveCustomersScreenState extends State<ActiveCustomersScreen> {
                     }
                   },
                   itemBuilder: (context) => [
-                    if (!ratedCustomers.contains(userId))
-                      const PopupMenuItem(
-                        value: 'rate',
-                        child: Text(
-                          'Rate',
-                          style: TextStyle(
-                            color: kPrimaryColor,
+                    if (typeAccount == '3' || typeAccount == '4')
+                      if (!ratedCustomers.contains(userId))
+                        const PopupMenuItem(
+                          value: 'rate',
+                          child: Text(
+                            'Rate & Comment',
+                            style: TextStyle(
+                              color: kPrimaryColor,
+                            ),
                           ),
                         ),
-                      ),
                     const PopupMenuItem(
                       value: 'remove',
                       child: Text(
