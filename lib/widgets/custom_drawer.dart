@@ -329,6 +329,21 @@ class CustomDrawer extends StatelessWidget {
               ),
             ),
             Visibility(
+              visible: userType == "1",
+              child: DrawerItem(
+                icon: const Icon(Icons.message, color: kPrimaryColor),
+                onTap: () {},
+                hint: getTranslated(
+                  context,
+                  "From here you can chat privately with other users",
+                ),
+                text: getTranslated(
+                  context,
+                  "Private Chat",
+                ),
+              ),
+            ),
+            Visibility(
               visible: userType != "1",
               child: DrawerItem(
                 icon: const Icon(Icons.add, color: kPrimaryColor),
