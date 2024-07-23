@@ -26,6 +26,7 @@ class ActiveCustomersScreenState extends State<ActiveCustomersScreen> {
     super.initState();
     fetchActiveCustomers();
     fetchTypeAccount();
+    initializeRatedCustomers();
   }
 
   void fetchActiveCustomers() {
@@ -60,6 +61,15 @@ class ActiveCustomersScreenState extends State<ActiveCustomersScreen> {
         print('TypeAccount: $typeAccount');
       }
     }
+  }
+
+  Future<void> initializeRatedCustomers() async {
+    // Here you should initialize ratedCustomers based on session information
+    // This is a placeholder example
+    // Fetch rated customers for this session from Firebase or any other source
+    // and populate the ratedCustomers set accordingly
+    // Example:
+    // ratedCustomers = await fetchRatedCustomersForSession();
   }
 
   Future<String> getUserFullName(String userId) async {
