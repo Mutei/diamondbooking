@@ -79,7 +79,8 @@ class _PrivateChatRequestState extends State<PrivateChatRequest>
         databaseReference.ref("App/PrivateChatRequest").child(id!);
 
     return StreamBuilder(
-      stream: refChatRequest.onValue,
+      stream: refChatRequest.onValue
+          .asBroadcastStream(), // Ensure this stream can be listened to multiple times
       builder: (context, AsyncSnapshot<DatabaseEvent> snapshot) {
         if (!snapshot.hasData) {
           return const Center(child: CircularProgressIndicator());
@@ -137,7 +138,8 @@ class _PrivateChatRequestState extends State<PrivateChatRequest>
         databaseReference.ref("App/PrivateChatList").child(id!);
 
     return StreamBuilder(
-      stream: refChatList.onValue,
+      stream: refChatList.onValue
+          .asBroadcastStream(), // Ensure this stream can be listened to multiple times
       builder: (context, AsyncSnapshot<DatabaseEvent> snapshot) {
         if (!snapshot.hasData) {
           return const Center(child: CircularProgressIndicator());

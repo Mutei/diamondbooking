@@ -108,6 +108,7 @@ class _PrivateChatScreenState extends State<PrivateChatScreen> {
           style: const TextStyle(color: kPrimaryColor),
         ),
         iconTheme: kIconTheme,
+        centerTitle: true,
       ),
       body: Stack(
         children: [
