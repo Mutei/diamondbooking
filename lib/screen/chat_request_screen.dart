@@ -4,7 +4,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../constants/colors.dart';
 import '../constants/styles.dart';
 import 'private_chat_screen.dart';
-import 'dart:async';
 
 class PrivateChatRequest extends StatefulWidget {
   const PrivateChatRequest({super.key});
@@ -20,39 +19,12 @@ class _PrivateChatRequestState extends State<PrivateChatRequest>
   User? currentUser;
   late TabController _tabController;
 
-  late StreamController<DatabaseEvent> _chatRequestsController;
-  late StreamController<DatabaseEvent> _chatListController;
-
   @override
   void initState() {
     super.initState();
     id = FirebaseAuth.instance.currentUser?.uid;
     currentUser = FirebaseAuth.instance.currentUser;
     _tabController = TabController(length: 2, vsync: this);
-
-    _chatRequestsController = StreamController<DatabaseEvent>.broadcast();
-    _chatListController = StreamController<DatabaseEvent>.broadcast();
-
-    _listenToChatRequests();
-    _listenToChatList();
-  }
-
-  void _listenToChatRequests() {
-    DatabaseReference refChatRequest =
-        databaseReference.ref("App/PrivateChatRequest").child(id!);
-
-    refChatRequest.onValue.listen((event) {
-      _chatRequestsController.add(event);
-    });
-  }
-
-  void _listenToChatList() {
-    DatabaseReference refChatList =
-        databaseReference.ref("App/PrivateChatList").child(id!);
-
-    refChatList.onValue.listen((event) {
-      _chatListController.add(event);
-    });
   }
 
   Future<void> acceptChatRequest(String senderId, String senderName) async {
@@ -103,8 +75,11 @@ class _PrivateChatRequestState extends State<PrivateChatRequest>
   }
 
   Widget _buildChatRequests() {
+    DatabaseReference refChatRequest =
+        databaseReference.ref("App/PrivateChatRequest").child(id!);
+
     return StreamBuilder(
-      stream: _chatRequestsController.stream,
+      stream: refChatRequest.onValue,
       builder: (context, AsyncSnapshot<DatabaseEvent> snapshot) {
         if (!snapshot.hasData) {
           return const Center(child: CircularProgressIndicator());
@@ -158,8 +133,11 @@ class _PrivateChatRequestState extends State<PrivateChatRequest>
   }
 
   Widget _buildChatList() {
+    DatabaseReference refChatList =
+        databaseReference.ref("App/PrivateChatList").child(id!);
+
     return StreamBuilder(
-      stream: _chatListController.stream,
+      stream: refChatList.onValue,
       builder: (context, AsyncSnapshot<DatabaseEvent> snapshot) {
         if (!snapshot.hasData) {
           return const Center(child: CircularProgressIndicator());
@@ -199,13 +177,6 @@ class _PrivateChatRequestState extends State<PrivateChatRequest>
         );
       },
     );
-  }
-
-  @override
-  void dispose() {
-    _chatRequestsController.close();
-    _chatListController.close();
-    super.dispose();
   }
 
   @override
