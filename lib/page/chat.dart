@@ -43,6 +43,7 @@ class _State extends State<Chat> {
   String userType = "1";
   DateTime? lastScanTime;
   int activeCustomers = 0;
+  String? typeAccount = "";
 
   HttpsCallable callable = FirebaseFunctions.instance.httpsCallable(
       'sendNotificationsadmin',
@@ -56,6 +57,7 @@ class _State extends State<Chat> {
     id = FirebaseAuth.instance.currentUser?.uid;
     currentUser = UserService().getCurrentUser();
     fetchUserType();
+    fetchTypeAccount();
     listenToActiveCustomers();
     checkAccessPeriodically();
   }
@@ -90,6 +92,25 @@ class _State extends State<Chat> {
       }
     } catch (e) {
       print("Failed to fetch user type: $e");
+    }
+  }
+
+  Future<void> fetchTypeAccount() async {
+    try {
+      User? user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        String uid = user.uid;
+        DatabaseReference typeAccountRef =
+            databaseReference.ref().child('App/User/$uid/TypeAccount');
+        DataSnapshot snapshot = await typeAccountRef.get();
+        if (snapshot.exists) {
+          setState(() {
+            typeAccount = snapshot.value.toString();
+          });
+        }
+      }
+    } catch (e) {
+      print("Failed to fetch TypeAccount: $e");
     }
   }
 
@@ -306,6 +327,11 @@ class _State extends State<Chat> {
   }
 
   void _showProfileDialog(String userId) async {
+    // Only allow TypeAccount 3 and 4 users to proceed
+    if (typeAccount != '3' && typeAccount != '4') {
+      return;
+    }
+
     if (userId == id) {
       // Do nothing if the clicked user is the current user
       return;
@@ -353,6 +379,11 @@ class _State extends State<Chat> {
   }
 
   Future<void> _sendChatRequest(String receiverId, String receiverName) async {
+    // Only allow TypeAccount 3 and 4 users to send chat requests
+    if (typeAccount != '3' && typeAccount != '4') {
+      return;
+    }
+
     String fullName = await getUserFullName(id!);
 
     DatabaseReference refChatRequest = FirebaseDatabase.instance
