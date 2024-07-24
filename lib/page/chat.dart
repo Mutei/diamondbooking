@@ -713,7 +713,7 @@ import '../constants/colors.dart';
 import '../constants/styles.dart';
 import '../global/censor_message.dart';
 import '../resources/user_services.dart';
-import '../screen/private_chat_screen.dart';
+import '../screen/private_chat_screen.dart'; // Import the PrivateChatScreen
 import 'qrViewScan.dart';
 
 class Chat extends StatefulWidget {
