@@ -19,6 +19,7 @@ import '../page/upgrade_account.dart';
 import '../screen/user_type_screen.dart';
 import '../widgets/item_drawer.dart';
 import 'package:badges/badges.dart' as badges;
+
 // class CustomDrawer extends StatelessWidget {
 //   final Map dataUser;
 //   final String id;
@@ -262,7 +263,6 @@ import 'package:badges/badges.dart' as badges;
 //     );
 //   }
 // }
-
 class CustomDrawer extends StatelessWidget {
   final String userType;
   final String id;
@@ -334,11 +334,8 @@ class CustomDrawer extends StatelessWidget {
               child: DrawerItem(
                 icon: const Icon(Icons.message, color: kPrimaryColor),
                 onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => const PrivateChatRequest(),
-                    ),
-                  );
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => const PrivateChatRequest()));
                 },
                 hint: getTranslated(
                   context,

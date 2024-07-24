@@ -23,6 +23,7 @@ import '../resources/firebase_services.dart';
 import '../widgets/custom_drawer.dart';
 import '../widgets/reused_estate_page.dart';
 import '../widgets/filter_button.dart';
+import 'chat_request_screen.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
