@@ -1,3 +1,4 @@
+import 'package:diamond_booking/screen/chat_request_screen.dart';
 import 'package:diamond_booking/screen/customer_points.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -332,7 +333,13 @@ class CustomDrawer extends StatelessWidget {
               visible: userType == "1",
               child: DrawerItem(
                 icon: const Icon(Icons.message, color: kPrimaryColor),
-                onTap: () {},
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const PrivateChatRequest(),
+                    ),
+                  );
+                },
                 hint: getTranslated(
                   context,
                   "From here you can chat privately with other users",
