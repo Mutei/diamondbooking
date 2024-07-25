@@ -1,29 +1,30 @@
-import 'package:badges/badges.dart' as badges;
-import 'package:diamond_booking/constants/colors.dart';
-import 'package:diamond_booking/constants/styles.dart';
-import 'package:diamond_booking/page/notification_user.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:badges/badges.dart' as badges;
+
 import '../general_provider.dart';
 import '../localization/language_constants.dart';
 import '../models/Additional.dart';
 import '../models/rooms.dart';
 import '../page/Estate.dart';
 import '../widgets/main_screen_widgets.dart';
-import 'all_posts_screen.dart';
 import '../page/request.dart';
 import '../page/type_estate.dart';
 import '../page/upgrade_account.dart';
 import '../resources/firebase_services.dart';
 import '../widgets/custom_drawer.dart';
-import '../widgets/reused_estate_page.dart';
 import '../widgets/filter_button.dart';
+import '../widgets/reused_estate_page.dart';
+import 'all_posts_screen.dart';
 import 'chat_request_screen.dart';
+import '../page/notification_user.dart';
+import '../constants/colors.dart';
+import '../constants/styles.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -62,6 +63,8 @@ class _MainScreenState extends State<MainScreen> {
     _firebaseServices.initMessage(showNotification);
     _firebaseServices.getUserType(setUserType, setPermissionStatus);
     Provider.of<GeneralProvider>(context, listen: false).fetchNewRequestCount();
+    Provider.of<GeneralProvider>(context, listen: false)
+        .checkNewChatRequests(context);
     _loadUserType();
     _requestPermissions();
   }

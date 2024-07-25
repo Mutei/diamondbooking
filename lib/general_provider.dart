@@ -1,11 +1,11 @@
 import 'package:diamond_booking/constants/colors.dart';
+import 'package:diamond_booking/screen/chat_request_screen.dart';
+import 'package:diamond_booking/screen/user_type_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import 'screen/user_type_screen.dart';
 
 class GeneralProvider with ChangeNotifier, DiagnosticableTreeMixin {
   Color color = Color(0xFFE8C75B);
@@ -13,8 +13,10 @@ class GeneralProvider with ChangeNotifier, DiagnosticableTreeMixin {
   bool CheckLoginValue = false;
   Map UserMap = {};
   int _newRequestCount = 0;
+  int _chatRequestCount = 0;
 
   int get newRequestCount => _newRequestCount;
+  int get chatRequestCount => _chatRequestCount;
 
   FunSnackBarPage(String hint, BuildContext context) {
     final snackBar = SnackBar(
@@ -112,5 +114,56 @@ class GeneralProvider with ChangeNotifier, DiagnosticableTreeMixin {
   void resetNewRequestCount() {
     _newRequestCount = 0;
     notifyListeners();
+  }
+
+  void checkNewChatRequests(BuildContext context) {
+    String? id = FirebaseAuth.instance.currentUser?.uid;
+    if (id != null) {
+      DatabaseReference refChatRequest =
+          FirebaseDatabase.instance.ref("App/PrivateChatRequest").child(id);
+
+      refChatRequest.onChildAdded.listen((DatabaseEvent event) {
+        if (event.snapshot.exists) {
+          _chatRequestCount++;
+          notifyListeners();
+          _showNewChatRequestDialog(context);
+        }
+      });
+
+      refChatRequest.onChildRemoved.listen((DatabaseEvent event) {
+        if (event.snapshot.exists) {
+          _chatRequestCount--;
+          notifyListeners();
+        }
+      });
+    }
+  }
+
+  void _showNewChatRequestDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("New Chat Request"),
+          content: Text("You have received a new chat request."),
+          actions: <Widget>[
+            TextButton(
+              child: Text("Cancel"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text("View"),
+              onPressed: () {
+                Navigator.of(context).pop();
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => const PrivateChatRequest()));
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 }
