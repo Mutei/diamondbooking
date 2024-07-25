@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:badges/badges.dart' as badges;
 import '../constants/colors.dart';
 import '../constants/styles.dart';
 import 'private_chat_screen.dart';
@@ -18,6 +19,7 @@ class _PrivateChatRequestState extends State<PrivateChatRequest>
   String? id = "";
   User? currentUser;
   late TabController _tabController;
+  int _requestCount = 0;
 
   @override
   void initState() {
@@ -25,6 +27,7 @@ class _PrivateChatRequestState extends State<PrivateChatRequest>
     id = FirebaseAuth.instance.currentUser?.uid;
     currentUser = FirebaseAuth.instance.currentUser;
     _tabController = TabController(length: 2, vsync: this);
+    _fetchChatRequestCount();
   }
 
   Future<void> acceptChatRequest(String senderId, String senderName) async {
@@ -56,6 +59,11 @@ class _PrivateChatRequestState extends State<PrivateChatRequest>
 
       await refChatRequest.remove();
 
+      // Update the request count
+      setState(() {
+        _requestCount--;
+      });
+
       // Navigate to the PrivateChatScreen
       Navigator.of(context).push(MaterialPageRoute(
           builder: (context) => PrivateChatScreen(
@@ -72,6 +80,29 @@ class _PrivateChatRequestState extends State<PrivateChatRequest>
         .child(senderId);
 
     await refChatRequest.remove();
+
+    // Update the request count
+    setState(() {
+      _requestCount--;
+    });
+  }
+
+  Future<void> _fetchChatRequestCount() async {
+    DatabaseReference refChatRequest =
+        databaseReference.ref("App/PrivateChatRequest").child(id!);
+
+    refChatRequest.onValue.listen((DatabaseEvent event) {
+      if (event.snapshot.exists) {
+        Map requests = event.snapshot.value as Map;
+        setState(() {
+          _requestCount = requests.length;
+        });
+      } else {
+        setState(() {
+          _requestCount = 0;
+        });
+      }
+    });
   }
 
   Widget _buildChatRequests() {
@@ -193,9 +224,20 @@ class _PrivateChatRequestState extends State<PrivateChatRequest>
         ),
         bottom: TabBar(
           controller: _tabController,
-          tabs: const [
-            Tab(text: "Requests"),
-            Tab(text: "Chats"),
+          tabs: [
+            Tab(
+              text: "Requests",
+              icon: _requestCount > 0
+                  ? badges.Badge(
+                      badgeContent: Text(
+                        _requestCount.toString(),
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      child: const Icon(Icons.message),
+                    )
+                  : const Icon(Icons.message),
+            ),
+            const Tab(text: "Chats"),
           ],
         ),
       ),
