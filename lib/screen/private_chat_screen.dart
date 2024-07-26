@@ -445,17 +445,15 @@ class _PrivateChatScreenState extends State<PrivateChatScreen> {
                     List<DataSnapshot> items =
                         snapshot.data!.snapshot.children.toList();
 
-                    items.sort((a, b) {
-                      int aTimestamp = (a.child('timestamp').value ?? 0) as int;
-                      int bTimestamp = (b.child('timestamp').value ?? 0) as int;
-                      return aTimestamp.compareTo(bTimestamp);
-                    });
+                    // Reverse the list to show the latest message first
+                    items = items.reversed.toList();
 
                     if (items.isEmpty) {
                       return const Center(child: Text('No messages yet'));
                     }
 
                     return ListView.builder(
+                      reverse: true, // Start the list from the bottom
                       itemCount: items.length,
                       itemBuilder: (context, index) {
                         Map map = items[index].value as Map;
