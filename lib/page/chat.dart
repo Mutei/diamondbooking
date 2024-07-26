@@ -14,6 +14,7 @@ import '../global/censor_message.dart';
 import '../resources/user_services.dart';
 import '../screen/private_chat_screen.dart'; // Import the PrivateChatScreen
 import 'qrViewScan.dart';
+import 'package:intl/intl.dart'; // Import for date formatting
 
 class Chat extends StatefulWidget {
   final String idEstate;
@@ -406,6 +407,20 @@ class _State extends State<Chat> {
     );
   }
 
+  String formatTimestamp(int timestamp) {
+    DateTime now = DateTime.now();
+    DateTime date = DateTime.fromMillisecondsSinceEpoch(timestamp);
+    Duration difference = now.difference(date);
+
+    if (difference.inDays == 0) {
+      return "Today";
+    } else if (difference.inDays == 1) {
+      return "Yesterday";
+    } else {
+      return DateFormat('MM/dd/yyyy').format(date);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     DatabaseReference refChat = FirebaseDatabase.instance
@@ -602,16 +617,37 @@ class _State extends State<Chat> {
                                                     ),
                                                   ),
                                                   const SizedBox(width: 10),
-                                                  Text(
-                                                    map['time'] ?? "",
-                                                    style: TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.w400,
-                                                        color: map['SenderId'] ==
-                                                                currentUser?.uid
-                                                            ? kSenderTextMessage
-                                                            : kReceiverTextMessage,
-                                                        fontSize: 10),
+                                                  Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment.end,
+                                                    children: [
+                                                      Text(
+                                                        formatTimestamp(
+                                                            map['timestamp'] ??
+                                                                0),
+                                                        style: TextStyle(
+                                                            fontWeight:
+                                                                FontWeight.w400,
+                                                            color: map['SenderId'] ==
+                                                                    currentUser
+                                                                        ?.uid
+                                                                ? kSenderTextMessage
+                                                                : kReceiverTextMessage,
+                                                            fontSize: 10),
+                                                      ),
+                                                      Text(
+                                                        map['time'] ?? "",
+                                                        style: TextStyle(
+                                                            fontWeight:
+                                                                FontWeight.w400,
+                                                            color: map['SenderId'] ==
+                                                                    currentUser
+                                                                        ?.uid
+                                                                ? kSenderTextMessage
+                                                                : kReceiverTextMessage,
+                                                            fontSize: 10),
+                                                      ),
+                                                    ],
                                                   ),
                                                 ],
                                               ),
