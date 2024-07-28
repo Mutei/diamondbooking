@@ -328,6 +328,10 @@ class _State extends State<Chat> {
   }
 
   void _showProfileDialog(String userId) async {
+    if (userType == "2") {
+      return; // Prevent userType 2 from viewing profiles
+    }
+
     // Only allow TypeAccount 3 and 4 users to proceed
     if (typeAccount != '3' && typeAccount != '4') {
       return;
@@ -382,6 +386,11 @@ class _State extends State<Chat> {
   Future<void> _sendChatRequest(String receiverId, String receiverName) async {
     // Only allow TypeAccount 3 and 4 users to send chat requests
     if (typeAccount != '3' && typeAccount != '4') {
+      return;
+    }
+
+    // Prevent userType 2 from sending chat requests
+    if (userType == "2") {
       return;
     }
 
