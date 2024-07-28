@@ -1,7 +1,10 @@
 import 'package:diamond_booking/localization/language_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:provider/provider.dart';
+import 'package:sizer/sizer.dart';
 import '../general_provider.dart';
+import 'card_type.dart';
 import 'filter_button.dart';
 import 'main_screen_widgets.dart';
 
@@ -239,64 +242,86 @@ class _ReusedEstatePageState extends State<ReusedEstatePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Colors.white,
-      margin: const EdgeInsets.only(top: 5, bottom: 20, left: 10, right: 10),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.vertical,
-        child: Column(
-          children: [
-            Container(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
+    final objProvider = Provider.of<GeneralProvider>(context, listen: false);
+    return Column(
+      children: [
+        // Container(
+        //   padding: const EdgeInsets.only(bottom: 10),
+        //   height: 13.h,
+        //   child: ListView.builder(
+        //     itemCount: objProvider.TypeService().length,
+        //     scrollDirection: Axis.horizontal,
+        //     itemBuilder: (BuildContext context, int index) {
+        //       return CardType(
+        //         context: context,
+        //         obj: objProvider.TypeService()[index],
+        //       );
+        //     },
+        //   ),
+        // ),
+        Container(
+          color: Colors.white,
+          margin:
+              const EdgeInsets.only(top: 5, bottom: 20, left: 10, right: 10),
+          child: SingleChildScrollView(
+            scrollDirection: Axis.vertical,
+            child: Column(
               children: [
-                FilterButton(
-                  label: 'All',
-                  isSelected: widget.selectedFilter == 'All',
-                  onTap: () => widget.onFilterChanged('All'),
+                Container(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    FilterButton(
+                      label: 'All',
+                      isSelected: widget.selectedFilter == 'All',
+                      onTap: () => widget.onFilterChanged('All'),
+                    ),
+                    FilterButton(
+                      label: 'Restaurant',
+                      isSelected: widget.selectedFilter == 'Restaurant',
+                      onTap: () => widget.onFilterChanged('Restaurant'),
+                    ),
+                    FilterButton(
+                      label: 'Hotel',
+                      isSelected: widget.selectedFilter == 'Hotel',
+                      onTap: () => widget.onFilterChanged('Hotel'),
+                    ),
+                    FilterButton(
+                      label: 'Coffee',
+                      isSelected: widget.selectedFilter == 'Coffee',
+                      onTap: () => widget.onFilterChanged('Coffee'),
+                    ),
+                  ],
                 ),
-                FilterButton(
-                  label: 'Restaurant',
-                  isSelected: widget.selectedFilter == 'Restaurant',
-                  onTap: () => widget.onFilterChanged('Restaurant'),
-                ),
-                FilterButton(
-                  label: 'Hotel',
-                  isSelected: widget.selectedFilter == 'Hotel',
-                  onTap: () => widget.onFilterChanged('Hotel'),
-                ),
-                FilterButton(
-                  label: 'Coffee',
-                  isSelected: widget.selectedFilter == 'Coffee',
-                  onTap: () => widget.onFilterChanged('Coffee'),
-                ),
+                const Divider(),
+                if (widget.selectedFilter == 'All' ||
+                    widget.selectedFilter == 'Hotel')
+                  _buildSectionWithFilterIcon(context, 'Hotel'),
+                if (widget.selectedFilter == 'All' ||
+                    widget.selectedFilter == 'Hotel')
+                  _buildEstateList(
+                      widget.queryHotel, 'assets/images/hotel.png'),
+                const Divider(),
+                if (widget.selectedFilter == 'All' ||
+                    widget.selectedFilter == 'Coffee')
+                  _buildSectionWithFilterIcon(context, 'Coffee'),
+                if (widget.selectedFilter == 'All' ||
+                    widget.selectedFilter == 'Coffee')
+                  _buildEstateList(
+                      widget.queryCoffee, 'assets/images/coffee.png'),
+                const Divider(),
+                if (widget.selectedFilter == 'All' ||
+                    widget.selectedFilter == 'Restaurant')
+                  _buildSectionWithFilterIcon(context, 'Restaurant'),
+                if (widget.selectedFilter == 'All' ||
+                    widget.selectedFilter == 'Restaurant')
+                  _buildEstateList(
+                      widget.queryRestaurant, 'assets/images/restaurant.png'),
               ],
             ),
-            const Divider(),
-            if (widget.selectedFilter == 'All' ||
-                widget.selectedFilter == 'Hotel')
-              _buildSectionWithFilterIcon(context, 'Hotel'),
-            if (widget.selectedFilter == 'All' ||
-                widget.selectedFilter == 'Hotel')
-              _buildEstateList(widget.queryHotel, 'assets/images/hotel.png'),
-            const Divider(),
-            if (widget.selectedFilter == 'All' ||
-                widget.selectedFilter == 'Coffee')
-              _buildSectionWithFilterIcon(context, 'Coffee'),
-            if (widget.selectedFilter == 'All' ||
-                widget.selectedFilter == 'Coffee')
-              _buildEstateList(widget.queryCoffee, 'assets/images/coffee.png'),
-            const Divider(),
-            if (widget.selectedFilter == 'All' ||
-                widget.selectedFilter == 'Restaurant')
-              _buildSectionWithFilterIcon(context, 'Restaurant'),
-            if (widget.selectedFilter == 'All' ||
-                widget.selectedFilter == 'Restaurant')
-              _buildEstateList(
-                  widget.queryRestaurant, 'assets/images/restaurant.png'),
-          ],
+          ),
         ),
-      ),
+      ],
     );
   }
 
