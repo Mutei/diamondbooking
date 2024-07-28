@@ -222,18 +222,49 @@ class _ReusedEstatePageState extends State<ReusedEstatePage> {
       builder: (context, setState) {
         return SingleChildScrollView(
           child: Column(
-            children: coffeeFilters.keys.map((filterOption) {
-              return CheckboxListTile(
-                title: Text(getTranslated(context, filterOption)),
-                value: coffeeFilters[filterOption],
-                onChanged: (bool? value) {
-                  setState(() {
-                    coffeeFilters[filterOption] = value!;
-                  });
-                  _updateFilterSelection('Coffee', filterOption, value!);
-                },
-              );
-            }).toList(),
+            children: [
+              ...coffeeFilters.keys.map((filterOption) {
+                return CheckboxListTile(
+                  title: Text(getTranslated(context, filterOption)),
+                  value: coffeeFilters[filterOption],
+                  onChanged: (bool? value) {
+                    setState(() {
+                      coffeeFilters[filterOption] = value!;
+                    });
+                    _updateFilterSelection('Coffee', filterOption, value!);
+                  },
+                );
+              }).toList(),
+              const Divider(),
+              Text(getTranslated(context, 'Sessions type')),
+              ...sessionsTypeFilters.keys.map((filterOption) {
+                return CheckboxListTile(
+                  title: Text(getTranslated(context, filterOption)),
+                  value: sessionsTypeFilters[filterOption],
+                  onChanged: (bool? value) {
+                    setState(() {
+                      sessionsTypeFilters[filterOption] = value!;
+                    });
+                    _updateFilterSelection(
+                        'Sessions Type', filterOption, value!);
+                  },
+                );
+              }).toList(),
+              const Divider(),
+              Text(getTranslated(context, 'Is there music')),
+              ...musicFilters.keys.map((filterOption) {
+                return CheckboxListTile(
+                  title: Text(getTranslated(context, filterOption)),
+                  value: musicFilters[filterOption],
+                  onChanged: (bool? value) {
+                    setState(() {
+                      musicFilters[filterOption] = value!;
+                    });
+                    _updateFilterSelection('Music', filterOption, value!);
+                  },
+                );
+              }).toList(),
+            ],
           ),
         );
       },
@@ -245,20 +276,6 @@ class _ReusedEstatePageState extends State<ReusedEstatePage> {
     final objProvider = Provider.of<GeneralProvider>(context, listen: false);
     return Column(
       children: [
-        // Container(
-        //   padding: const EdgeInsets.only(bottom: 10),
-        //   height: 13.h,
-        //   child: ListView.builder(
-        //     itemCount: objProvider.TypeService().length,
-        //     scrollDirection: Axis.horizontal,
-        //     itemBuilder: (BuildContext context, int index) {
-        //       return CardType(
-        //         context: context,
-        //         obj: objProvider.TypeService()[index],
-        //       );
-        //     },
-        //   ),
-        // ),
         Container(
           color: Colors.white,
           margin:
