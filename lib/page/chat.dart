@@ -45,6 +45,7 @@ class _State extends State<Chat> {
   DateTime? lastScanTime;
   int activeCustomers = 0;
   String? typeAccount = "";
+  bool isHotel = false;
 
   HttpsCallable callable = FirebaseFunctions.instance.httpsCallable(
       'sendNotificationsadmin',
@@ -61,6 +62,7 @@ class _State extends State<Chat> {
     fetchTypeAccount();
     listenToActiveCustomers();
     checkAccessPeriodically();
+    checkIfHotel();
   }
 
   @override
@@ -115,6 +117,17 @@ class _State extends State<Chat> {
     }
   }
 
+  Future<void> checkIfHotel() async {
+    DatabaseReference estateRef =
+        databaseReference.ref().child('App/Estate/Hottel/$idEstate');
+    DataSnapshot snapshot = await estateRef.get();
+    if (snapshot.exists) {
+      setState(() {
+        isHotel = true;
+      });
+    }
+  }
+
   Future<void> checkAccess() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     String accessTimeKey = 'access_time_${widget.idEstate}_$id';
@@ -156,7 +169,8 @@ class _State extends State<Chat> {
       SharedPreferences sharedPreferences =
           await SharedPreferences.getInstance();
       String accessTimeKey = 'access_time_${widget.idEstate}_$id';
-      DateTime accessEndTime = DateTime.now().add(const Duration(minutes: 1));
+      DateTime accessEndTime = DateTime.now()
+          .add(isHotel ? const Duration(hours: 24) : const Duration(hours: 3));
       sharedPreferences.setString(
           accessTimeKey, accessEndTime.toIso8601String());
 
@@ -167,7 +181,9 @@ class _State extends State<Chat> {
         lastScanTime = now;
         hasAccess = true;
       });
-      startAccessTimer(const Duration(minutes: 1));
+      startAccessTimer(
+        isHotel ? const Duration(hours: 24) : const Duration(hours: 3),
+      );
       print('Access granted');
       addActiveCustomer();
     } else {
