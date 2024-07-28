@@ -727,7 +727,7 @@ class _State extends State<Chat> {
                             Expanded(
                               child: TextField(
                                 controller: _textController,
-                                maxLength: 125,
+                                maxLength: 100,
                                 maxLines: null,
                                 decoration: const InputDecoration(
                                   contentPadding: EdgeInsets.all(16.0),
