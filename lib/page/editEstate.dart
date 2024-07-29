@@ -1,4 +1,6 @@
 // ignore_for_file: non_constant_identifier_names
+import 'package:diamond_booking/constants/colors.dart';
+import 'package:diamond_booking/constants/styles.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
@@ -131,7 +133,7 @@ class _State extends State<EditEstate> {
     final objProvider = Provider.of<GeneralProvider>(context, listen: false);
     return Scaffold(
         appBar: AppBar(
-          backgroundColor: Color(0xFFE8C75B),
+          iconTheme: kIconTheme,
         ),
         body: Stack(
           children: [
@@ -155,7 +157,7 @@ class _State extends State<EditEstate> {
                         // ignore: prefer_const_constructors
                         icon: Icon(
                           Icons.person,
-                          color: const Color(0xFFE8C75B),
+                          color: kPrimaryColor,
                         ),
                         control: Name_Controller,
                         isObsecured: false,
@@ -170,7 +172,7 @@ class _State extends State<EditEstate> {
                         // ignore: prefer_const_constructors
                         icon: Icon(
                           Icons.person,
-                          color: const Color(0xFFE8C75B),
+                          color: kPrimaryColor,
                         ),
                         control: Bio_Controller,
                         isObsecured: false,
@@ -190,7 +192,7 @@ class _State extends State<EditEstate> {
                         // ignore: prefer_const_constructors
                         icon: Icon(
                           Icons.person,
-                          color: const Color(0xFFE8C75B),
+                          color: kPrimaryColor,
                         ),
                         control: EnName_Controller,
                         isObsecured: false,
@@ -205,7 +207,7 @@ class _State extends State<EditEstate> {
                         // ignore: prefer_const_constructors
                         icon: Icon(
                           Icons.person,
-                          color: const Color(0xFFE8C75B),
+                          color: kPrimaryColor,
                         ),
                         control: EnBio_Controller,
                         isObsecured: false,
@@ -283,7 +285,7 @@ class _State extends State<EditEstate> {
                                             // ignore: prefer_const_constructors
                                             icon: Icon(
                                               Icons.single_bed,
-                                              color: const Color(0xFFE8C75B),
+                                              color: kPrimaryColor,
                                             ),
                                             control: Single_Controller,
                                             isObsecured: false,
@@ -296,7 +298,7 @@ class _State extends State<EditEstate> {
                                             // ignore: prefer_const_constructors
                                             icon: Icon(
                                               Icons.single_bed,
-                                              color: const Color(0xFFE8C75B),
+                                              color: kPrimaryColor,
                                             ),
                                             control: Single_ControllerBioAr,
                                             isObsecured: false,
@@ -308,7 +310,7 @@ class _State extends State<EditEstate> {
                                             // ignore: prefer_const_constructors
                                             icon: Icon(
                                               Icons.single_bed,
-                                              color: const Color(0xFFE8C75B),
+                                              color: kPrimaryColor,
                                             ),
                                             control: Single_ControllerBioEn,
                                             isObsecured: false,
@@ -378,8 +380,7 @@ class _State extends State<EditEstate> {
                                                 // ignore: prefer_const_constructors
                                                 icon: Icon(
                                                   Icons.single_bed,
-                                                  color:
-                                                      const Color(0xFFE8C75B),
+                                                  color: kPrimaryColor,
                                                 ),
                                                 control: Double_Controller,
                                                 isObsecured: false,
@@ -392,8 +393,7 @@ class _State extends State<EditEstate> {
                                                 // ignore: prefer_const_constructors
                                                 icon: Icon(
                                                   Icons.single_bed,
-                                                  color:
-                                                      const Color(0xFFE8C75B),
+                                                  color: kPrimaryColor,
                                                 ),
                                                 control: Double_ControllerBioAr,
                                                 isObsecured: false,
@@ -406,8 +406,7 @@ class _State extends State<EditEstate> {
                                                 // ignore: prefer_const_constructors
                                                 icon: Icon(
                                                   Icons.single_bed,
-                                                  color:
-                                                      const Color(0xFFE8C75B),
+                                                  color: kPrimaryColor,
                                                 ),
                                                 control: Double_ControllerBioEn,
                                                 isObsecured: false,
@@ -475,8 +474,7 @@ class _State extends State<EditEstate> {
                                                 // ignore: prefer_const_constructors
                                                 icon: Icon(
                                                   Icons.single_bed,
-                                                  color:
-                                                      const Color(0xFFE8C75B),
+                                                  color: kPrimaryColor,
                                                 ),
                                                 control: Swite_Controller,
                                                 isObsecured: false,
@@ -489,8 +487,7 @@ class _State extends State<EditEstate> {
                                                 // ignore: prefer_const_constructors
                                                 icon: Icon(
                                                   Icons.single_bed,
-                                                  color:
-                                                      const Color(0xFFE8C75B),
+                                                  color: kPrimaryColor,
                                                 ),
                                                 control: Swite_ControllerBioAr,
                                                 isObsecured: false,
@@ -503,8 +500,7 @@ class _State extends State<EditEstate> {
                                                 // ignore: prefer_const_constructors
                                                 icon: Icon(
                                                   Icons.single_bed,
-                                                  color:
-                                                      const Color(0xFF84A5FA),
+                                                  color: kPrimaryColor,
                                                 ),
                                                 control: Swite_ControllerBioEn,
                                                 isObsecured: false,
@@ -572,8 +568,7 @@ class _State extends State<EditEstate> {
                                                 // ignore: prefer_const_constructors
                                                 icon: Icon(
                                                   Icons.single_bed,
-                                                  color:
-                                                      const Color(0xFF84A5FA),
+                                                  color: kPrimaryColor,
                                                 ),
                                                 control: Famely_Controller,
                                                 isObsecured: false,
@@ -586,8 +581,7 @@ class _State extends State<EditEstate> {
                                                 // ignore: prefer_const_constructors
                                                 icon: Icon(
                                                   Icons.single_bed,
-                                                  color:
-                                                      const Color(0xFF84A5FA),
+                                                  color: kPrimaryColor,
                                                 ),
                                                 control: Famely_ControllerBioAr,
                                                 isObsecured: false,
@@ -600,8 +594,7 @@ class _State extends State<EditEstate> {
                                                 // ignore: prefer_const_constructors
                                                 icon: Icon(
                                                   Icons.single_bed,
-                                                  color:
-                                                      const Color(0xFF84A5FA),
+                                                  color: kPrimaryColor,
                                                 ),
                                                 control: Famely_ControllerBioEn,
                                                 isObsecured: false,
@@ -646,12 +639,15 @@ class _State extends State<EditEstate> {
                               margin: const EdgeInsets.only(
                                   right: 20, left: 20, bottom: 30),
                               decoration: BoxDecoration(
-                                color: const Color(0xFF84A5FA),
+                                color: kPrimaryColor,
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               // ignore: prefer_const_constructors
                               child: Center(
-                                child: Text(getTranslated(context, "Skip")),
+                                child: Text(
+                                  getTranslated(context, "Skip"),
+                                  style: const TextStyle(color: Colors.white),
+                                ),
                               ),
                             ),
                             onTap: () async {
@@ -678,12 +674,15 @@ class _State extends State<EditEstate> {
                           margin: const EdgeInsets.only(
                               right: 20, left: 20, bottom: 20),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF84A5FA),
+                            color: kPrimaryColor,
                             borderRadius: BorderRadius.circular(12),
                           ),
                           // ignore: prefer_const_constructors
                           child: Center(
-                            child: Text(getTranslated(context, "Next")),
+                            child: Text(
+                              getTranslated(context, "Next"),
+                              style: const TextStyle(color: Colors.white),
+                            ),
                           ),
                         ),
                         onTap: () async {
