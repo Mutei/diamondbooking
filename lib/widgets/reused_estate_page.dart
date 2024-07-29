@@ -340,10 +340,20 @@ class _ReusedEstatePageState extends State<ReusedEstatePage> {
       ...musicFilters.keys.where((filter) => musicFilters[filter]!),
     ];
 
+    // Log the combined filter order
+    print('Filter order: $filterOrder');
+
     estates.sort((a, b) {
       for (var filter in filterOrder) {
-        if (_matchesFilter(a, filter) && !_matchesFilter(b, filter)) return -1;
-        if (!_matchesFilter(a, filter) && _matchesFilter(b, filter)) return 1;
+        bool aMatches = _matchesFilter(a, filter);
+        bool bMatches = _matchesFilter(b, filter);
+
+        // Log the matching results
+        print('Estate ${a['IDEstate']} matches $filter: $aMatches');
+        print('Estate ${b['IDEstate']} matches $filter: $bMatches');
+
+        if (aMatches && !bMatches) return -1;
+        if (!aMatches && bMatches) return 1;
       }
       return 0;
     });
@@ -353,10 +363,30 @@ class _ReusedEstatePageState extends State<ReusedEstatePage> {
   }
 
   bool _matchesFilter(Map estate, String filter) {
-    return estate['TypeofRestaurant']?.contains(filter) == true ||
-        estate['Entry']?.contains(filter) == true ||
-        estate['Sessions']?.contains(filter) == true ||
-        estate['Music']?.contains(filter) == true;
+    bool matches = false;
+
+    // Check for 'There is music' filter
+    if (filter == 'There is music' && estate['Music'] == '1') {
+      matches = true;
+    } else if (filter == 'There is no music' && estate['Music'] == '1') {
+      matches = true;
+    } else if (estate['TypeofRestaurant']?.contains(filter) == true) {
+      matches = true;
+    } else if (estate['Entry']?.contains(filter) == true) {
+      matches = true;
+    } else if (estate['Sessions']?.contains(filter) == true) {
+      matches = true;
+    }
+
+    // Log the attribute values
+    print(
+        'Estate ${estate['IDEstate']} attributes: ${estate['TypeofRestaurant']}, ${estate['Entry']}, ${estate['Sessions']}, ${estate['Music']}');
+
+    if (matches) {
+      print('Estate ${estate['IDEstate']} matches filter: $filter');
+    }
+
+    return matches;
   }
 }
 
