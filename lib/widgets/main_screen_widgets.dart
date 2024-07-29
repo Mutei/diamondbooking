@@ -34,24 +34,31 @@ class CustomWidgets {
         } else {
           List<Map> estates = [];
           DataSnapshot dataValues = snapshot.data!.snapshot;
-          Map data = dataValues.value as Map;
+          if (dataValues.value != null) {
+            // Check if data is not null
+            Map data = dataValues.value as Map;
 
-          data.forEach((key, value) {
-            Map estate = value as Map;
-            estate['Key'] = key;
-            estates.add(estate);
-          });
+            data.forEach((key, value) {
+              Map estate = value as Map;
+              estate['Key'] = key;
+              estates.add(estate);
+            });
 
-          if (searchQuery.isNotEmpty) {
-            estates = estates
-                .where((estate) => estate['NameEn']
-                    .toString()
-                    .toLowerCase()
-                    .contains(searchQuery.toLowerCase()))
-                .toList();
+            if (searchQuery.isNotEmpty) {
+              estates = estates
+                  .where((estate) => estate['NameEn']
+                      .toString()
+                      .toLowerCase()
+                      .contains(searchQuery.toLowerCase()))
+                  .toList();
+            }
+
+            estates = sortEstates(estates);
           }
 
-          estates = sortEstates(estates);
+          if (estates.isEmpty) {
+            return Center(child: Text('No estates available'));
+          }
 
           return ListView.builder(
             scrollDirection: Axis.horizontal,
