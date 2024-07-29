@@ -96,37 +96,6 @@ class _AddEstatesScreenState extends State<AddEstatesScreen> {
       });
     });
   }
-  //
-  // closeTextFormFieldStyle(Function() fun) {
-  //   return InkWell(
-  //     child: Container(
-  //       decoration: BoxDecoration(
-  //         color: Colors.white,
-  //         shape: BoxShape.circle,
-  //         boxShadow: [
-  //           BoxShadow(blurRadius: 10, color: Colors.grey, spreadRadius: 1)
-  //         ],
-  //       ),
-  //       child: CircleAvatar(
-  //         backgroundColor: Colors.white,
-  //         child: const Icon(
-  //           Icons.close,
-  //           color: Colors.red,
-  //         ),
-  //       ),
-  //     ),
-  //     onTap: fun,
-  //   );
-  // }
-
-  // openImages() async {
-  //   var pickedFiles = await backendService.openImages();
-  //   if (pickedFiles != null) {
-  //     setState(() {
-  //       imageFiles = pickedFiles;
-  //     });
-  //   }
-  // }
 
   Future<String?> getTypeAccount(String userId) async {
     return await backendService.getTypeAccount(userId);
@@ -565,6 +534,12 @@ class _AddEstatesScreenState extends State<AddEstatesScreen> {
                           String? typeAccount = userDetails["typeAccount"];
 
                           if (firstName != null && lastName != null) {
+                            // Add selected room types to the listEntry
+                            if (single) listEntry.add("Single");
+                            if (double) listEntry.add("Double");
+                            if (suite) listEntry.add("Suite");
+                            if (family) listEntry.add("Family");
+
                             await backendService.addEstate(
                               childType: childType,
                               idEstate: idEstate.toString(),
@@ -620,7 +595,7 @@ class _AddEstatesScreenState extends State<AddEstatesScreen> {
                               await backendService.addRoom(
                                 estateId: idEstate.toString(),
                                 roomId: "3",
-                                roomName: "Swite",
+                                roomName: "Suite",
                                 roomPrice: suiteController.text,
                                 roomBioAr: suiteControllerBioAr.text,
                                 roomBioEn: suiteControllerBioEn.text,
