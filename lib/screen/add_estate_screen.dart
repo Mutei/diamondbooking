@@ -136,6 +136,7 @@ class _AddEstatesScreenState extends State<AddEstatesScreen> {
   Widget build(BuildContext context) {
     btnLogin = Text(
       getTranslated(context, "Next"),
+      style: const TextStyle(color: Colors.white),
     );
     return Scaffold(
       appBar: AppBar(
@@ -520,7 +521,7 @@ class _AddEstatesScreenState extends State<AddEstatesScreen> {
                         margin: const EdgeInsets.only(
                             right: 40, left: 40, bottom: 20),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF84A5FA),
+                          color: kPrimaryColor,
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Center(
