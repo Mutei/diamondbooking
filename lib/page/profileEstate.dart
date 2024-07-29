@@ -1,5 +1,4 @@
 import 'dart:math';
-
 import 'package:diamond_booking/constants/colors.dart';
 import 'package:diamond_booking/extension/sized_box_extension.dart';
 import 'package:diamond_booking/page/points_helper.dart';
@@ -33,12 +32,12 @@ class ProfileEstate extends StatefulWidget {
   final String icon;
   final bool VisEdit;
 
-  ProfileEstate(
-      {required this.estate,
-      required this.icon,
-      required this.VisEdit,
-      Key? key})
-      : super(key: key);
+  ProfileEstate({
+    required this.estate,
+    required this.icon,
+    required this.VisEdit,
+    Key? key,
+  }) : super(key: key);
 
   @override
   _ProfileEstateState createState() =>
@@ -801,7 +800,7 @@ class _ProfileEstateState extends State<ProfileEstate> {
                         return Text(
                             getTranslated(context, "Error loading feedback"));
                       } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                        return Text(getTranslated(context, "No feedback yet"));
+                        return Container(); // Return an empty container when there's no feedback
                       }
 
                       return SizedBox(
@@ -855,28 +854,6 @@ class _ProfileEstateState extends State<ProfileEstate> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      InkWell(
-                        child: Container(
-                          width: 150.w,
-                          height: 6.h,
-                          margin: const EdgeInsets.only(
-                              right: 40, left: 40, bottom: 20),
-                          decoration: BoxDecoration(
-                            color: kPrimaryColor,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Center(
-                            child: Text(getTranslated(context, "Post"),
-                                style: const TextStyle(color: Colors.white)),
-                          ),
-                        ),
-                        onTap: () {
-                          Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) => AddPost(
-                                    map: estate,
-                                  )));
-                        },
-                      ),
                       InkWell(
                         child: Container(
                           width: 150.w,
