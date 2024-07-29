@@ -98,6 +98,8 @@ class _ReusedEstatePageState extends State<ReusedEstatePage> {
     switch (estateType) {
       case 'Restaurant':
         return _buildRestaurantFilterOptions();
+      case 'Coffee':
+        return _buildCoffeeFilterOptions();
       default:
         return Container();
     }
@@ -109,23 +111,10 @@ class _ReusedEstatePageState extends State<ReusedEstatePage> {
         return SingleChildScrollView(
           child: Column(
             children: [
-              ...restaurantFilters.keys.map((filterOption) {
-                return CheckboxListTile(
-                  title: Text(getTranslated(context, filterOption)),
-                  value: restaurantFilters[filterOption],
-                  onChanged: (bool? value) {
-                    setState(() {
-                      restaurantFilters[filterOption] = value!;
-                    });
-                    _updateFilterSelection('Restaurant', filterOption, value!);
-                  },
-                );
-              }).toList(),
-              const Divider(),
-              Text(getTranslated(context, 'Entry allowed')),
+              Text('Entry allowed'),
               ...entryAllowedFilters.keys.map((filterOption) {
                 return CheckboxListTile(
-                  title: Text(getTranslated(context, filterOption)),
+                  title: Text(filterOption),
                   value: entryAllowedFilters[filterOption],
                   onChanged: (bool? value) {
                     setState(() {
@@ -137,10 +126,23 @@ class _ReusedEstatePageState extends State<ReusedEstatePage> {
                 );
               }).toList(),
               const Divider(),
-              Text(getTranslated(context, 'Sessions type')),
+              ...restaurantFilters.keys.map((filterOption) {
+                return CheckboxListTile(
+                  title: Text(filterOption),
+                  value: restaurantFilters[filterOption],
+                  onChanged: (bool? value) {
+                    setState(() {
+                      restaurantFilters[filterOption] = value!;
+                    });
+                    _updateFilterSelection('Restaurant', filterOption, value!);
+                  },
+                );
+              }).toList(),
+              const Divider(),
+              Text('Sessions type'),
               ...sessionsTypeFilters.keys.map((filterOption) {
                 return CheckboxListTile(
-                  title: Text(getTranslated(context, filterOption)),
+                  title: Text(filterOption),
                   value: sessionsTypeFilters[filterOption],
                   onChanged: (bool? value) {
                     setState(() {
@@ -152,10 +154,66 @@ class _ReusedEstatePageState extends State<ReusedEstatePage> {
                 );
               }).toList(),
               const Divider(),
-              Text(getTranslated(context, 'Is there music')),
+              Text('Is there music'),
               ...musicFilters.keys.map((filterOption) {
                 return CheckboxListTile(
-                  title: Text(getTranslated(context, filterOption)),
+                  title: Text(filterOption),
+                  value: musicFilters[filterOption],
+                  onChanged: (bool? value) {
+                    setState(() {
+                      musicFilters[filterOption] = value!;
+                    });
+                    _updateFilterSelection('Music', filterOption, value!);
+                  },
+                );
+              }).toList(),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildCoffeeFilterOptions() {
+    return StatefulBuilder(
+      builder: (context, setState) {
+        return SingleChildScrollView(
+          child: Column(
+            children: [
+              Text('Entry allowed'),
+              ...entryAllowedFilters.keys.map((filterOption) {
+                return CheckboxListTile(
+                  title: Text(filterOption),
+                  value: entryAllowedFilters[filterOption],
+                  onChanged: (bool? value) {
+                    setState(() {
+                      entryAllowedFilters[filterOption] = value!;
+                    });
+                    _updateFilterSelection(
+                        'Entry Allowed', filterOption, value!);
+                  },
+                );
+              }).toList(),
+              const Divider(),
+              Text('Sessions type'),
+              ...sessionsTypeFilters.keys.map((filterOption) {
+                return CheckboxListTile(
+                  title: Text(filterOption),
+                  value: sessionsTypeFilters[filterOption],
+                  onChanged: (bool? value) {
+                    setState(() {
+                      sessionsTypeFilters[filterOption] = value!;
+                    });
+                    _updateFilterSelection(
+                        'Sessions Type', filterOption, value!);
+                  },
+                );
+              }).toList(),
+              const Divider(),
+              Text('Is there music'),
+              ...musicFilters.keys.map((filterOption) {
+                return CheckboxListTile(
+                  title: Text(filterOption),
                   value: musicFilters[filterOption],
                   onChanged: (bool? value) {
                     setState(() {
