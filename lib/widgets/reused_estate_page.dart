@@ -330,9 +330,15 @@ class _ReusedEstatePageState extends State<ReusedEstatePage> {
   }
 
   List<Map> _sortEstates(List<Map> estates) {
-    final filterOrder = restaurantFilters.keys
-        .where((filter) => restaurantFilters[filter]!)
-        .toList();
+    // Combine all selected filters
+    final filterOrder = [
+      ...restaurantFilters.keys.where((filter) => restaurantFilters[filter]!),
+      ...entryAllowedFilters.keys
+          .where((filter) => entryAllowedFilters[filter]!),
+      ...sessionsTypeFilters.keys
+          .where((filter) => sessionsTypeFilters[filter]!),
+      ...musicFilters.keys.where((filter) => musicFilters[filter]!),
+    ];
 
     estates.sort((a, b) {
       for (var filter in filterOrder) {
