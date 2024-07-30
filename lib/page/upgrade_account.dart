@@ -1,5 +1,6 @@
 // ignore_for_file: non_constant_identifier_names
 
+import 'package:diamond_booking/constants/colors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
@@ -58,12 +59,12 @@ class _State extends State<UpgradeAccount> {
             child: Container(
           width: MediaQuery.of(context).size.width,
           height: MediaQuery.of(context).size.height,
-          decoration: BoxDecoration(
-              image: DecorationImage(
-                  image: AssetImage(objProvider.CheckLangValue
-                      ? "assets/images/login.png"
-                      : "assets/images/login2.png"),
-                  fit: BoxFit.fill)),
+          // decoration: BoxDecoration(
+          //     image: DecorationImage(
+          //         image: AssetImage(objProvider.CheckLangValue
+          //             ? "assets/images/login.png"
+          //             : "assets/images/login2.png"),
+          //         fit: BoxFit.fill)),
           child: ListView(
             children: [
               Container(
@@ -78,7 +79,7 @@ class _State extends State<UpgradeAccount> {
                     text: getTranslated(context, 'Hello ,'),
                     style: GoogleFonts.laila(
                         fontSize: 6.w,
-                        color: Color(0xFF84A5FA),
+                        color: kPrimaryColor,
                         fontWeight: FontWeight.bold),
                     // ignore: prefer_const_literals_to_create_immutables
                     children: <TextSpan>[
@@ -93,7 +94,7 @@ class _State extends State<UpgradeAccount> {
                           text: getTranslated(context, 'please!'),
                           style: GoogleFonts.laila(
                               fontSize: 6.w,
-                              color: Color(0xFF84A5FA),
+                              color: kPrimaryColor,
                               fontWeight: FontWeight.bold)),
                     ],
                   ),
