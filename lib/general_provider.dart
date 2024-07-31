@@ -52,11 +52,20 @@ class GeneralProvider with ChangeNotifier, DiagnosticableTreeMixin {
   List<CustomerType> TypeService() {
     List<CustomerType> LstCustomerType = [];
     LstCustomerType.add(CustomerType(
-        image: "assets/images/restaurant.png", name: "Restaurant", type: "3"));
+        image: "assets/images/restaurant.png",
+        name: "Restaurant",
+        type: "3",
+        subtext: "Enjoy our top-rated restaurants."));
     LstCustomerType.add(CustomerType(
-        image: "assets/images/coffee.png", name: "Coffee", type: "2"));
+        image: "assets/images/coffee.png",
+        name: "Coffee",
+        type: "2",
+        subtext: "Relax and unwind at our cozy cafes."));
     LstCustomerType.add(CustomerType(
-        image: "assets/images/hotel.png", name: "Hotel", type: "1"));
+        image: "assets/images/hotel.png",
+        name: "Hotel",
+        type: "1",
+        subtext: "Stay at our luxurious hotels."));
     return LstCustomerType;
   }
 
@@ -166,4 +175,13 @@ class GeneralProvider with ChangeNotifier, DiagnosticableTreeMixin {
       },
     );
   }
+}
+
+class CustomerType {
+  late String name, image, type, subtext;
+  CustomerType(
+      {required this.image,
+      required this.name,
+      required this.type,
+      required this.subtext});
 }

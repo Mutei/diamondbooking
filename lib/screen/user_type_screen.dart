@@ -1,5 +1,3 @@
-// ignore_for_file: non_constant_identifier_names
-
 import 'dart:io';
 
 import 'package:diamond_booking/constants/colors.dart';
@@ -23,12 +21,9 @@ class ChooseTypeUser extends StatefulWidget {
 class _State extends State<ChooseTypeUser> {
   final GlobalKey<ScaffoldState> _scaffoldKey1 = new GlobalKey<ScaffoldState>();
   List<CustomerType> LstCustomerType = [];
+
   @override
   void initState() {
-    LstCustomerType.add(CustomerType(
-        image: "assets/images/man.png", name: "Customer", type: "1"));
-    LstCustomerType.add(CustomerType(
-        image: "assets/images/hotel.png", name: "Provider", type: "2"));
     super.initState();
   }
 
@@ -36,6 +31,22 @@ class _State extends State<ChooseTypeUser> {
   Widget build(BuildContext context) {
     final objProvider = Provider.of<GeneralProvider>(context, listen: false);
     objProvider.CheckLang();
+
+    LstCustomerType = [
+      CustomerType(
+        image: "assets/images/customer.png",
+        name: "Customer",
+        type: "1",
+        subtext: getTranslated(context, "Customer Info"),
+      ),
+      CustomerType(
+        image: "assets/images/provider.png",
+        name: "Provider",
+        type: "2",
+        subtext: getTranslated(context, "Provider Info"),
+      ),
+    ];
+
     return WillPopScope(
       // ignore: sort_child_properties_last
       child: Scaffold(
@@ -46,7 +57,7 @@ class _State extends State<ChooseTypeUser> {
               child: Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Container(
                   margin: const EdgeInsets.only(
@@ -106,33 +117,51 @@ class _State extends State<ChooseTypeUser> {
         child: SizedBox(
           width: MediaQuery.of(context).size.width - 100,
           height: 20.h,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              SizedBox(
-                width: 85,
-                height: 85,
-                child: CircleAvatar(
-                  backgroundColor: Colors.white,
-                  child: Image(
-                    image: AssetImage(obj.image),
-                    width: 75,
-                    height: 75,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Container(
+                  width: 80, // Width of the CircleAvatar
+                  height: 80, // Height of the CircleAvatar
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white,
+                    image: DecorationImage(
+                      image: AssetImage(obj.image),
+                      fit: BoxFit.contain, // Adjust image within CircleAvatar
+                    ),
                   ),
                 ),
-              ),
-              Container(
-                width: 25,
-              ),
-              Text(
-                getTranslated(context, obj.name),
-                style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: kTypeUserTextColor),
-              ),
-            ],
+                SizedBox(width: 20),
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        getTranslated(context, obj.name),
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: kTypeUserTextColor,
+                        ),
+                      ),
+                      SizedBox(height: 10),
+                      Text(
+                        obj.subtext,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -153,6 +182,10 @@ class _State extends State<ChooseTypeUser> {
 }
 
 class CustomerType {
-  late String name, image, type;
-  CustomerType({required this.image, required this.name, required this.type});
+  late String name, image, type, subtext;
+  CustomerType(
+      {required this.image,
+      required this.name,
+      required this.type,
+      required this.subtext});
 }
