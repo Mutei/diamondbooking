@@ -312,21 +312,22 @@ class _CustomerPointsState extends State<CustomerPoints> {
                   8.kH,
                   Text(
                     _totalPoints >= 1500
-                        ? '10 SR off with 3000 points'
-                        : '5 SR off with 1500 points',
+                        ? getTranslated(context, '10 SR off with 3000 points')
+                        : getTranslated(context, '5 SR off with 1500 points'),
                     style: TextStyle(fontSize: 16, color: Colors.grey[700]),
                   ),
                 ],
               ),
             ),
             32.kH,
-            const Text(
-              "How it works?",
+            Text(
+              getTranslated(context, "How it works?"),
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             8.kH,
-            const Text(
-              'Earn points by rating and giving feedback to providers. Reach 1500 points to get 5 SR off, and 3000 points to get 10 SR off.',
+            Text(
+              getTranslated(context,
+                  'Earn points by rating and giving feedback to providers. Reach 1500 points to get 5 SR off, and 3000 points to get 10 SR off.'),
               style: TextStyle(fontSize: 16),
             ),
             // Add more sections as needed
