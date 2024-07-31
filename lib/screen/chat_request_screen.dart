@@ -1,3 +1,4 @@
+import 'package:diamond_booking/localization/language_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -126,7 +127,8 @@ class _PrivateChatRequestState extends State<PrivateChatRequest>
         List<DataSnapshot> items = snapshot.data!.snapshot.children.toList();
 
         if (items.isEmpty) {
-          return const Center(child: Text('No chat requests'));
+          return Center(
+              child: Text(getTranslated(context, 'No chat requests')));
         }
 
         return ListView.builder(
@@ -139,7 +141,8 @@ class _PrivateChatRequestState extends State<PrivateChatRequest>
 
             return ListTile(
               title: Text(senderName),
-              subtitle: Text('Chat request from $senderName'),
+              subtitle: Text(
+                  '${getTranslated(context, 'Chat request from')} $senderName'),
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -185,7 +188,7 @@ class _PrivateChatRequestState extends State<PrivateChatRequest>
         List<DataSnapshot> items = snapshot.data!.snapshot.children.toList();
 
         if (items.isEmpty) {
-          return const Center(child: Text('No chats'));
+          return Center(child: Text(getTranslated(context, 'No chats')));
         }
 
         return ListView.builder(
@@ -218,15 +221,15 @@ class _PrivateChatRequestState extends State<PrivateChatRequest>
       appBar: AppBar(
         iconTheme: kIconTheme,
         centerTitle: true,
-        title: const Text(
-          "Chat Requests",
+        title: Text(
+          getTranslated(context, "Chat Requests"),
           style: TextStyle(color: kPrimaryColor),
         ),
         bottom: TabBar(
           controller: _tabController,
           tabs: [
             Tab(
-              text: "Requests",
+              text: getTranslated(context, "Requests"),
               icon: _requestCount > 0
                   ? badges.Badge(
                       badgeContent: Text(
@@ -237,7 +240,7 @@ class _PrivateChatRequestState extends State<PrivateChatRequest>
                     )
                   : const Icon(Icons.message),
             ),
-            const Tab(text: "Chats"),
+            Tab(text: getTranslated(context, "Chats")),
           ],
         ),
       ),
