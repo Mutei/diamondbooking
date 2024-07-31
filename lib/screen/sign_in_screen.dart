@@ -10,7 +10,7 @@ import '../widgets/sign_in_info_text_form_field.dart';
 import 'login_screen.dart';
 
 class SignInScreen extends StatefulWidget {
-  String typeAccount;
+  final String typeAccount;
   SignInScreen({
     super.key,
     required this.typeAccount,
@@ -25,6 +25,7 @@ class _SignInScreenState extends State<SignInScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool enableOtpBtn = false;
+  bool isLoading = false;
   String phoneNumber = '';
   String? get typeAccount => widget.typeAccount;
 
@@ -37,18 +38,31 @@ class _SignInScreenState extends State<SignInScreen> {
 
   getOtp() async {
     if (_formKey.currentState!.validate()) {
+      setState(() {
+        isLoading = true;
+      });
       SharedPreferences sharedPreferences =
           await SharedPreferences.getInstance();
       String? typeUser = sharedPreferences.getString('TypeUser');
       print("This is the typeUser $typeUser");
-      AuthMethods().registerWithEmailAndPassword(
+      await AuthMethods()
+          .registerWithEmailAndPassword(
         context,
         _emailController.text,
         _passwordController.text,
         phoneNumber,
         typeUser, //TypeUser
         typeAccount, //TypeAccount
-      );
+      )
+          .then((value) {
+        setState(() {
+          isLoading = false;
+        });
+      }).catchError((error) {
+        setState(() {
+          isLoading = false;
+        });
+      });
     }
   }
 
@@ -126,11 +140,13 @@ class _SignInScreenState extends State<SignInScreen> {
                       contentPadding: EdgeInsets.symmetric(horizontal: 12),
                     ),
                   ),
-                  ReusedElevatedButton(
-                    text: "Send OTP",
-                    onPressed: enableOtpBtn ? getOtp : null,
-                    icon: Icons.phone,
-                  ),
+                  isLoading
+                      ? const CircularProgressIndicator()
+                      : ReusedElevatedButton(
+                          text: "Send OTP",
+                          onPressed: enableOtpBtn ? getOtp : null,
+                          icon: Icons.phone,
+                        ),
                   20.kH,
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,

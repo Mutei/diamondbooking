@@ -6,13 +6,13 @@ import '../constants/styles.dart';
 class ReusedElevatedButton extends StatelessWidget {
   final String text;
   final VoidCallback? onPressed;
-  final IconData icon;
+  final IconData? icon;
 
   const ReusedElevatedButton({
     super.key,
     required this.text,
-    required this.onPressed,
-    required this.icon,
+    this.onPressed,
+    this.icon,
   });
 
   @override
@@ -23,11 +23,12 @@ class ReusedElevatedButton extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            icon,
-            color: Colors.white,
-          ),
-          10.kW,
+          if (icon != null)
+            Icon(
+              icon,
+              color: Colors.white,
+            ),
+          if (icon != null) 10.kW,
           Text(
             text,
             style: const TextStyle(

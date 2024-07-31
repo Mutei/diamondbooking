@@ -359,6 +359,7 @@ class _LoginScreenState extends State<LoginScreen>
   String phoneNumber = '';
   late String userType = '';
   bool rememberMe = false;
+  bool isLoading = false;
 
   @override
   void initState() {
@@ -392,6 +393,9 @@ class _LoginScreenState extends State<LoginScreen>
 
   Future<void> loginWithEmail() async {
     if (_formKey.currentState!.validate()) {
+      setState(() {
+        isLoading = true;
+      });
       String email = _emailController.text;
       String password = _passwordController.text;
       String userType = widget.userType ?? '';
@@ -422,6 +426,10 @@ class _LoginScreenState extends State<LoginScreen>
                       'You are not authorized to use this account as a ${userType == '1' ? 'Provider' : 'Customer'}.'),
                 ),
               );
+
+              setState(() {
+                isLoading = false;
+              });
 
               return;
             }
@@ -455,6 +463,10 @@ class _LoginScreenState extends State<LoginScreen>
         }
       } catch (e) {
         print(e.toString());
+      } finally {
+        setState(() {
+          isLoading = false;
+        });
       }
     }
   }
@@ -545,14 +557,16 @@ class _LoginScreenState extends State<LoginScreen>
                       },
                     ),
                     20.kH,
-                    ReusedElevatedButton(
-                      text: getTranslated(
-                        context,
-                        'Login',
-                      ),
-                      onPressed: loginWithEmail,
-                      icon: Icons.email,
-                    ),
+                    isLoading
+                        ? const CircularProgressIndicator()
+                        : ReusedElevatedButton(
+                            text: getTranslated(
+                              context,
+                              'Login',
+                            ),
+                            onPressed: loginWithEmail,
+                            icon: Icons.email,
+                          ),
                     16.kH,
                     Row(
                       children: [
@@ -640,37 +654,6 @@ class _LoginScreenState extends State<LoginScreen>
                     autoValidateMode: AutovalidateMode.disabled,
                     selectorTextStyle: const TextStyle(color: Colors.black),
                   ),
-
-                  // InternationalPhoneNumberInput(
-                  //   onInputChanged: (PhoneNumber number) {
-                  //     setState(() {
-                  //       phoneNumber = number.phoneNumber!;
-                  //     });
-                  //   },
-                  //   onInputValidated: (bool value) {
-                  //     setState(() {
-                  //       enableOtpBtn = value;
-                  //     });
-                  //   },
-                  //   autoFocus: true,
-                  //   selectorConfig: const SelectorConfig(
-                  //     selectorType: PhoneInputSelectorType.BOTTOM_SHEET,
-                  //   ),
-                  //   inputDecoration: InputDecoration(
-                  //     border: OutlineInputBorder(),
-                  //     labelText: getTranslated(
-                  //       context,
-                  //       'Phone Number',
-                  //     ),
-                  //     contentPadding: EdgeInsets.symmetric(
-                  //       horizontal: 12,
-                  //     ),
-                  //   ),
-                  //   formatInput: true,
-                  //   ignoreBlank: false,
-                  //   autoValidateMode: AutovalidateMode.disabled,
-                  //   selectorTextStyle: const TextStyle(color: Colors.black),
-                  // ),
                   20.kH,
                   ReusedElevatedButton(
                     text: getTranslated(
