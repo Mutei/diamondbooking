@@ -59,12 +59,6 @@ class _State extends State<UpgradeAccount> {
             child: Container(
           width: MediaQuery.of(context).size.width,
           height: MediaQuery.of(context).size.height,
-          // decoration: BoxDecoration(
-          //     image: DecorationImage(
-          //         image: AssetImage(objProvider.CheckLangValue
-          //             ? "assets/images/login.png"
-          //             : "assets/images/login2.png"),
-          //         fit: BoxFit.fill)),
           child: ListView(
             children: [
               Container(
@@ -74,14 +68,12 @@ class _State extends State<UpgradeAccount> {
                   left: objProvider.CheckLangValue ? 10 : 80,
                 ),
                 child: RichText(
-                  // ignore: prefer_const_constructors
                   text: TextSpan(
                     text: getTranslated(context, 'Hello ,'),
                     style: GoogleFonts.laila(
                         fontSize: 6.w,
                         color: kPrimaryColor,
                         fontWeight: FontWeight.bold),
-                    // ignore: prefer_const_literals_to_create_immutables
                     children: <TextSpan>[
                       TextSpan(
                           text: getTranslated(
@@ -118,8 +110,6 @@ class _State extends State<UpgradeAccount> {
         height: 15.h,
         margin: EdgeInsets.only(left: 40, right: 40),
         width: MediaQuery.of(context).size.width - 100,
-
-        // ignore: prefer_const_constructors
         child: ListTile(
           title: Text(
             getTranslated(context, obj.Name),
@@ -138,7 +128,6 @@ class _State extends State<UpgradeAccount> {
         String? id = FirebaseAuth.instance.currentUser?.uid;
         await ref.child(id!).update({"TypeAccount": obj.ID});
         objProvider.FunSnackBarPage("Updated", context);
-        Navigator.of(context).pop();
       },
     );
   }

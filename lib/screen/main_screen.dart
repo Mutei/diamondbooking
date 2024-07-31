@@ -413,18 +413,9 @@ class _MainScreenState extends State<MainScreen> {
                     ),
                   ),
                 ),
-                RefreshIndicator(
-                  onRefresh: _refreshPage,
-                  child: NotificationUser(),
-                ),
-                RefreshIndicator(
-                  onRefresh: _refreshPage,
-                  child: UpgradeAccount(),
-                ),
-                RefreshIndicator(
-                  onRefresh: _refreshPage,
-                  child: AllPostsScreen(),
-                ),
+                NotificationUser(),
+                UpgradeAccount(),
+                AllPostsScreen(),
               ]
             : [
                 RefreshIndicator(
@@ -444,14 +435,8 @@ class _MainScreenState extends State<MainScreen> {
                     ),
                   ),
                 ),
-                RefreshIndicator(
-                  onRefresh: _refreshPage,
-                  child: Request(),
-                ),
-                RefreshIndicator(
-                  onRefresh: _refreshPage,
-                  child: AllPostsScreen(),
-                ),
+                Request(),
+                AllPostsScreen(),
               ],
       ),
     );
