@@ -564,7 +564,7 @@ class _LoginScreenState extends State<LoginScreen>
                             });
                           },
                         ),
-                        const Text('Remember Me')
+                        Text(getTranslated(context, "Remember Me")),
                       ],
                     ),
                     Row(
