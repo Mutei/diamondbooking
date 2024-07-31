@@ -1,3 +1,4 @@
+import 'package:diamond_booking/localization/language_constants.dart';
 import 'package:flutter/material.dart';
 import '../constants/colors.dart'; // Assuming you have a colors.dart file
 
@@ -24,7 +25,7 @@ class FilterButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(20),
         ),
         child: Text(
-          label,
+          getTranslated(context, label),
           style: TextStyle(
             color: isSelected ? Colors.white : Colors.black,
           ),
