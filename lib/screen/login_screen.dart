@@ -624,6 +624,7 @@ class _LoginScreenState extends State<LoginScreen>
                     selectorConfig: const SelectorConfig(
                       selectorType: PhoneInputSelectorType.BOTTOM_SHEET,
                     ),
+                    initialValue: PhoneNumber(isoCode: 'SA'), // Add this line
                     inputDecoration: InputDecoration(
                       border: OutlineInputBorder(),
                       labelText: getTranslated(
@@ -639,6 +640,37 @@ class _LoginScreenState extends State<LoginScreen>
                     autoValidateMode: AutovalidateMode.disabled,
                     selectorTextStyle: const TextStyle(color: Colors.black),
                   ),
+
+                  // InternationalPhoneNumberInput(
+                  //   onInputChanged: (PhoneNumber number) {
+                  //     setState(() {
+                  //       phoneNumber = number.phoneNumber!;
+                  //     });
+                  //   },
+                  //   onInputValidated: (bool value) {
+                  //     setState(() {
+                  //       enableOtpBtn = value;
+                  //     });
+                  //   },
+                  //   autoFocus: true,
+                  //   selectorConfig: const SelectorConfig(
+                  //     selectorType: PhoneInputSelectorType.BOTTOM_SHEET,
+                  //   ),
+                  //   inputDecoration: InputDecoration(
+                  //     border: OutlineInputBorder(),
+                  //     labelText: getTranslated(
+                  //       context,
+                  //       'Phone Number',
+                  //     ),
+                  //     contentPadding: EdgeInsets.symmetric(
+                  //       horizontal: 12,
+                  //     ),
+                  //   ),
+                  //   formatInput: true,
+                  //   ignoreBlank: false,
+                  //   autoValidateMode: AutovalidateMode.disabled,
+                  //   selectorTextStyle: const TextStyle(color: Colors.black),
+                  // ),
                   20.kH,
                   ReusedElevatedButton(
                     text: getTranslated(

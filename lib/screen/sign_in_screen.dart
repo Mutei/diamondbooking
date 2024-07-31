@@ -120,6 +120,7 @@ class _SignInScreenState extends State<SignInScreen> {
                       useEmoji: false,
                       selectorType: PhoneInputSelectorType.BOTTOM_SHEET,
                     ),
+                    initialValue: PhoneNumber(isoCode: 'SA'), // Add this line
                     inputDecoration: const InputDecoration(
                       border: OutlineInputBorder(),
                       contentPadding: EdgeInsets.symmetric(horizontal: 12),
