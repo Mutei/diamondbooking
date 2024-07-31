@@ -1,3 +1,4 @@
+import 'package:diamond_booking/localization/language_constants.dart';
 import 'package:flutter/material.dart';
 
 class ReusedAllPostsCards extends StatefulWidget {
@@ -130,7 +131,7 @@ class _ReusedAllPostsCardsState extends State<ReusedAllPostsCards> {
                 children: [
                   TextButton(
                     onPressed: widget.onDelete,
-                    child: const Text("Delete Post"),
+                    child: Text(getTranslated(context, "Delete Post")),
                   ),
                 ],
               ),

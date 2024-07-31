@@ -1,5 +1,6 @@
 import 'package:diamond_booking/constants/colors.dart';
 import 'package:diamond_booking/constants/styles.dart';
+import 'package:diamond_booking/localization/language_constants.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
@@ -116,16 +117,17 @@ class _AllPostsScreenState extends State<AllPostsScreen> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Delete Post'),
-          content: const Text('Are you sure you want to delete this post?'),
+          title: Text(getTranslated(context, 'Delete Post')),
+          content: Text(getTranslated(
+              context, 'Are you sure you want to delete this post?')),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Cancel'),
+              child: Text(getTranslated(context, 'Cancel')),
             ),
             TextButton(
               onPressed: () => Navigator.of(context).pop(true),
-              child: const Text('Delete'),
+              child: Text(getTranslated(context, 'delete')),
             ),
           ],
         );
@@ -144,12 +146,20 @@ class _AllPostsScreenState extends State<AllPostsScreen> {
         _posts.removeWhere((post) => post['postId'] == postId);
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Post deleted successfully')),
+        SnackBar(
+          content: Text(
+            getTranslated(context, 'Post deleted successfully'),
+          ),
+        ),
       );
     } catch (e) {
       print('Error deleting post: $e');
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to delete post')),
+        SnackBar(
+          content: Text(
+            getTranslated(context, 'Failed to delete post'),
+          ),
+        ),
       );
     }
   }
@@ -164,8 +174,8 @@ class _AllPostsScreenState extends State<AllPostsScreen> {
       appBar: AppBar(
         iconTheme: kIconTheme,
         centerTitle: true,
-        title: const Text(
-          "All Posts",
+        title: Text(
+          getTranslated(context, "All Posts"),
           style: TextStyle(
             color: kPrimaryColor,
           ),

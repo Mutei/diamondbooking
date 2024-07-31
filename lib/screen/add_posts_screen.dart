@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:diamond_booking/constants/colors.dart';
 import 'package:diamond_booking/constants/styles.dart';
+import 'package:diamond_booking/localization/language_constants.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
@@ -283,7 +284,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
         iconTheme: kIconTheme,
         centerTitle: true,
         title: Text(
-          widget.post == null ? "Add Post" : "Edit Post",
+          widget.post == null ? getTranslated(context, "Post") : "Edit Post",
           style: const TextStyle(
             color: kPrimaryColor,
           ),
@@ -299,7 +300,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
                 if (userType == "2" || (userType == "1" && typeAccount == "3"))
                   DropdownButtonFormField<String>(
                     value: _selectedEstate,
-                    hint: Text("Select Estate"),
+                    hint: Text(getTranslated(context, "Select Estate")),
                     items: _userEstates.map((estate) {
                       return DropdownMenuItem<String>(
                         value:
@@ -324,10 +325,11 @@ class _AddPostScreenState extends State<AddPostScreen> {
                   controller: _titleController,
                   maxLength: 120,
                   maxLines: null,
-                  decoration: InputDecoration(labelText: "Title"),
+                  decoration: InputDecoration(
+                      labelText: getTranslated(context, "Title")),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter a title';
+                      return getTranslated(context, 'Please enter a title');
                     }
                     return null;
                   },
@@ -338,7 +340,9 @@ class _AddPostScreenState extends State<AddPostScreen> {
                 // ),
                 SizedBox(height: 20),
                 _imageFiles.isEmpty
-                    ? Text("No images selected.")
+                    ? Text(
+                        getTranslated(context, "No images selected."),
+                      )
                     : Container(
                         height: 100,
                         child: ListView.builder(
@@ -351,11 +355,13 @@ class _AddPostScreenState extends State<AddPostScreen> {
                       ),
                 ElevatedButton(
                   onPressed: _pickImages,
-                  child: Text("Pick Images"),
+                  child: Text(getTranslated(context, "Pick Images")),
                 ),
                 ElevatedButton(
                   onPressed: _savePost,
-                  child: Text(widget.post == null ? "Save" : "Update"),
+                  child: Text(widget.post == null
+                      ? getTranslated(context, "Save")
+                      : "Update"),
                 ),
               ],
             ),
