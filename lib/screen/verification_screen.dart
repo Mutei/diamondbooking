@@ -181,7 +181,6 @@
 // //     );
 // //   }
 // // }
-
 import 'package:diamond_booking/extension/sized_box_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:pinput/pinput.dart';
@@ -234,6 +233,9 @@ class _VerifyOtpState extends State<VerifyOtp> with CodeAutoFill {
     setState(() {
       otpCode = code!;
     });
+    // Print the OTP code to the terminal
+    print('Received OTP code: $otpCode');
+
     AuthMethods().verifyOtp(
       context,
       widget.verificationId,
@@ -273,6 +275,9 @@ class _VerifyOtpState extends State<VerifyOtp> with CodeAutoFill {
                 submittedPinTheme: kSubmittedPinTheme,
                 controller: TextEditingController(text: otpCode),
                 onCompleted: (value) {
+                  // Print the OTP code to the terminal
+                  print('Received OTP code: $value');
+
                   AuthMethods().verifyOtp(
                     context,
                     widget.verificationId,
