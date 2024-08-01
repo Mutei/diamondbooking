@@ -296,6 +296,7 @@
 //     );
 //   }
 // }
+import 'package:diamond_booking/localization/language_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -549,7 +550,7 @@ class _PrivateChatScreenState extends State<PrivateChatScreen> {
                 ),
               ),
               Container(
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   border:
                       Border(top: BorderSide(color: Colors.grey, width: 1.0)),
                 ),
@@ -562,7 +563,7 @@ class _PrivateChatScreenState extends State<PrivateChatScreen> {
                           return Padding(
                             padding: const EdgeInsets.symmetric(vertical: 4.0),
                             child: Text(
-                              '$count / 125',
+                              '$count / 100',
                               style: TextStyle(
                                   color:
                                       count > 125 ? Colors.red : Colors.grey),
@@ -576,11 +577,12 @@ class _PrivateChatScreenState extends State<PrivateChatScreen> {
                           Expanded(
                             child: TextField(
                               controller: _textController,
-                              maxLength: 125,
+                              maxLength: 100,
                               maxLines: null,
-                              decoration: const InputDecoration(
+                              decoration: InputDecoration(
                                 contentPadding: EdgeInsets.all(16.0),
-                                hintText: 'Type a message...',
+                                hintText:
+                                    getTranslated(context, 'Type a message...'),
                                 border: InputBorder.none,
                                 counterText: "", // Hide the counter text
                               ),
