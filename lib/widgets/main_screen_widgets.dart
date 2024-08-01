@@ -34,15 +34,25 @@ class CustomWidgets {
         } else {
           List<Map> estates = [];
           DataSnapshot dataValues = snapshot.data!.snapshot;
-          if (dataValues.value != null) {
-            // Check if data is not null
-            Map data = dataValues.value as Map;
 
-            data.forEach((key, value) {
-              Map estate = value as Map;
-              estate['Key'] = key;
-              estates.add(estate);
-            });
+          if (dataValues.value != null) {
+            var data = dataValues.value;
+
+            if (data is Map) {
+              data.forEach((key, value) {
+                Map estate = value as Map;
+                estate['Key'] = key;
+                estates.add(estate);
+              });
+            } else if (data is List) {
+              for (int i = 0; i < data.length; i++) {
+                if (data[i] != null) {
+                  Map estate = data[i] as Map;
+                  estate['Key'] = i.toString();
+                  estates.add(estate);
+                }
+              }
+            }
 
             if (searchQuery.isNotEmpty) {
               estates = estates

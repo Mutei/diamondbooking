@@ -2,6 +2,8 @@
 
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:diamond_booking/constants/colors.dart';
+import 'package:diamond_booking/constants/styles.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -89,7 +91,7 @@ class _State extends State<AddImage> {
     return Scaffold(
         key: _scaffoldKey1,
         appBar: AppBar(
-          backgroundColor: Color(0xFF84A5FA),
+          iconTheme: kIconTheme,
           actions: [
             Container(
               // ignore: sort_child_properties_last
@@ -186,12 +188,15 @@ class _State extends State<AddImage> {
                       margin: const EdgeInsets.only(
                           right: 40, left: 40, bottom: 20),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF84A5FA),
+                        color: kPrimaryColor,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       // ignore: prefer_const_constructors
                       child: Center(
-                        child: Text(getTranslated(context, "Save")),
+                        child: Text(
+                          getTranslated(context, "Save"),
+                          style: TextStyle(color: Colors.white),
+                        ),
                       ),
                     ),
                     onTap: () async {

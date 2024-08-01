@@ -1,3 +1,4 @@
+import 'package:diamond_booking/constants/colors.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
@@ -117,7 +118,7 @@ class _MapsScreenState extends State<MapsScreen> {
                 height: 6.h,
                 margin: const EdgeInsets.only(right: 40, left: 40, bottom: 20),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF84A5FA),
+                  color: kPrimaryColor,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 // ignore: prefer_const_constructors
