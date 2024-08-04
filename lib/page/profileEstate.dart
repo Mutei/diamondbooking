@@ -15,6 +15,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sizer/sizer.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:flutter/services.dart';
 
 import '../constants/styles.dart';
 import '../general_provider.dart';
@@ -328,7 +329,7 @@ class _ProfileEstateState extends State<ProfileEstate> {
     snackBarController = ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
-// In the _saveRatingAndFeedback method, add a call to add points for rating
+  // In the _saveRatingAndFeedback method, add a call to add points for rating
   Future<void> _saveRatingAndFeedback() async {
     try {
       String estateId = estate['IDEstate'].toString();
@@ -374,6 +375,13 @@ class _ProfileEstateState extends State<ProfileEstate> {
       });
     }
     return feedbackList;
+  }
+
+  void _copyLink(String url) {
+    Clipboard.setData(ClipboardData(text: url));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Link copied to clipboard')),
+    );
   }
 
   @override
@@ -621,6 +629,33 @@ class _ProfileEstateState extends State<ProfileEstate> {
                           .child(estate['IDEstate'].toString()),
                     ),
                   ),
+                  if (estate.containsKey("MenuLink") &&
+                      estate["MenuLink"].isNotEmpty)
+                    ListTile(
+                      title: Text(
+                        'Menu Link',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      subtitle: InkWell(
+                        onTap: () async {
+                          final url = estate["MenuLink"];
+                          if (await canLaunch(url)) {
+                            await launch(url);
+                          } else {
+                            throw 'Could not launch $url';
+                          }
+                        },
+                        onLongPress: () {
+                          _copyLink(estate["MenuLink"]);
+                        },
+                        child: Text(
+                          estate["MenuLink"],
+                          style: TextStyle(
+                              color: Colors.blue,
+                              decoration: TextDecoration.underline),
+                        ),
+                      ),
+                    ),
                   Visibility(
                     visible: estate["Type"] == "2" || estate["Type"] == "3",
                     child: Column(
@@ -704,6 +739,7 @@ class _ProfileEstateState extends State<ProfileEstate> {
                       ],
                     ),
                   ),
+
                   Container(
                     margin: const EdgeInsets.only(left: 35, right: 35),
                     child: const Text("Post", style: TextStyle(fontSize: 14)),

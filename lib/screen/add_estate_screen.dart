@@ -38,6 +38,7 @@ class _AddEstatesScreenState extends State<AddEstatesScreen> {
   List<XFile>? imageFiles;
   TextEditingController nameController = TextEditingController();
   TextEditingController bioController = TextEditingController();
+  TextEditingController menuLinkController = TextEditingController();
   bool checkPopularRestaurants = false;
   bool checkIndianRestaurant = false;
   bool checkItalian = false;
@@ -201,6 +202,22 @@ class _AddEstatesScreenState extends State<AddEstatesScreen> {
                     isObsecured: false,
                     validate: true,
                     textInputType: TextInputType.text,
+                  ),
+                  40.kH,
+                  const ReusedProviderEstateContainer(
+                    hint: "Menu Link",
+                  ),
+                  TextFormFieldStyle(
+                    context: context,
+                    hint: "Enter Menu Link",
+                    icon: Icon(
+                      Icons.link,
+                      color: kPrimaryColor,
+                    ),
+                    control: menuLinkController,
+                    isObsecured: false,
+                    validate: true,
+                    textInputType: TextInputType.url,
                   ),
                   80.kH,
                   Visibility(
@@ -568,6 +585,7 @@ class _AddEstatesScreenState extends State<AddEstatesScreen> {
                                   : "1500",
                               ownerFirstName: firstName,
                               ownerLastName: lastName,
+                              menuLink: menuLinkController.text,
                             );
 
                             ID = idEstate.toString();

@@ -64,6 +64,7 @@ class BackendService {
     required String priceLast,
     required String ownerFirstName,
     required String ownerLastName,
+    required String menuLink,
   }) async {
     await ref.child(childType).child(idEstate).set({
       "NameAr": nameAr,
@@ -87,6 +88,7 @@ class BackendService {
       "Entry": listEntry.join(","),
       "Price": price,
       "PriceLast": priceLast,
+      "MenuLink": menuLink,
     });
   }
 
