@@ -205,7 +205,7 @@ class _AddEstatesScreenState extends State<AddEstatesScreen> {
                   ),
                   40.kH,
                   const ReusedProviderEstateContainer(
-                    hint: "Menu Link",
+                    hint: "Menu",
                   ),
                   TextFormFieldStyle(
                     context: context,
