@@ -214,7 +214,7 @@ class _MainScreenState extends State<MainScreen> {
     Map<String, dynamic> ratingsData = {"totalRating": 0.0, "ratingCount": 0};
 
     DatabaseReference feedbackRef =
-        FirebaseDatabase.instance.ref('App/Feedback/$estateId');
+        FirebaseDatabase.instance.ref('App/CustomerFeedback/$estateId');
     DataSnapshot snapshot = await feedbackRef.get();
 
     if (snapshot.exists) {

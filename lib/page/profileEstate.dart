@@ -335,7 +335,7 @@ class _ProfileEstateState extends State<ProfileEstate> {
       String userId = FirebaseAuth.instance.currentUser?.uid ?? "";
       String userName = await getUserFullName(userId);
 
-      await databaseRef.child('App/Feedback/$estateId/$userId').set({
+      await databaseRef.child('App/CustomerFeedback/$estateId/$userId').set({
         'rating': rating,
         'feedback': feedbackController.text,
         'userName': userName,
@@ -360,7 +360,7 @@ class _ProfileEstateState extends State<ProfileEstate> {
   Future<List<Map<String, dynamic>>> getFeedback() async {
     List<Map<String, dynamic>> feedbackList = [];
     DatabaseReference feedbackRef =
-        databaseRef.child('App/Feedback/${estate['IDEstate']}');
+        databaseRef.child('App/CustomerFeedback/${estate['IDEstate']}');
     DataSnapshot snapshot = await feedbackRef.get();
     if (snapshot.exists) {
       Map<dynamic, dynamic> feedbackData =

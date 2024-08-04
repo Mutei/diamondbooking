@@ -249,7 +249,7 @@ class _CustomerPointsState extends State<CustomerPoints> {
       });
 
       // Fetch points for providing ratings
-      final feedbackRef = FirebaseDatabase.instance.ref('App/Feedback');
+      final feedbackRef = FirebaseDatabase.instance.ref('App/CustomerFeedback');
       feedbackRef.onValue.listen((event) {
         if (event.snapshot.value != null) {
           final feedbackData =
