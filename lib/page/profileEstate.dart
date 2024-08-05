@@ -222,6 +222,14 @@ class _ProfileEstateState extends State<ProfileEstate> {
     }
   }
 
+  Future<void> _launchURL(String url) async {
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
   Future<List<String>> listPhotos(String EID) async {
     List<String> LstImage = [];
     final result = await FirebaseStorage.instance.ref().child(EID).listAll();
@@ -638,10 +646,12 @@ class _ProfileEstateState extends State<ProfileEstate> {
                       subtitle: InkWell(
                         onTap: () async {
                           final url = estate["MenuLink"];
-                          if (await canLaunch(url)) {
-                            await launch(url);
-                          } else {
-                            throw 'Could not launch $url';
+                          try {
+                            await _launchURL(url);
+                          } catch (e) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Could not launch $url')),
+                            );
                           }
                         },
                         onLongPress: () {
