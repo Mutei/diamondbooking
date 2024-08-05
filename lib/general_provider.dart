@@ -85,6 +85,11 @@ class GeneralProvider with ChangeNotifier, DiagnosticableTreeMixin {
     return true;
   }
 
+  void updateLanguage(bool isEnglish) {
+    CheckLangValue = isEnglish;
+    notifyListeners();
+  }
+
   void CheckLogin() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
 

@@ -65,8 +65,7 @@ class _ProfileEstateState extends State<ProfileEstate> {
   bool flagTime = false;
   double rating = 0.0;
   final TextEditingController feedbackController = TextEditingController();
-  late ScaffoldFeatureController<SnackBar, SnackBarClosedReason>
-      snackBarController;
+  ScaffoldFeatureController<SnackBar, SnackBarClosedReason>? snackBarController;
   bool isOwner = false;
 
   _ProfileEstateState(this.estate, this.icon, this.VisEdit);
@@ -81,7 +80,7 @@ class _ProfileEstateState extends State<ProfileEstate> {
 
   @override
   void dispose() {
-    snackBarController.close();
+    snackBarController?.close();
     feedbackController.dispose();
     super.dispose();
   }
@@ -549,8 +548,8 @@ class _ProfileEstateState extends State<ProfileEstate> {
                     margin: const EdgeInsets.only(left: 35, right: 35),
                     child: Text(
                       objProvider.CheckLangValue
-                          ? getTranslated(context, estate["BioEn"])
-                          : getTranslated(context, estate["BioAr"]),
+                          ? estate["BioEn"]
+                          : estate["BioAr"],
                       style: TextStyle(fontSize: 16, color: Colors.black),
                     ),
                   ),
