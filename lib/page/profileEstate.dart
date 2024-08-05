@@ -549,8 +549,8 @@ class _ProfileEstateState extends State<ProfileEstate> {
                     margin: const EdgeInsets.only(left: 35, right: 35),
                     child: Text(
                       objProvider.CheckLangValue
-                          ? estate["BioEn"]
-                          : estate["BioAr"],
+                          ? getTranslated(context, estate["BioEn"])
+                          : getTranslated(context, estate["BioAr"]),
                       style: TextStyle(fontSize: 16, color: Colors.black),
                     ),
                   ),
