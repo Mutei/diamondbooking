@@ -107,26 +107,26 @@ class _ReusedEstatePageState extends State<ReusedEstatePage> {
   Widget _buildFilterOptions(BuildContext context, String estateType) {
     switch (estateType) {
       case 'Restaurant':
-        return _buildRestaurantFilterOptions();
+        return _buildRestaurantFilterOptions(context);
       case 'Coffee':
-        return _buildCoffeeFilterOptions();
+        return _buildCoffeeFilterOptions(context);
       case 'Hotel':
-        return _buildHotelFilterOptions();
+        return _buildHotelFilterOptions(context);
       default:
         return Container();
     }
   }
 
-  Widget _buildRestaurantFilterOptions() {
+  Widget _buildRestaurantFilterOptions(BuildContext context) {
     return StatefulBuilder(
       builder: (context, setState) {
         return SingleChildScrollView(
           child: Column(
             children: [
-              Text('Entry allowed'),
+              Text(getTranslated(context, 'Entry allowed')),
               ...entryAllowedFilters.keys.map((filterOption) {
                 return CheckboxListTile(
-                  title: Text(filterOption),
+                  title: Text(getTranslated(context, filterOption)),
                   value: entryAllowedFilters[filterOption],
                   onChanged: (bool? value) {
                     setState(() {
@@ -140,7 +140,7 @@ class _ReusedEstatePageState extends State<ReusedEstatePage> {
               const Divider(),
               ...restaurantFilters.keys.map((filterOption) {
                 return CheckboxListTile(
-                  title: Text(filterOption),
+                  title: Text(getTranslated(context, filterOption)),
                   value: restaurantFilters[filterOption],
                   onChanged: (bool? value) {
                     setState(() {
@@ -151,10 +151,10 @@ class _ReusedEstatePageState extends State<ReusedEstatePage> {
                 );
               }).toList(),
               const Divider(),
-              Text('Sessions type'),
+              Text(getTranslated(context, 'Sessions type')),
               ...sessionsTypeFilters.keys.map((filterOption) {
                 return CheckboxListTile(
-                  title: Text(filterOption),
+                  title: Text(getTranslated(context, filterOption)),
                   value: sessionsTypeFilters[filterOption],
                   onChanged: (bool? value) {
                     setState(() {
@@ -166,10 +166,10 @@ class _ReusedEstatePageState extends State<ReusedEstatePage> {
                 );
               }).toList(),
               const Divider(),
-              Text('Is there music'),
+              Text(getTranslated(context, 'Is there music')),
               ...musicFilters.keys.map((filterOption) {
                 return CheckboxListTile(
-                  title: Text(filterOption),
+                  title: Text(getTranslated(context, filterOption)),
                   value: musicFilters[filterOption],
                   onChanged: (bool? value) {
                     setState(() {
@@ -186,16 +186,16 @@ class _ReusedEstatePageState extends State<ReusedEstatePage> {
     );
   }
 
-  Widget _buildCoffeeFilterOptions() {
+  Widget _buildCoffeeFilterOptions(BuildContext context) {
     return StatefulBuilder(
       builder: (context, setState) {
         return SingleChildScrollView(
           child: Column(
             children: [
-              Text('Entry allowed'),
+              Text(getTranslated(context, 'Entry allowed')),
               ...entryAllowedFilters.keys.map((filterOption) {
                 return CheckboxListTile(
-                  title: Text(filterOption),
+                  title: Text(getTranslated(context, filterOption)),
                   value: entryAllowedFilters[filterOption],
                   onChanged: (bool? value) {
                     setState(() {
@@ -207,10 +207,10 @@ class _ReusedEstatePageState extends State<ReusedEstatePage> {
                 );
               }).toList(),
               const Divider(),
-              Text('Sessions type'),
+              Text(getTranslated(context, 'Sessions type')),
               ...sessionsTypeFilters.keys.map((filterOption) {
                 return CheckboxListTile(
-                  title: Text(filterOption),
+                  title: Text(getTranslated(context, filterOption)),
                   value: sessionsTypeFilters[filterOption],
                   onChanged: (bool? value) {
                     setState(() {
@@ -222,10 +222,10 @@ class _ReusedEstatePageState extends State<ReusedEstatePage> {
                 );
               }).toList(),
               const Divider(),
-              Text('Is there music'),
+              Text(getTranslated(context, 'Is there music')),
               ...musicFilters.keys.map((filterOption) {
                 return CheckboxListTile(
-                  title: Text(filterOption),
+                  title: Text(getTranslated(context, filterOption)),
                   value: musicFilters[filterOption],
                   onChanged: (bool? value) {
                     setState(() {
@@ -242,16 +242,16 @@ class _ReusedEstatePageState extends State<ReusedEstatePage> {
     );
   }
 
-  Widget _buildHotelFilterOptions() {
+  Widget _buildHotelFilterOptions(BuildContext context) {
     return StatefulBuilder(
       builder: (context, setState) {
         return SingleChildScrollView(
           child: Column(
             children: [
-              Text('Room types'),
+              Text(getTranslated(context, 'Room types')),
               ...entryHotelFilters.keys.map((filterOption) {
                 return CheckboxListTile(
-                  title: Text(filterOption),
+                  title: Text(getTranslated(context, filterOption)),
                   value: entryHotelFilters[filterOption],
                   onChanged: (bool? value) {
                     setState(() {
@@ -428,6 +428,7 @@ class _ReusedEstatePageState extends State<ReusedEstatePage> {
     return matches;
   }
 }
+
 // import 'package:diamond_booking/localization/language_constants.dart';
 // import 'package:flutter/material.dart';
 // import 'package:firebase_database/firebase_database.dart';
