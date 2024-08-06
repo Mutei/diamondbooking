@@ -8,6 +8,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart'; // Add this import
 import '../screen/active_customer_screen.dart';
 import '../constants/colors.dart';
 import '../constants/styles.dart';
@@ -16,6 +17,7 @@ import '../resources/user_services.dart';
 import '../screen/private_chat_screen.dart'; // Import the PrivateChatScreen
 import 'qrViewScan.dart';
 import 'package:intl/intl.dart'; // Import for date formatting
+import '../general_provider.dart'; // Add this import
 
 class Chat extends StatefulWidget {
   final String idEstate;
@@ -455,6 +457,9 @@ class _State extends State<Chat> {
         .child(widget.idEstate)
         .child(widget.Key);
 
+    final objProvider =
+        Provider.of<GeneralProvider>(context, listen: true); // Add this line
+
     return Scaffold(
       appBar: AppBar(
         title: Stack(
@@ -465,7 +470,7 @@ class _State extends State<Chat> {
                   right: 55,
                 ),
                 child: Text(
-                  '${widget.Name} Chat',
+                  '${objProvider.CheckLangValue ? widget.Name : widget.Name} ${getTranslated(context, "Chat")}', // Updated this line
                   style: const TextStyle(color: kPrimaryColor),
                 ),
               ),
@@ -763,7 +768,7 @@ class _State extends State<Chat> {
                                   color: value.isEmpty || !hasAccess
                                       ? Colors.grey
                                       : kPrimaryColor,
-                                  onPressed: value.isEmpty || !hasAccess
+                                  onPressed: (value.isEmpty || !hasAccess)
                                       ? null
                                       : () {
                                           sendMessage(_textController.text);
