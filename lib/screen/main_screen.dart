@@ -94,6 +94,36 @@ class _MainScreenState extends State<MainScreen> {
     }
   }
 
+  Future<String> _getImages(String key) async {
+    // Implement your image fetching logic here
+    return 'assets/images/default_image.png';
+  }
+
+  Future<Map<String, dynamic>> _getEstateRatings(String estateId) async {
+    Map<String, dynamic> ratingsData = {"totalRating": 0.0, "ratingCount": 0};
+
+    DatabaseReference feedbackRef =
+        FirebaseDatabase.instance.ref('App/CustomerFeedback/$estateId');
+    DataSnapshot snapshot = await feedbackRef.get();
+
+    if (snapshot.exists) {
+      Map<dynamic, dynamic> feedbackData =
+          snapshot.value as Map<dynamic, dynamic>;
+      double totalRating = 0.0;
+      int ratingCount = 0;
+
+      feedbackData.forEach((key, value) {
+        totalRating += value['rating'];
+        ratingCount += 1;
+      });
+
+      ratingsData['totalRating'] = totalRating / ratingCount;
+      ratingsData['ratingCount'] = ratingCount;
+    }
+
+    return ratingsData;
+  }
+
   void showNotification(RemoteNotification? notification) async {
     var androidDetails = const AndroidNotificationDetails('1', 'channelName');
     var iosDetails = const DarwinNotificationDetails();
@@ -156,7 +186,9 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   void _onSearchTextChanged(String text) {
-    setState(() {});
+    setState(() {
+      _searchController.text = text;
+    });
   }
 
   void _showSearchDialog() {
@@ -203,36 +235,6 @@ class _MainScreenState extends State<MainScreen> {
     setState(() {
       _isSearching = true;
     });
-  }
-
-  Future<String> _getImages(String key) async {
-    // Implement your image fetching logic here
-    return 'assets/images/default_image.png';
-  }
-
-  Future<Map<String, dynamic>> _getEstateRatings(String estateId) async {
-    Map<String, dynamic> ratingsData = {"totalRating": 0.0, "ratingCount": 0};
-
-    DatabaseReference feedbackRef =
-        FirebaseDatabase.instance.ref('App/CustomerFeedback/$estateId');
-    DataSnapshot snapshot = await feedbackRef.get();
-
-    if (snapshot.exists) {
-      Map<dynamic, dynamic> feedbackData =
-          snapshot.value as Map<dynamic, dynamic>;
-      double totalRating = 0.0;
-      int ratingCount = 0;
-
-      feedbackData.forEach((key, value) {
-        totalRating += value['rating'];
-        ratingCount += 1;
-      });
-
-      ratingsData['totalRating'] = totalRating / ratingCount;
-      ratingsData['ratingCount'] = ratingCount;
-    }
-
-    return ratingsData;
   }
 
   void _stopSearch() {

@@ -1,5 +1,3 @@
-// ignore_for_file: non_constant_identifier_names, prefer_const_constructors
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -17,8 +15,8 @@ class CardEstate extends StatefulWidget {
   final bool VisEdit;
   final String image;
   final bool? Visimage;
-  final int? ratings; // Add this line
-  final double? totalRating; // Add this line
+  final int? ratings;
+  final double? totalRating;
 
   CardEstate({
     required this.context,
@@ -27,13 +25,13 @@ class CardEstate extends StatefulWidget {
     required this.VisEdit,
     required this.image,
     this.Visimage,
-    this.ratings, // Add this line
-    this.totalRating, // Add this line
+    this.ratings,
+    this.totalRating,
   });
 
   @override
   _State createState() => _State(context, obj, icon, VisEdit, image,
-      Visimage ?? true, ratings!, totalRating!); // Modify this line
+      Visimage ?? true, ratings!, totalRating!);
 }
 
 class _State extends State<CardEstate> {
@@ -43,8 +41,8 @@ class _State extends State<CardEstate> {
   final bool VisEdit;
   final String image;
   final bool Visimage;
-  final int ratings; // Add this line
-  final double totalRating; // Add this line
+  final int ratings;
+  final double totalRating;
 
   final storageRef = FirebaseStorage.instance.ref();
   final databaseRef = FirebaseDatabase.instance.ref();
@@ -57,8 +55,8 @@ class _State extends State<CardEstate> {
     this.VisEdit,
     this.image,
     this.Visimage,
-    this.ratings, // Add this line
-    this.totalRating, // Add this line
+    this.ratings,
+    this.totalRating,
   );
 
   @override
@@ -147,10 +145,8 @@ class _State extends State<CardEstate> {
               child: ListTile(
                 title: Text(
                   objProvider.CheckLangValue
-                      ? (obj['NameEn'] ??
-                          'Unknown') // Handle null value for NameEn
-                      : (obj['NameAr'] ??
-                          'Unknown'), // Handle null value for NameAr
+                      ? (obj['NameEn'] ?? 'Unknown')
+                      : (obj['NameAr'] ?? 'Unknown'),
                 ),
                 subtitle: !Visimage
                     ? Wrap(
@@ -160,8 +156,7 @@ class _State extends State<CardEstate> {
                           SizedBox(
                             width: MediaQuery.of(context).size.width / 3,
                             child: Text(
-                              obj['State'] ??
-                                  'Unknown', // Handle null value for State
+                              obj['State'] ?? 'Unknown',
                               style: TextStyle(fontSize: 12),
                             ),
                           ),
@@ -170,8 +165,7 @@ class _State extends State<CardEstate> {
                             child: Visibility(
                               visible: obj["Type"] == 1 ? false : true,
                               child: Text(
-                                obj["Sessions"]?.toString() ??
-                                    " ", // Handle null value for Sessions
+                                obj["Sessions"]?.toString() ?? " ",
                                 style: TextStyle(fontSize: 12),
                               ),
                             ),
@@ -181,8 +175,7 @@ class _State extends State<CardEstate> {
                             child: Visibility(
                               visible: obj["Type"] == 1 ? false : true,
                               child: Text(
-                                obj["TypeofRestaurant"]?.toString() ??
-                                    " ", // Handle null value for TypeofRestaurant
+                                obj["TypeofRestaurant"]?.toString() ?? " ",
                                 style: TextStyle(fontSize: 12),
                               ),
                             ),
@@ -190,8 +183,7 @@ class _State extends State<CardEstate> {
                         ],
                       )
                     : Text(
-                        obj['State'] ??
-                            'Unknown', // Handle null value for State
+                        obj['State'] ?? 'Unknown',
                         style: TextStyle(fontSize: 12),
                       ),
                 trailing: Column(

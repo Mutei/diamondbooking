@@ -94,7 +94,6 @@ class GeneralProvider with ChangeNotifier, DiagnosticableTreeMixin {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
 
     if (sharedPreferences.getString("TypeUser") == "1") {
-      // if was Customer return false
       CheckLoginValue = false;
     } else {
       CheckLoginValue = true;
