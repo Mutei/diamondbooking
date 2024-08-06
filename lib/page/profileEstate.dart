@@ -336,7 +336,6 @@ class _ProfileEstateState extends State<ProfileEstate> {
     snackBarController = ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
-  // In the _saveRatingAndFeedback method, add a call to add points for rating
   Future<void> _saveRatingAndFeedback() async {
     try {
       String estateId = estate['IDEstate'].toString();
@@ -350,8 +349,8 @@ class _ProfileEstateState extends State<ProfileEstate> {
         'timestamp': DateTime.now().toIso8601String(),
       });
 
-      // Add points for providing a rating
-      await PointsHelper.addPointsForRating();
+      // Update points for providing a rating
+      await CustomerPoints.addPointsForRating();
 
       Provider.of<GeneralProvider>(context, listen: false).FunSnackBarPage(
         getTranslated(context, "Feedback submitted successfully"),
