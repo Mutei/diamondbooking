@@ -19,7 +19,7 @@
     "Chats": "الدردشات",
     "Type a message...": "أكتب رسالة",
     "Booking Id": "رمز الحجز",
-    "Scan QR Code": "Scan QR Code",
+    "Scan QR Code": "مسح رمز الاستجابة السريعة",
     "Chat with Group": "تحدث مع المجموعة",
     "Feedback submitted successfully": "لقد تم ارسال الملاحظة بنجاح",
     "Failed to submit feedback": "لقد فشل ارسال الملاحظة",
@@ -309,5 +309,6 @@
     "To Price":"الى سعر",
     "Show the Post ":"مشاهدة المنشوارات ",
     "Check Your Email We are Send a Like to resat your Password":"قم بتفحص البريد الالكتروني لقد ارسلنا رابط لتغيير كلمة المرور",
-    "Send":"ارسال"
+    "Send":"ارسال",
+    "Scan the QR code to access chat": "امسح رمز الاستجابة السريعة للوصول إلى المحادثة"
 }          

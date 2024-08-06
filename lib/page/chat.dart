@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:ui';
 import 'package:diamond_booking/extension/sized_box_extension.dart';
+import 'package:diamond_booking/localization/language_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -788,8 +789,9 @@ class _State extends State<Chat> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Text(
-                          "Scan the QR code to access chat",
+                        Text(
+                          getTranslated(
+                              context, "Scan the QR code to access chat"),
                           style: TextStyle(
                               color: Colors.white,
                               fontSize: 18,
@@ -798,7 +800,9 @@ class _State extends State<Chat> {
                         20.kH,
                         ElevatedButton.icon(
                           icon: const Icon(Icons.qr_code_scanner),
-                          label: const Text("Scan QR Code"),
+                          label: Text(
+                            getTranslated(context, "Scan QR Code"),
+                          ),
                           onPressed: scanQRCode,
                           style: ElevatedButton.styleFrom(
                             foregroundColor: Colors.white,
