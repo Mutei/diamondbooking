@@ -735,9 +735,10 @@ class _State extends State<Chat> {
                                 controller: _textController,
                                 maxLength: 100,
                                 maxLines: null,
-                                decoration: const InputDecoration(
+                                decoration: InputDecoration(
                                   contentPadding: EdgeInsets.all(16.0),
-                                  hintText: 'Type a message...',
+                                  hintText: getTranslated(
+                                      context, 'Type a message...'),
                                   border: InputBorder.none,
                                   counterText: "", // Hide the counter text
                                 ),
