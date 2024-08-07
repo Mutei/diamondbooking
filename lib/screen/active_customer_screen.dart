@@ -20,6 +20,7 @@ class ActiveCustomersScreenState extends State<ActiveCustomersScreen> {
   List<Map<String, dynamic>> activeCustomers = [];
   Set<String> ratedCustomers = Set<String>();
   String? typeAccount;
+  String? providerFullName;
 
   @override
   void initState() {
@@ -27,6 +28,7 @@ class ActiveCustomersScreenState extends State<ActiveCustomersScreen> {
     fetchActiveCustomers();
     fetchTypeAccount();
     initializeRatedCustomers();
+    fetchProviderFullName();
   }
 
   void fetchActiveCustomers() {
@@ -64,12 +66,25 @@ class ActiveCustomersScreenState extends State<ActiveCustomersScreen> {
   }
 
   Future<void> initializeRatedCustomers() async {
-    // Here you should initialize ratedCustomers based on session information
-    // This is a placeholder example
-    // Fetch rated customers for this session from Firebase or any other source
-    // and populate the ratedCustomers set accordingly
-    // Example:
-    // ratedCustomers = await fetchRatedCustomersForSession();
+    // Initialize ratedCustomers based on session information
+  }
+
+  Future<void> fetchProviderFullName() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      DatabaseReference userRef =
+          databaseReference.child("App/User/${user.uid}");
+      DataSnapshot snapshot = await userRef.get();
+      if (snapshot.exists) {
+        String firstName = snapshot.child("FirstName").value?.toString() ?? "";
+        String secondName =
+            snapshot.child("SecondName").value?.toString() ?? "";
+        String lastName = snapshot.child("LastName").value?.toString() ?? "";
+        setState(() {
+          providerFullName = "$firstName $secondName $lastName";
+        });
+      }
+    }
   }
 
   Future<String> getUserFullName(String userId) async {
@@ -103,6 +118,10 @@ class ActiveCustomersScreenState extends State<ActiveCustomersScreen> {
   }
 
   void rateCustomer(String userId, double rating, String comment) async {
+    if (providerFullName == null) {
+      await fetchProviderFullName();
+    }
+
     DatabaseReference feedbackRef = databaseReference
         .child("App/ProviderFeedbackToCustomer/$userId/ratings");
 
@@ -137,6 +156,7 @@ class ActiveCustomersScreenState extends State<ActiveCustomersScreen> {
       'rating': rating,
       'comment': comment,
       'timestamp': DateTime.now().millisecondsSinceEpoch,
+      'providerName': providerFullName,
     });
 
     setState(() {
