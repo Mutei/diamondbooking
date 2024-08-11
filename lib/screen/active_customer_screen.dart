@@ -277,7 +277,7 @@ class ActiveCustomersScreenState extends State<ActiveCustomersScreen> {
                     }
                   },
                   itemBuilder: (context) => [
-                    if (typeAccount == '3' || typeAccount == '4')
+                    if (typeAccount == '2' || typeAccount == '3')
                       if (!ratedCustomers.contains(userId))
                         const PopupMenuItem(
                           value: 'rate',
