@@ -207,17 +207,23 @@ class _AddEstatesScreenState extends State<AddEstatesScreen> {
                   const ReusedProviderEstateContainer(
                     hint: "Menu",
                   ),
-                  TextFormFieldStyle(
-                    context: context,
-                    hint: "Enter Menu Link",
-                    icon: Icon(
-                      Icons.link,
-                      color: kPrimaryColor,
+                  // Conditionally show the menu link field based on userType
+                  Visibility(
+                    visible: widget.userType == "1" ||
+                        widget.userType ==
+                            "3", // Show only for Hotel (1) or Restaurant (3)
+                    child: TextFormFieldStyle(
+                      context: context,
+                      hint: "Enter Menu Link",
+                      icon: Icon(
+                        Icons.link,
+                        color: kPrimaryColor,
+                      ),
+                      control: menuLinkController,
+                      isObsecured: false,
+                      validate: true,
+                      textInputType: TextInputType.url,
                     ),
-                    control: menuLinkController,
-                    isObsecured: false,
-                    validate: true,
-                    textInputType: TextInputType.url,
                   ),
                   80.kH,
                   Visibility(
@@ -585,7 +591,10 @@ class _AddEstatesScreenState extends State<AddEstatesScreen> {
                                   : "1500",
                               ownerFirstName: firstName,
                               ownerLastName: lastName,
-                              menuLink: menuLinkController.text,
+                              menuLink: widget.userType == "1" ||
+                                      widget.userType == "3"
+                                  ? menuLinkController.text
+                                  : "", // Send empty string for Coffee
                             );
 
                             ID = idEstate.toString();
