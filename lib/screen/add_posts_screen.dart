@@ -236,13 +236,13 @@ class _AddPostScreenState extends State<AddPostScreen> {
       });
 
       int allowedPosts = 0;
-      if (userType == '1' && typeAccount == '3') {
+      if (userType == '1' && typeAccount == '2') {
         allowedPosts = 4;
-      } else if (userType == '1' && typeAccount == '4') {
+      } else if (userType == '1' && typeAccount == '3') {
         allowedPosts = 10;
-      } else if (userType == '2' && typeAccount == '3') {
+      } else if (userType == '2' && typeAccount == '2') {
         allowedPosts = 4;
-      } else if (userType == '2' && typeAccount == '4') {
+      } else if (userType == '2' && typeAccount == '3') {
         allowedPosts = 8;
       } else {
         // If TypeAccount is not 3 or 4, user cannot add posts
@@ -297,7 +297,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
             padding: const EdgeInsets.all(16.0),
             child: Column(
               children: [
-                if (userType == "2" || (userType == "1" && typeAccount == "3"))
+                if (userType == "2" || (userType == "1" && typeAccount == "2"))
                   DropdownButtonFormField<String>(
                     value: _selectedEstate,
                     hint: Text(getTranslated(context, "Select Estate")),

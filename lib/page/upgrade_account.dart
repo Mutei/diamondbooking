@@ -30,21 +30,15 @@ class _State extends State<UpgradeAccount> {
         image: "assets/images/star.png",
         price: "200"));
     LstTypeCustomersPayment.add(TypeCustomersPayment(
-        Name: "Double Star",
-        subtitle: "test",
-        ID: "2",
-        image: "assets/images/star2.png",
-        price: "400"));
-    LstTypeCustomersPayment.add(TypeCustomersPayment(
         Name: "Vip",
         subtitle: "test",
-        ID: "3",
+        ID: "2",
         image: "assets/images/vip.png",
         price: "500"));
     LstTypeCustomersPayment.add(TypeCustomersPayment(
         Name: "Diamond",
         subtitle: "test",
-        ID: "4",
+        ID: "3",
         image: "assets/images/dia.png",
         price: "700"));
     super.initState();
@@ -95,10 +89,10 @@ class _State extends State<UpgradeAccount> {
               SizedBox(
                 height: 20,
               ),
+              // Display only the available account types
               CardTypes(LstTypeCustomersPayment[0], objProvider),
               CardTypes(LstTypeCustomersPayment[1], objProvider),
               CardTypes(LstTypeCustomersPayment[2], objProvider),
-              CardTypes(LstTypeCustomersPayment[3], objProvider),
             ],
           ),
         )));

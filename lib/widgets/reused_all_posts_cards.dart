@@ -44,8 +44,8 @@ class _ReusedAllPostsCardsState extends State<ReusedAllPostsCards> {
   Widget build(BuildContext context) {
     List imageUrls = widget.post['ImageUrls'] ?? [];
     String displayName = widget.post['userType'] == '1' &&
-            (widget.post['typeAccount'] == '3' ||
-                widget.post['typeAccount'] == '4')
+            (widget.post['typeAccount'] == '2' ||
+                widget.post['typeAccount'] == '3')
         ? widget.post['UserName'] ?? 'Unknown User'
         : widget.post['EstateName'] ?? 'Unknown User';
 
@@ -125,8 +125,8 @@ class _ReusedAllPostsCardsState extends State<ReusedAllPostsCards> {
                 ],
               ),
             if (widget.post['userId'] == widget.currentUserId &&
-                (widget.currentUserTypeAccount == '3' ||
-                    widget.currentUserTypeAccount == '4'))
+                (widget.currentUserTypeAccount == '2' ||
+                    widget.currentUserTypeAccount == '3'))
               Row(
                 children: [
                   TextButton(
