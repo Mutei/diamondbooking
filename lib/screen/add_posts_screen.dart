@@ -24,6 +24,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
   final _textController = TextEditingController();
   String _postId = '';
   List<File> _imageFiles = [];
+  List<File> _videoFiles = []; // New list to hold video files
   final ImagePicker _picker = ImagePicker();
   String? _selectedEstate;
   List<Map<dynamic, dynamic>> _userEstates = [];
@@ -99,7 +100,6 @@ class _AddPostScreenState extends State<AddPostScreen> {
       setState(() {
         _userEstates = userEstates;
         print('User Estates: $_userEstates');
-        // Ensure _selectedEstate has a valid value
         if (_userEstates.isNotEmpty &&
             !_userEstates.any((estate) => estate['id'] == _selectedEstate)) {
           _selectedEstate = _userEstates.first['id'];
@@ -116,6 +116,16 @@ class _AddPostScreenState extends State<AddPostScreen> {
       setState(() {
         _imageFiles =
             pickedFiles.map((pickedFile) => File(pickedFile.path)).toList();
+      });
+    }
+  }
+
+  // New method to pick videos
+  Future<void> _pickVideos() async {
+    final pickedFile = await _picker.pickVideo(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _videoFiles.add(File(pickedFile.path));
       });
     }
   }
@@ -167,6 +177,18 @@ class _AddPostScreenState extends State<AddPostScreen> {
             imageUrls.add(imageUrl);
           }
 
+          List<String> videoUrls = []; // New list to hold uploaded video URLs
+          for (File videoFile in _videoFiles) {
+            UploadTask uploadTask = FirebaseStorage.instance
+                .ref()
+                .child('post_videos')
+                .child('$_postId${videoFile.path.split('/').last}')
+                .putFile(videoFile);
+            TaskSnapshot snapshot = await uploadTask;
+            String videoUrl = await snapshot.ref.getDownloadURL();
+            videoUrls.add(videoUrl);
+          }
+
           String? estateName;
           if (userType == "2") {
             estateName = selectedEstate['data']['NameEn'];
@@ -188,7 +210,6 @@ class _AddPostScreenState extends State<AddPostScreen> {
 
           await postsRef.child(_postId).set({
             'Description': _titleController.text,
-            'Text': _textController.text,
             'Date': DateTime.now().millisecondsSinceEpoch,
             'EstateName': estateName,
             'EstateType': selectedEstate['type'],
@@ -196,6 +217,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
             'userType': userType,
             'typeAccount': typeAccount,
             'ImageUrls': imageUrls,
+            'VideoUrls': videoUrls, // Save video URLs in the post
           });
 
           print('Post saved successfully');
@@ -245,7 +267,6 @@ class _AddPostScreenState extends State<AddPostScreen> {
       } else if (userType == '2' && typeAccount == '3') {
         allowedPosts = 8;
       } else {
-        // If TypeAccount is not 3 or 4, user cannot add posts
         _showPostLimitAlert(allowedPosts);
         return false;
       }
@@ -303,8 +324,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
                     hint: Text(getTranslated(context, "Select Estate")),
                     items: _userEstates.map((estate) {
                       return DropdownMenuItem<String>(
-                        value:
-                            estate['id'], // Use estate ID as the unique value
+                        value: estate['id'],
                         child: Text(
                             '${estate['data']['NameEn']} (${estate['type']})'),
                       );
@@ -334,12 +354,8 @@ class _AddPostScreenState extends State<AddPostScreen> {
                     return null;
                   },
                 ),
-                // TextFormField(
-                //   controller: _textController,
-                //   decoration: InputDecoration(labelText: "Text"),
-                // ),
                 SizedBox(height: 20),
-                _imageFiles.isEmpty
+                _imageFiles.isEmpty && _videoFiles.isEmpty
                     ? Text(
                         getTranslated(context, "No images selected."),
                       )
@@ -347,9 +363,13 @@ class _AddPostScreenState extends State<AddPostScreen> {
                         height: 100,
                         child: ListView.builder(
                           scrollDirection: Axis.horizontal,
-                          itemCount: _imageFiles.length,
+                          itemCount: _imageFiles.length + _videoFiles.length,
                           itemBuilder: (context, index) {
-                            return Image.file(_imageFiles[index]);
+                            if (index < _imageFiles.length) {
+                              return Image.file(_imageFiles[index]);
+                            } else {
+                              return Icon(Icons.videocam, size: 100);
+                            }
                           },
                         ),
                       ),
@@ -357,6 +377,13 @@ class _AddPostScreenState extends State<AddPostScreen> {
                   onPressed: _pickImages,
                   child: Text(getTranslated(context, "Pick Images")),
                 ),
+                // Show "Pick Videos" button only for userType 2 with TypeAccount 2 or 3
+                if (userType == "2" &&
+                    (typeAccount == "2" || typeAccount == "3"))
+                  ElevatedButton(
+                    onPressed: _pickVideos,
+                    child: Text(getTranslated(context, "Pick Videos")),
+                  ),
                 ElevatedButton(
                   onPressed: _savePost,
                   child: Text(widget.post == null
