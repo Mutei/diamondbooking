@@ -88,7 +88,7 @@ class _AllPostsScreenState extends State<AllPostsScreen> {
             post['RelativeDate'] = 'Invalid Date';
           }
           if (post['userType'] == '1' &&
-              (post['typeAccount'] == '3' || post['typeAccount'] == '4')) {
+              (post['typeAccount'] == '2' || post['typeAccount'] == '3')) {
             DataSnapshot userSnapshot =
                 await _userRef.child(post['userId']).get();
             if (userSnapshot.exists) {
