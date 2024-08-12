@@ -24,14 +24,26 @@ class _RequestState extends State<Request> {
   }
 
   Future<double?> fetchUserRating(String userId) async {
-    DatabaseReference ratingRef = FirebaseDatabase.instance
+    DatabaseReference ratingsRef = FirebaseDatabase.instance
         .ref("App")
         .child("ProviderFeedbackToCustomer")
         .child(userId)
-        .child("averageRating");
-    DataSnapshot snapshot = await ratingRef.get();
+        .child("ratings");
+
+    DataSnapshot snapshot = await ratingsRef.get();
+
     if (snapshot.exists) {
-      return snapshot.value as double?;
+      Map<dynamic, dynamic> ratingsData =
+          snapshot.value as Map<dynamic, dynamic>;
+      int totalRatings = ratingsData.length;
+      double sumRatings = 0;
+
+      ratingsData.forEach((key, value) {
+        sumRatings += value['rating'] ?? 0;
+      });
+
+      double averageRating = sumRatings / totalRatings;
+      return averageRating;
     }
     return null;
   }
