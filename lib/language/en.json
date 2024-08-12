@@ -221,7 +221,7 @@
     "Bio":"Bio",
     "Single":"Single",
     "Double":"Double",
-    "Swite":"Suite",
+    "Suite":"Suite",
     "Family":"Family",
     "Single2":"Single",
     "Single1":"Single/Price",
@@ -312,6 +312,7 @@
     "Scan the QR code to access chat": "Scan the QR code to access chat",
     "Chat": "Chat",
     "Pick Videos": "Pick Videos",
-    "No Posts Available": "No Posts Available"
+    "No Posts Available": "No Posts Available",
+    "Room types": "Room types"
 }
  
