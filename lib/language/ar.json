@@ -314,5 +314,11 @@
     "Chat": "محادثة",
     "Pick Videos": "اختار الفيديو",
     "No Posts Available": "لا يوجد منشورات",
-    "Room types": "نوع الغرف"
+    "Room types": "نوع الغرف",
+    "Your Booking is Under Process": "حجزك قيد المعالجة",
+    "Your Booking is Confirmed": "تم تأكيد حجزك",
+    "Your Booking is Canceled": "تم إلغاء حجزك",
+    "Status": "الحالة",
+    "Estate Name": "اسم المنشأة",
+    "Order ID": "رقم الطلب"
 }          

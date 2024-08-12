@@ -313,6 +313,12 @@
     "Chat": "Chat",
     "Pick Videos": "Pick Videos",
     "No Posts Available": "No Posts Available",
-    "Room types": "Room types"
+    "Room types": "Room types",
+    "Your Booking is Under Process": "Your Booking is Under Process",
+    "Your Booking is Confirmed": "Your Booking is Confirmed",
+    "Your Booking is Cancelled": "Your Booking is Cancelled",
+    "Status": "Status",
+    "Estate Name": "Estate Name",
+    "Order ID": "Order ID"
 }
  

@@ -54,14 +54,14 @@ class _State extends State<NotificationUser> {
                             child: ItemInCard(
                               Icon(Icons.calendar_month),
                               value["StartDate"].toString().split(" ")[0],
-                              "From Date",
+                              getTranslated(context, "FromDate"),
                             ),
                           ),
                           Expanded(
                             child: ItemInCard(
                               Icon(Icons.calendar_month),
                               value["EndDate"].toString().split(" ")[0],
-                              "To Date",
+                              getTranslated(context, "ToDate"),
                             ),
                           )
                         ],
@@ -69,17 +69,20 @@ class _State extends State<NotificationUser> {
                       ItemInCard(
                         Icon(Icons.hotel),
                         value["Status"] == "1"
-                            ? "Your Booking Under Processing"
+                            ? getTranslated(
+                                context, "Your Booking is Under Process")
                             : value["Status"] == "2"
-                                ? "Your Booking is Confirmed"
-                                : "Your Booking is Canceled",
-                        "Status",
+                                ? getTranslated(
+                                    context, "Your Booking is Confirmed")
+                                : getTranslated(
+                                    context, "Your Booking is Canceled"),
+                        getTranslated(context, "Status"),
                       ),
                       if (value["Status"] == "2")
                         ItemInCard(
                           Icon(Icons.confirmation_number),
                           value['IDBook'],
-                          "Order ID",
+                          getTranslated(context, "Order ID"),
                         ),
                       // ignore: prefer_interpolation_to_compose_strings
                     ],
