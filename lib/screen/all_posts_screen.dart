@@ -106,9 +106,16 @@ class _AllPostsScreenState extends State<AllPostsScreen> {
         setState(() {
           _posts = postsList;
         });
+      } else {
+        setState(() {
+          _posts = []; // Ensure _posts is empty if no posts are fetched
+        });
       }
     } catch (e) {
       print('Error fetching posts: $e');
+      setState(() {
+        _posts = []; // Ensure _posts is empty in case of an error
+      });
     }
   }
 
@@ -202,7 +209,12 @@ class _AllPostsScreenState extends State<AllPostsScreen> {
       body: RefreshIndicator(
         onRefresh: _refreshPosts,
         child: _posts.isEmpty
-            ? const Center(child: CircularProgressIndicator())
+            ? Center(
+                child: Text(
+                  getTranslated(context, "No Posts Available"),
+                  style: TextStyle(fontSize: 18, color: Colors.grey),
+                ),
+              )
             : ListView(
                 children: [
                   Container(height: 20),
