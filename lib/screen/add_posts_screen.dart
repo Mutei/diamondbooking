@@ -142,6 +142,19 @@ class _AddPostScreenState extends State<AddPostScreen> {
           }
           String userId = user.uid;
 
+          // Fetch the user's profile image URL
+          String? profileImageUrl;
+          DataSnapshot userSnapshot = await FirebaseDatabase.instance
+              .ref("App")
+              .child("User")
+              .child(userId)
+              .get();
+          if (userSnapshot.exists) {
+            Map<dynamic, dynamic> userData =
+                userSnapshot.value as Map<dynamic, dynamic>;
+            profileImageUrl = userData['ProfileImageUrl'];
+          }
+
           Map<dynamic, dynamic> selectedEstate = _selectedEstate != null
               ? _userEstates.firstWhere(
                   (estate) => estate['id'] == _selectedEstate,
@@ -193,11 +206,6 @@ class _AddPostScreenState extends State<AddPostScreen> {
           if (userType == "2") {
             estateName = selectedEstate['data']['NameEn'];
           } else {
-            DataSnapshot userSnapshot = await FirebaseDatabase.instance
-                .ref("App")
-                .child("User")
-                .child(userId)
-                .get();
             if (userSnapshot.exists) {
               Map<dynamic, dynamic> userData =
                   userSnapshot.value as Map<dynamic, dynamic>;
@@ -218,6 +226,8 @@ class _AddPostScreenState extends State<AddPostScreen> {
             'typeAccount': typeAccount,
             'ImageUrls': imageUrls,
             'VideoUrls': videoUrls, // Save video URLs in the post
+            'ProfileImageUrl':
+                profileImageUrl, // Add ProfileImageUrl to the post
           });
 
           print('Post saved successfully');
