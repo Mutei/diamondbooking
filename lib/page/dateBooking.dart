@@ -1,10 +1,11 @@
-// ignore_for_file: non_constant_identifier_names
-
+import 'package:diamond_booking/constants/colors.dart';
+import 'package:diamond_booking/constants/styles.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sizer/sizer.dart';
+import 'dart:math';
 
 import '../localization/language_constants.dart';
 import '../models/Additional.dart';
@@ -12,54 +13,36 @@ import '../models/rooms.dart';
 import '../screen/main_screen.dart';
 
 class DateBooking extends StatefulWidget {
-  Map Estate;
-  List<Rooms> LstRooms = [];
-  List<Additional> LstAdditional = [];
-  DateBooking(
-      {required this.Estate,
-      required this.LstRooms,
-      required this.LstAdditional});
+  final Map Estate;
+  final List<Rooms> LstRooms;
+  final List<Additional> LstAdditional;
+
+  DateBooking({
+    required this.Estate,
+    required this.LstRooms,
+    required this.LstAdditional,
+  });
 
   @override
   State<DateBooking> createState() =>
-      _HomeScreenState(Estate, LstAdditional, LstRooms);
+      _DateBookingState(Estate, LstAdditional, LstRooms);
 }
 
-class _HomeScreenState extends State<DateBooking> {
+class _DateBookingState extends State<DateBooking> {
   DateTimeRange? _selectedDateRange;
-  Map Estate;
-  List<Rooms> LstRooms = [];
-  List<Additional> LstAdditional = [];
-  _HomeScreenState(this.Estate, this.LstAdditional, this.LstRooms);
+  final Map Estate;
+  final List<Rooms> LstRooms;
+  final List<Additional> LstAdditional;
+
+  _DateBookingState(this.Estate, this.LstAdditional, this.LstRooms);
+
   String? FromDate = "x ";
   String? EndDate = "x ";
   int? countofday = 0;
   double netTotal = 0;
-  // This function will be triggered when the floating button is pressed
-  void _show() async {
-    final DateTimeRange? result = await showDateRangePicker(
-      context: context,
-      firstDate: DateTime(2022, 1, 1),
-      lastDate: DateTime(2030, 12, 31),
-      currentDate: DateTime.now(),
-      saveText: 'Done',
-    );
 
-    if (result != null) {
-      // Rebuild the UI
-      print(result.start.toString());
-      setState(() {
-        _selectedDateRange = result;
-        FromDate = _selectedDateRange?.start.toString();
-        EndDate = _selectedDateRange?.end.toString();
-        countofday = (_selectedDateRange?.end
-            .difference(DateTime.parse(FromDate!))
-            .inDays);
-      });
-    }
-  }
-
-  DatabaseReference ref = FirebaseDatabase.instance.ref("App").child("Booking");
+  DatabaseReference bookingRef =
+      FirebaseDatabase.instance.ref("App").child("Booking");
   DatabaseReference refRooms =
       FirebaseDatabase.instance.ref("App").child("Booking").child("Room");
   DatabaseReference refAdd =
@@ -76,11 +59,52 @@ class _HomeScreenState extends State<DateBooking> {
     _show();
   }
 
+  void _show() async {
+    final DateTimeRange? result = await showDateRangePicker(
+      context: context,
+      firstDate: DateTime(2022, 1, 1),
+      lastDate: DateTime(2030, 12, 31),
+      currentDate: DateTime.now(),
+      saveText: 'Done',
+    );
+
+    if (result != null) {
+      setState(() {
+        _selectedDateRange = result;
+        FromDate = _selectedDateRange?.start.toString();
+        EndDate = _selectedDateRange?.end.toString();
+        countofday = (_selectedDateRange?.end
+            .difference(DateTime.parse(FromDate!))
+            .inDays);
+      });
+    }
+  }
+
+  String generateUniqueOrderID() {
+    var random = Random();
+    return (random.nextInt(90000) + 10000)
+        .toString(); // Generates a 5-digit number
+  }
+
+  Future<String> getUserFullName() async {
+    String userId = FirebaseAuth.instance.currentUser?.uid ?? "";
+    DatabaseReference userRef =
+        FirebaseDatabase.instance.ref("App/User/$userId");
+    DataSnapshot snapshot = await userRef.get();
+    if (snapshot.exists) {
+      String firstName = snapshot.child("FirstName").value.toString();
+      String secondName = snapshot.child("SecondName").value.toString();
+      String lastName = snapshot.child("LastName").value.toString();
+      return "$firstName $secondName $lastName";
+    }
+    return "";
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color(0xFF84A5FA),
+        iconTheme: kIconTheme,
       ),
       body: Padding(
         padding: const EdgeInsets.all(30),
@@ -102,8 +126,7 @@ class _HomeScreenState extends State<DateBooking> {
                 ),
                 subtitle: Text(
                   Estate["Country"] + " \ " + Estate["State"],
-                  // ignore: prefer_const_constructors
-                  style: TextStyle(
+                  style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 12,
                       color: Colors.black),
@@ -135,7 +158,6 @@ class _HomeScreenState extends State<DateBooking> {
               padding: const EdgeInsets.only(
                 bottom: 20,
               ),
-              // ignore: sort_child_properties_last
               child: ListView.builder(
                   itemCount: LstRooms.length,
                   physics: NeverScrollableScrollPhysics(),
@@ -157,7 +179,6 @@ class _HomeScreenState extends State<DateBooking> {
               padding: const EdgeInsets.only(
                 bottom: 20,
               ),
-              // ignore: sort_child_properties_last
               child: ListView.builder(
                   itemCount: LstAdditional.length,
                   physics: NeverScrollableScrollPhysics(),
@@ -172,13 +193,12 @@ class _HomeScreenState extends State<DateBooking> {
               height: LstAdditional.length * 70,
             ),
             FutureBuilder<String>(
-              future: CalcuTaoatl(),
+              future: CalcuTotal(),
               builder: (context, snapshot) {
                 if (snapshot.hasData &&
                     snapshot.connectionState == ConnectionState.done) {
                   return Text(snapshot.data!);
                 }
-                // ignore: prefer_const_constructors
                 return SizedBox(
                   width: 50,
                   height: 50,
@@ -196,29 +216,6 @@ class _HomeScreenState extends State<DateBooking> {
                 child: Row(
                   children: [
                     Expanded(
-                      // ignore: sort_child_properties_last
-                      child: InkWell(
-                        child: Container(
-                          width: 150.w,
-                          height: 6.h,
-                          margin: const EdgeInsets.only(
-                              right: 20, left: 20, bottom: 30),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF84A5FA),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          // ignore: prefer_const_constructors
-                          child: Center(
-                            child: Text(getTranslated(context, "close")),
-                          ),
-                        ),
-                        onTap: () async {},
-                      ),
-                      flex: 2,
-                    ),
-                    // ignore: sort_child_properties_last
-                    Expanded(
-                      // ignore: sort_child_properties_last
                       child: InkWell(
                         child: Container(
                           width: 150.w,
@@ -226,37 +223,35 @@ class _HomeScreenState extends State<DateBooking> {
                           margin: const EdgeInsets.only(
                               right: 20, left: 20, bottom: 20),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF84A5FA),
+                            color: kPrimaryColor,
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          // ignore: prefer_const_constructors
                           child: Center(
-                            child: Text(getTranslated(context, "booking")),
+                            child: Text(
+                              getTranslated(context, "Confirm Your Booking"),
+                              style: TextStyle(
+                                color: Colors.white,
+                              ),
+                            ),
                           ),
                         ),
                         onTap: () async {
-                          String? date = _selectedDateRange?.start
-                              .toString()
-                              .split(" ")[0];
-                          DatabaseReference ref = FirebaseDatabase.instance
-                              .ref("App")
-                              .child("Booking");
-                          print(date);
-                          String formatdate = date!.replaceAll("-", "");
-                          String? id = FirebaseAuth.instance.currentUser?.uid;
+                          String orderID =
+                              generateUniqueOrderID(); // Generate 5-digit Order ID
+                          String fullName =
+                              await getUserFullName(); // Fetch full name
 
-                          String IDBook = (Estate['IDEstate'].toString() +
-                              formatdate +
-                              id!);
-                          SharedPreferences sharedPreferences =
-                              await SharedPreferences.getInstance();
-                          await ref.child("Book").child(IDBook.toString()).set({
+                          DatabaseReference bookingRef =
+                              FirebaseDatabase.instance.ref("App/Booking");
+
+                          await bookingRef.child("Book").child(orderID).set({
                             "IDEstate": Estate['IDEstate'].toString(),
-                            "IDBook": IDBook,
+                            "IDBook": orderID, // Use the generated orderID here
                             "NameEn": Estate['NameEn'],
                             "NameAr": Estate['NameAr'],
-                            "Status": "1",
-                            "IDUser": id,
+                            "Status":
+                                "1", // Initial status: "1" for "Under Processing"
+                            "IDUser": FirebaseAuth.instance.currentUser?.uid,
                             "IDOwner": Estate['IDUser'],
                             "StartDate": _selectedDateRange?.start.toString(),
                             "EndDate": _selectedDateRange?.end.toString(),
@@ -264,74 +259,35 @@ class _HomeScreenState extends State<DateBooking> {
                             "Country": Estate["Country"],
                             "State": Estate["State"],
                             "City": Estate["City"],
-                            "NameUser": sharedPreferences.getString("Name"),
+                            "NameUser": fullName, // Save the full name
                             "NetTotal": netTotal.toString(),
                             "read": "0",
                             "readuser": "0"
                           });
 
-                          for (var element in LstRooms) {
-                            if (element.id == "1") {
-                              await refRooms
-                                  .child(IDBook.toString())
-                                  .child("Single")
-                                  .set({
-                                "ID": "1",
-                                "Name": "Single",
-                                "Price": element.price,
-                                "BioAr": element.bio,
-                                "BioEn": element.bioEn,
-                              });
-                            }
-                            if (element.id == "2") {
-                              await refRooms
-                                  .child(IDBook.toString())
-                                  .child("Double")
-                                  .set({
-                                "ID": "2",
-                                "Name": "Double",
-                                "Price": element.price,
-                                "BioAr": element.bio,
-                                "BioEn": element.bioEn,
-                              });
-                            }
-                            if (element.id == "3") {
-                              await refRooms
-                                  .child(IDBook.toString())
-                                  .child("Swite")
-                                  .set({
-                                "ID": "3",
-                                "Name": "Swite",
-                                "Price": element.price,
-                                "BioAr": element.bio,
-                                "BioEn": element.bioEn,
-                              });
-                            }
-                            if (element.id == "4") {
-                              await refRooms
-                                  .child(IDBook.toString())
-                                  .child("Family")
-                                  .set({
-                                "ID": "4",
-                                "Name": "Family",
-                                "Price": element.price,
-                                "BioAr": element.bio,
-                                "BioEn": element.bioEn,
-                              });
-                            }
-                          }
-                          for (var element in LstAdditional) {
-                            refAdd
-                                .child(IDBook.toString())
-                                .child(element.id)
-                                .set({
-                              "IDEstate": Estate['IDEstate'].toString(),
-                              "IDBook": IDBook.toString(),
-                              "NameEn": element.nameEn,
-                              "NameAr": element.name,
-                              "Price": element.price,
+                          for (var room in LstRooms) {
+                            await refRooms.child(orderID).child(room.name).set({
+                              "ID": room.id,
+                              "Name": room.name,
+                              "Price": room.price,
+                              "BioAr": room.bio,
+                              "BioEn": room.bioEn,
                             });
                           }
+
+                          for (var additional in LstAdditional) {
+                            await refAdd
+                                .child(orderID)
+                                .child(additional.id)
+                                .set({
+                              "IDEstate": Estate['IDEstate'].toString(),
+                              "IDBook": orderID,
+                              "NameEn": additional.nameEn,
+                              "NameAr": additional.name,
+                              "Price": additional.price,
+                            });
+                          }
+
                           Navigator.of(context).push(MaterialPageRoute(
                               builder: (context) => MainScreen()));
                         },
@@ -343,23 +299,22 @@ class _HomeScreenState extends State<DateBooking> {
           ],
         ),
       ),
-      // This button is used to show the date range picker
     );
   }
 
-  Future<String> CalcuTaoatl() async {
-    double TotalDayofRomm = 0;
+  Future<String> CalcuTotal() async {
+    double TotalDayofRoom = 0;
     double TotalDayofAdditional = 0;
 
     for (int i = 0; i < LstRooms.length; i++) {
-      TotalDayofRomm += (double.parse(LstRooms[i].price) *
+      TotalDayofRoom += (double.parse(LstRooms[i].price) *
           double.parse(countofday.toString()));
     }
     for (int i = 0; i < LstAdditional.length; i++) {
       TotalDayofAdditional += (double.parse(LstAdditional[i].price));
     }
-    netTotal = TotalDayofRomm + TotalDayofAdditional;
-    return TotalDayofRomm.toString() +
+    netTotal = TotalDayofRoom + TotalDayofAdditional;
+    return TotalDayofRoom.toString() +
         "\n" +
         TotalDayofAdditional.toString() +
         "\n" +

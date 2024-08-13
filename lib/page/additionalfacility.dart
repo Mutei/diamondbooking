@@ -1,5 +1,7 @@
 // ignore_for_file: non_constant_identifier_names
 
+import 'package:diamond_booking/constants/colors.dart';
+import 'package:diamond_booking/constants/styles.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_database/ui/firebase_animated_list.dart';
 import 'package:flutter/material.dart';
@@ -60,7 +62,7 @@ class _State extends State<AdditionalFacility> {
     return Scaffold(
         key: _scaffoldKey1,
         appBar: AppBar(
-          backgroundColor: Color(0xFF84A5FA),
+          iconTheme: kIconTheme,
           actions: [],
         ),
         body: Container(
@@ -162,12 +164,17 @@ class _State extends State<AdditionalFacility> {
                       margin: const EdgeInsets.only(
                           right: 40, left: 40, bottom: 20),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF84A5FA),
+                        color: kPrimaryColor,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       // ignore: prefer_const_constructors
                       child: Center(
-                        child: Text(getTranslated(context, "Next")),
+                        child: Text(
+                          getTranslated(context, "Next"),
+                          style: TextStyle(
+                            color: Colors.white,
+                          ),
+                        ),
                       ),
                     ),
                     onTap: () async {

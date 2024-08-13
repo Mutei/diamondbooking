@@ -7,6 +7,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
 
+import '../constants/styles.dart';
 import '../general_provider.dart';
 import '../localization/language_constants.dart';
 import '../models/data_request.dart';
@@ -281,11 +282,14 @@ class _RequestState extends State<Request> {
       builder: (BuildContext context) {
         return Scaffold(
           appBar: AppBar(
-            backgroundColor: Color(0xFF84A5FA),
+            iconTheme: kIconTheme,
             elevation: 0,
             title: Text(
-              getTranslated(context, "Request"),
-              style: TextStyle(color: Colors.black, fontSize: 15),
+              getTranslated(
+                context,
+                "Request",
+              ),
+              style: TextStyle(color: kPrimaryColor, fontSize: 15),
             ),
           ),
           body: SingleChildScrollView(
@@ -358,7 +362,7 @@ class _RequestState extends State<Request> {
                     Expanded(
                       child: TextButton(
                         child: Text(
-                          getTranslated(context, 's'),
+                          getTranslated(context, 'Reject'),
                           style: TextStyle(
                             color: Colors.red,
                           ),
