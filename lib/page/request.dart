@@ -312,7 +312,7 @@ class _RequestState extends State<Request> {
                           style: GoogleFonts.laila(
                             fontWeight: FontWeight.bold,
                             fontSize: 6.w,
-                            color: Color(0xFF84A5FA),
+                            color: kPrimaryColor,
                           ),
                         ),
                       ],
@@ -339,7 +339,7 @@ class _RequestState extends State<Request> {
                         child: Text(
                           getTranslated(context, 'Confirm'),
                           style: TextStyle(
-                            color: Color(0xFF84A5FA),
+                            color: kPrimaryColor,
                           ),
                         ),
                         onPressed: () async {
@@ -358,9 +358,9 @@ class _RequestState extends State<Request> {
                     Expanded(
                       child: TextButton(
                         child: Text(
-                          getTranslated(context, 'Reject'),
+                          getTranslated(context, 's'),
                           style: TextStyle(
-                            color: Color(0xFF84A5FA),
+                            color: Colors.red,
                           ),
                         ),
                         onPressed: () async {
@@ -381,7 +381,7 @@ class _RequestState extends State<Request> {
                         child: Text(
                           getTranslated(context, 'close'),
                           style: TextStyle(
-                            color: Color(0xFF84A5FA),
+                            color: kPrimaryColor,
                           ),
                         ),
                         onPressed: () {
@@ -428,7 +428,7 @@ class _RequestState extends State<Request> {
                           style: GoogleFonts.laila(
                             fontWeight: FontWeight.bold,
                             fontSize: 6.w,
-                            color: Color(0xFF84A5FA),
+                            color: kPrimaryColor,
                           ),
                         ),
                       ],
@@ -442,7 +442,7 @@ class _RequestState extends State<Request> {
                         child: Text(
                           getTranslated(context, 'Confirm'),
                           style: TextStyle(
-                            color: Color(0xFF84A5FA),
+                            color: kPrimaryColor,
                           ),
                         ),
                         onPressed: () async {
@@ -463,7 +463,7 @@ class _RequestState extends State<Request> {
                         child: Text(
                           getTranslated(context, 'Reject'),
                           style: TextStyle(
-                            color: Color(0xFF84A5FA),
+                            color: Colors.red,
                           ),
                         ),
                         onPressed: () async {
@@ -484,7 +484,7 @@ class _RequestState extends State<Request> {
                         child: Text(
                           getTranslated(context, 'close'),
                           style: TextStyle(
-                            color: Color(0xFF84A5FA),
+                            color: kPrimaryColor,
                           ),
                         ),
                         onPressed: () {
