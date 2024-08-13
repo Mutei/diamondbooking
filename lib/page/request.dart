@@ -53,10 +53,6 @@ class _RequestState extends State<Request> {
     final objProvider = Provider.of<GeneralProvider>(context);
 
     return Scaffold(
-      // appBar: AppBar(
-      //   backgroundColor: kPrimaryColor,
-      //   elevation: 0,
-      // ),
       body: Container(
         height: MediaQuery.of(context).size.height,
         width: MediaQuery.of(context).size.width,
@@ -78,6 +74,13 @@ class _RequestState extends State<Request> {
                     return Container(); // or any loading indicator
                   }
                   double? userRating = ratingSnapshot.data;
+
+                  // Determine the estate name based on the app's current locale
+                  String locale = Localizations.localeOf(context).languageCode;
+                  String estateName = locale == 'ar'
+                      ? value["NameAr"] ?? "غير معروف"
+                      : value["NameEn"] ?? "Unknown";
+
                   return Container(
                     margin: EdgeInsets.all(10),
                     width: MediaQuery.of(context).size.width,
@@ -105,7 +108,6 @@ class _RequestState extends State<Request> {
                                   child: ItemInCard(
                                       Icon(Icons.calendar_month),
                                       value["StartDate"].toString(),
-                                      // .split(" ")[2]
                                       getTranslated(context, "FromDate")),
                                 ),
                                 Expanded(
@@ -124,7 +126,6 @@ class _RequestState extends State<Request> {
                                   child: ItemInCard(
                                       Icon(Icons.bookmark_added_sharp),
                                       value["IDBook"].toString(),
-                                      // .split(" ")[2]
                                       getTranslated(context, "Booking ID")),
                                 ),
                               ],
@@ -135,7 +136,6 @@ class _RequestState extends State<Request> {
                                   child: ItemInCard(
                                       Icon(Icons.timer),
                                       value["Clock"].toString(),
-                                      // .split(" ")[2]
                                       getTranslated(context, "Time")),
                                 ),
                               ],
@@ -177,7 +177,7 @@ class _RequestState extends State<Request> {
                                 ),
                               ),
                             ),
-                            ItemInCard(Icon(Icons.business), value["NameEn"],
+                            ItemInCard(Icon(Icons.business), estateName,
                                 getTranslated(context, "Hottel Name")),
                           ],
                         ),
