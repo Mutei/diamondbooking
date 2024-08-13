@@ -39,6 +39,12 @@ class _State extends State<NotificationUser> {
             String? id = FirebaseAuth.instance.currentUser?.uid;
 
             if (value["IDUser"] == id) {
+              // Determine the estate name based on the app's current locale
+              String locale = Localizations.localeOf(context).languageCode;
+              String estateName = locale == 'ar'
+                  ? value["NameAr"] ?? "غير معروف"
+                  : value["NameEn"] ?? "Unknown";
+
               return Card(
                 color: value["Status"] == "1"
                     ? Colors.white
@@ -78,13 +84,17 @@ class _State extends State<NotificationUser> {
                                     context, "Your Booking is Canceled"),
                         getTranslated(context, "Status"),
                       ),
+                      ItemInCard(
+                        Icon(Icons.business),
+                        estateName,
+                        getTranslated(context, "Estate Name"),
+                      ),
                       if (value["Status"] == "2")
                         ItemInCard(
                           Icon(Icons.confirmation_number),
                           value['IDBook'],
                           getTranslated(context, "Order ID"),
                         ),
-                      // ignore: prefer_interpolation_to_compose_strings
                     ],
                   ),
                 ),
@@ -118,14 +128,12 @@ class _State extends State<NotificationUser> {
             width: MediaQuery.of(context).size.width,
             child: ListTile(
               title: Text(getTranslated(context, map['Name'])),
-              // ignore: prefer_const_constructors
               leading: Icon(
                 Icons.single_bed,
                 color: Color(0xFF84A5FA),
               ),
               trailing: Text(
                 map['Price'],
-                // ignore: prefer_const_constructors
                 style: TextStyle(color: Colors.green, fontSize: 18),
               ),
               onTap: () async {},
@@ -158,10 +166,8 @@ class _State extends State<NotificationUser> {
             height: 70,
             child: ListTile(
               title: Text(map['NameEn']),
-              // ignore: prefer_const_constructors
               trailing: Text(
                 map['Price'],
-                // ignore: prefer_const_constructors
                 style: TextStyle(color: Colors.green, fontSize: 18),
               ),
               onTap: () async {},
@@ -183,13 +189,11 @@ class _State extends State<NotificationUser> {
       barrierDismissible: false, // user must tap button!
       builder: (BuildContext context) {
         return Scaffold(
-          // ignore: unnecessary_const
           appBar: AppBar(
             backgroundColor: Color(0xFF84A5FA),
             elevation: 0,
             title: Text(
               getTranslated(context, "Request"),
-              // ignore: prefer_const_constructors
               style: TextStyle(
                   fontWeight: FontWeight.bold,
                   color: Colors.black,
