@@ -91,7 +91,6 @@ class _ReusedAllPostsCardsState extends State<ReusedAllPostsCards> {
   }
 
   void _onHorizontalDragEnd(DragEndDetails details) {
-    // Reset drag start position
     _dragStart = 0.0;
   }
 
@@ -133,7 +132,9 @@ class _ReusedAllPostsCardsState extends State<ReusedAllPostsCards> {
               leading: CircleAvatar(
                 backgroundImage: widget.post['ProfileImageUrl'] != null
                     ? NetworkImage(widget.post['ProfileImageUrl'])
-                    : null,
+                        as ImageProvider<Object>?
+                    : AssetImage('assets/images/default_profile.png')
+                        as ImageProvider<Object>?,
                 child: widget.post['ProfileImageUrl'] == null
                     ? const Icon(Icons.person)
                     : null,

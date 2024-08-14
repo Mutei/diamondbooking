@@ -7,6 +7,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
 
+import '../constants/styles.dart';
 import '../general_provider.dart';
 import '../localization/language_constants.dart';
 import '../models/data_request.dart';
@@ -24,14 +25,26 @@ class _RequestState extends State<Request> {
   }
 
   Future<double?> fetchUserRating(String userId) async {
-    DatabaseReference ratingRef = FirebaseDatabase.instance
+    DatabaseReference ratingsRef = FirebaseDatabase.instance
         .ref("App")
         .child("ProviderFeedbackToCustomer")
         .child(userId)
-        .child("averageRating");
-    DataSnapshot snapshot = await ratingRef.get();
+        .child("ratings");
+
+    DataSnapshot snapshot = await ratingsRef.get();
+
     if (snapshot.exists) {
-      return snapshot.value as double?;
+      Map<dynamic, dynamic> ratingsData =
+          snapshot.value as Map<dynamic, dynamic>;
+      int totalRatings = ratingsData.length;
+      double sumRatings = 0;
+
+      ratingsData.forEach((key, value) {
+        sumRatings += value['rating'] ?? 0;
+      });
+
+      double averageRating = sumRatings / totalRatings;
+      return averageRating;
     }
     return null;
   }
@@ -41,10 +54,6 @@ class _RequestState extends State<Request> {
     final objProvider = Provider.of<GeneralProvider>(context);
 
     return Scaffold(
-      // appBar: AppBar(
-      //   backgroundColor: kPrimaryColor,
-      //   elevation: 0,
-      // ),
       body: Container(
         height: MediaQuery.of(context).size.height,
         width: MediaQuery.of(context).size.width,
@@ -66,6 +75,13 @@ class _RequestState extends State<Request> {
                     return Container(); // or any loading indicator
                   }
                   double? userRating = ratingSnapshot.data;
+
+                  // Determine the estate name based on the app's current locale
+                  String locale = Localizations.localeOf(context).languageCode;
+                  String estateName = locale == 'ar'
+                      ? value["NameAr"] ?? "غير معروف"
+                      : value["NameEn"] ?? "Unknown";
+
                   return Container(
                     margin: EdgeInsets.all(10),
                     width: MediaQuery.of(context).size.width,
@@ -93,7 +109,6 @@ class _RequestState extends State<Request> {
                                   child: ItemInCard(
                                       Icon(Icons.calendar_month),
                                       value["StartDate"].toString(),
-                                      // .split(" ")[2]
                                       getTranslated(context, "FromDate")),
                                 ),
                                 Expanded(
@@ -112,7 +127,6 @@ class _RequestState extends State<Request> {
                                   child: ItemInCard(
                                       Icon(Icons.bookmark_added_sharp),
                                       value["IDBook"].toString(),
-                                      // .split(" ")[2]
                                       getTranslated(context, "Booking ID")),
                                 ),
                               ],
@@ -123,7 +137,6 @@ class _RequestState extends State<Request> {
                                   child: ItemInCard(
                                       Icon(Icons.timer),
                                       value["Clock"].toString(),
-                                      // .split(" ")[2]
                                       getTranslated(context, "Time")),
                                 ),
                               ],
@@ -165,7 +178,7 @@ class _RequestState extends State<Request> {
                                 ),
                               ),
                             ),
-                            ItemInCard(Icon(Icons.business), value["NameEn"],
+                            ItemInCard(Icon(Icons.business), estateName,
                                 getTranslated(context, "Hottel Name")),
                           ],
                         ),
@@ -269,11 +282,14 @@ class _RequestState extends State<Request> {
       builder: (BuildContext context) {
         return Scaffold(
           appBar: AppBar(
-            backgroundColor: Color(0xFF84A5FA),
+            iconTheme: kIconTheme,
             elevation: 0,
             title: Text(
-              getTranslated(context, "Request"),
-              style: TextStyle(color: Colors.black, fontSize: 15),
+              getTranslated(
+                context,
+                "Request",
+              ),
+              style: TextStyle(color: kPrimaryColor, fontSize: 15),
             ),
           ),
           body: SingleChildScrollView(
@@ -300,7 +316,7 @@ class _RequestState extends State<Request> {
                           style: GoogleFonts.laila(
                             fontWeight: FontWeight.bold,
                             fontSize: 6.w,
-                            color: Color(0xFF84A5FA),
+                            color: kPrimaryColor,
                           ),
                         ),
                       ],
@@ -327,7 +343,7 @@ class _RequestState extends State<Request> {
                         child: Text(
                           getTranslated(context, 'Confirm'),
                           style: TextStyle(
-                            color: Color(0xFF84A5FA),
+                            color: kPrimaryColor,
                           ),
                         ),
                         onPressed: () async {
@@ -348,7 +364,7 @@ class _RequestState extends State<Request> {
                         child: Text(
                           getTranslated(context, 'Reject'),
                           style: TextStyle(
-                            color: Color(0xFF84A5FA),
+                            color: Colors.red,
                           ),
                         ),
                         onPressed: () async {
@@ -369,7 +385,7 @@ class _RequestState extends State<Request> {
                         child: Text(
                           getTranslated(context, 'close'),
                           style: TextStyle(
-                            color: Color(0xFF84A5FA),
+                            color: kPrimaryColor,
                           ),
                         ),
                         onPressed: () {
@@ -416,7 +432,7 @@ class _RequestState extends State<Request> {
                           style: GoogleFonts.laila(
                             fontWeight: FontWeight.bold,
                             fontSize: 6.w,
-                            color: Color(0xFF84A5FA),
+                            color: kPrimaryColor,
                           ),
                         ),
                       ],
@@ -430,7 +446,7 @@ class _RequestState extends State<Request> {
                         child: Text(
                           getTranslated(context, 'Confirm'),
                           style: TextStyle(
-                            color: Color(0xFF84A5FA),
+                            color: kPrimaryColor,
                           ),
                         ),
                         onPressed: () async {
@@ -451,7 +467,7 @@ class _RequestState extends State<Request> {
                         child: Text(
                           getTranslated(context, 'Reject'),
                           style: TextStyle(
-                            color: Color(0xFF84A5FA),
+                            color: Colors.red,
                           ),
                         ),
                         onPressed: () async {
@@ -472,7 +488,7 @@ class _RequestState extends State<Request> {
                         child: Text(
                           getTranslated(context, 'close'),
                           style: TextStyle(
-                            color: Color(0xFF84A5FA),
+                            color: kPrimaryColor,
                           ),
                         ),
                         onPressed: () {

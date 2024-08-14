@@ -30,6 +30,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
   List<Map<dynamic, dynamic>> _userEstates = [];
   String userType = "2";
   String? typeAccount;
+  bool _isLoading = false; // For managing the loading state
 
   @override
   void initState() {
@@ -134,6 +135,10 @@ class _AddPostScreenState extends State<AddPostScreen> {
     if (_formKey.currentState!.validate() &&
         (_selectedEstate != null || userType != "2")) {
       if (await _canAddMorePosts()) {
+        setState(() {
+          _isLoading = true;
+        }); // Show the CircularProgressIndicator
+
         try {
           User? user = FirebaseAuth.instance.currentUser;
           if (user == null) {
@@ -141,6 +146,19 @@ class _AddPostScreenState extends State<AddPostScreen> {
             return;
           }
           String userId = user.uid;
+
+          // Fetch the user's profile image URL
+          String? profileImageUrl;
+          DataSnapshot userSnapshot = await FirebaseDatabase.instance
+              .ref("App")
+              .child("User")
+              .child(userId)
+              .get();
+          if (userSnapshot.exists) {
+            Map<dynamic, dynamic> userData =
+                userSnapshot.value as Map<dynamic, dynamic>;
+            profileImageUrl = userData['ProfileImageUrl'];
+          }
 
           Map<dynamic, dynamic> selectedEstate = _selectedEstate != null
               ? _userEstates.firstWhere(
@@ -193,11 +211,6 @@ class _AddPostScreenState extends State<AddPostScreen> {
           if (userType == "2") {
             estateName = selectedEstate['data']['NameEn'];
           } else {
-            DataSnapshot userSnapshot = await FirebaseDatabase.instance
-                .ref("App")
-                .child("User")
-                .child(userId)
-                .get();
             if (userSnapshot.exists) {
               Map<dynamic, dynamic> userData =
                   userSnapshot.value as Map<dynamic, dynamic>;
@@ -218,12 +231,28 @@ class _AddPostScreenState extends State<AddPostScreen> {
             'typeAccount': typeAccount,
             'ImageUrls': imageUrls,
             'VideoUrls': videoUrls, // Save video URLs in the post
+            'ProfileImageUrl':
+                profileImageUrl, // Add ProfileImageUrl to the post
           });
 
           print('Post saved successfully');
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(getTranslated(context, 'Post added successfully')),
+            ),
+          );
           Navigator.pop(context);
         } catch (e) {
           print('Error saving post: $e');
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(getTranslated(context, 'Failed to add post')),
+            ),
+          );
+        } finally {
+          setState(() {
+            _isLoading = false;
+          }); // Hide the CircularProgressIndicator
         }
       }
     }
@@ -311,89 +340,99 @@ class _AddPostScreenState extends State<AddPostScreen> {
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        child: Form(
-          key: _formKey,
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              children: [
-                if (userType == "2" || (userType == "1" && typeAccount == "2"))
-                  DropdownButtonFormField<String>(
-                    value: _selectedEstate,
-                    hint: Text(getTranslated(context, "Select Estate")),
-                    items: _userEstates.map((estate) {
-                      return DropdownMenuItem<String>(
-                        value: estate['id'],
-                        child: Text(
-                            '${estate['data']['NameEn']} (${estate['type']})'),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      setState(() {
-                        _selectedEstate = value;
-                      });
-                    },
-                    validator: (value) {
-                      if (value == null && userType == "2") {
-                        return 'Please select an estate';
-                      }
-                      return null;
-                    },
-                  ),
-                TextFormField(
-                  controller: _titleController,
-                  maxLength: 120,
-                  maxLines: null,
-                  decoration: InputDecoration(
-                      labelText: getTranslated(context, "Title")),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return getTranslated(context, 'Please enter a title');
-                    }
-                    return null;
-                  },
-                ),
-                SizedBox(height: 20),
-                _imageFiles.isEmpty && _videoFiles.isEmpty
-                    ? Text(
-                        getTranslated(context, "No images selected."),
-                      )
-                    : Container(
-                        height: 100,
-                        child: ListView.builder(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: _imageFiles.length + _videoFiles.length,
-                          itemBuilder: (context, index) {
-                            if (index < _imageFiles.length) {
-                              return Image.file(_imageFiles[index]);
-                            } else {
-                              return Icon(Icons.videocam, size: 100);
-                            }
-                          },
-                        ),
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+            child: Form(
+              key: _formKey,
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  children: [
+                    if (userType == "2" ||
+                        (userType == "1" && typeAccount == "2"))
+                      DropdownButtonFormField<String>(
+                        value: _selectedEstate,
+                        hint: Text(getTranslated(context, "Select Estate")),
+                        items: _userEstates.map((estate) {
+                          return DropdownMenuItem<String>(
+                            value: estate['id'],
+                            child: Text(
+                                '${estate['data']['NameEn']} (${estate['type']})'),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            _selectedEstate = value;
+                          });
+                        },
+                        validator: (value) {
+                          if (value == null && userType == "2") {
+                            return 'Please select an estate';
+                          }
+                          return null;
+                        },
                       ),
-                ElevatedButton(
-                  onPressed: _pickImages,
-                  child: Text(getTranslated(context, "Pick Images")),
+                    TextFormField(
+                      controller: _titleController,
+                      maxLength: 120,
+                      maxLines: null,
+                      decoration: InputDecoration(
+                          labelText: getTranslated(context, "Title")),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return getTranslated(context, 'Please enter a title');
+                        }
+                        return null;
+                      },
+                    ),
+                    SizedBox(height: 20),
+                    _imageFiles.isEmpty && _videoFiles.isEmpty
+                        ? Text(
+                            getTranslated(context, "No images selected."),
+                          )
+                        : Container(
+                            height: 100,
+                            child: ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              itemCount:
+                                  _imageFiles.length + _videoFiles.length,
+                              itemBuilder: (context, index) {
+                                if (index < _imageFiles.length) {
+                                  return Image.file(_imageFiles[index]);
+                                } else {
+                                  return Icon(Icons.videocam, size: 100);
+                                }
+                              },
+                            ),
+                          ),
+                    ElevatedButton(
+                      onPressed: _pickImages,
+                      child: Text(getTranslated(context, "Pick Images")),
+                    ),
+                    // Show "Pick Videos" button only for userType 2 with TypeAccount 2 or 3
+                    if (userType == "2" &&
+                        (typeAccount == "2" || typeAccount == "3"))
+                      ElevatedButton(
+                        onPressed: _pickVideos,
+                        child: Text(getTranslated(context, "Pick Videos")),
+                      ),
+                    ElevatedButton(
+                      onPressed: _savePost,
+                      child: Text(widget.post == null
+                          ? getTranslated(context, "Save")
+                          : "Update"),
+                    ),
+                  ],
                 ),
-                // Show "Pick Videos" button only for userType 2 with TypeAccount 2 or 3
-                if (userType == "2" &&
-                    (typeAccount == "2" || typeAccount == "3"))
-                  ElevatedButton(
-                    onPressed: _pickVideos,
-                    child: Text(getTranslated(context, "Pick Videos")),
-                  ),
-                ElevatedButton(
-                  onPressed: _savePost,
-                  child: Text(widget.post == null
-                      ? getTranslated(context, "Save")
-                      : "Update"),
-                ),
-              ],
+              ),
             ),
           ),
-        ),
+          if (_isLoading)
+            Center(
+              child: CircularProgressIndicator(),
+            ),
+        ],
       ),
     );
   }

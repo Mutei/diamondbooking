@@ -352,7 +352,7 @@ class _State extends State<Chat> {
     }
 
     // Only allow TypeAccount 3 and 4 users to proceed
-    if (typeAccount != '3' && typeAccount != '4') {
+    if (typeAccount != '2' && typeAccount != '3') {
       return;
     }
 
@@ -404,7 +404,7 @@ class _State extends State<Chat> {
 
   Future<void> _sendChatRequest(String receiverId, String receiverName) async {
     // Only allow TypeAccount 3 and 4 users to send chat requests
-    if (typeAccount != '3' && typeAccount != '4') {
+    if (typeAccount != '2' && typeAccount != '3') {
       return;
     }
 
@@ -581,14 +581,14 @@ class _State extends State<Chat> {
                                   Color nameColor = Colors.white;
                                   if (map['SenderId'] != currentUser?.uid) {
                                     if (gender == 'Male' &&
-                                        (typeAccount == '3' ||
-                                            typeAccount == '4')) {
+                                        (typeAccount == '2' ||
+                                            typeAccount == '3')) {
                                       nameColor = Colors.red;
                                     } else if (gender == 'Male') {
                                       nameColor = Colors.blue;
                                     } else if (gender == 'Female' &&
-                                        (typeAccount == '3' ||
-                                            typeAccount == '4')) {
+                                        (typeAccount == '2' ||
+                                            typeAccount == '3')) {
                                       nameColor = Colors.yellowAccent;
                                     } else if (gender == 'Female') {
                                       nameColor = Colors.pink;
