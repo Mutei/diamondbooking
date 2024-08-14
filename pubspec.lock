@@ -328,9 +328,7 @@ packages:
       sha256: "2ad726953f6e8affbc4df8dc78b77c3b4a060967a291e528ef72ae846c60fb69"
       url: "https://pub.dev"
     source: hosted
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-    version: "0.9.3+1"
+    version: "0.9.3+2"
   firebase_analytics:
     dependency: "direct main"
     description:
@@ -355,12 +353,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.5.7+7"
-=======
-    version: "0.9.3+2"
->>>>>>> Stashed changes
-=======
-    version: "0.9.3+2"
->>>>>>> Stashed changes
   firebase_auth:
     dependency: "direct main"
     description:
@@ -405,24 +397,10 @@ packages:
     dependency: transitive
     description:
       name: firebase_core_web
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-      sha256: "22fcb352744908224fc7be3caae254836099786acfe5df6e9fe901e9c2575a41"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.17.1"
-=======
       sha256: e8d1e22de72cb21cdcfc5eed7acddab3e99cd83f3b317f54f7a96c32f25fd11e
       url: "https://pub.dev"
     source: hosted
     version: "2.17.4"
->>>>>>> Stashed changes
-=======
-      sha256: e8d1e22de72cb21cdcfc5eed7acddab3e99cd83f3b317f54f7a96c32f25fd11e
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.17.4"
->>>>>>> Stashed changes
   firebase_database:
     dependency: "direct main"
     description:
