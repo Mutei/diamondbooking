@@ -636,7 +636,7 @@ class _ProfileEstateState extends State<ProfileEstate> {
                       estate["MenuLink"].isNotEmpty)
                     ListTile(
                       title: Text(
-                        'Menu Link',
+                        getTranslated(context, 'Menu Link'),
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                       subtitle: InkWell(
@@ -670,7 +670,10 @@ class _ProfileEstateState extends State<ProfileEstate> {
                           ListTile(
                             title: Text(
                                 getTranslated(context, "Type of Restaurant"),
-                                style: TextStyle(fontSize: 14)),
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                )),
                             subtitle: FutureBuilder<String>(
                               future: splitText(
                                   estate["TypeofRestaurant"].toString()),
@@ -689,7 +692,10 @@ class _ProfileEstateState extends State<ProfileEstate> {
                         if (estate["Type"] == "2" || estate["Type"] == "3")
                           ListTile(
                             title: Text(getTranslated(context, "Entry allowed"),
-                                style: const TextStyle(fontSize: 14)),
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                )),
                             subtitle: FutureBuilder<String>(
                               future: splitText(estate["Entry"].toString()),
                               builder: (context, snapshot) {
@@ -707,7 +713,10 @@ class _ProfileEstateState extends State<ProfileEstate> {
                         if (estate["Type"] == "2" || estate["Type"] == "3")
                           ListTile(
                             title: Text(getTranslated(context, "Sessions type"),
-                                style: const TextStyle(fontSize: 14)),
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                )),
                             subtitle: FutureBuilder<String>(
                               future: splitText(estate["Sessions"].toString()),
                               builder: (context, snapshot) {
@@ -730,14 +739,20 @@ class _ProfileEstateState extends State<ProfileEstate> {
                                   estate["Music"] == "1"
                                       ? "There is music"
                                       : "There is no music"),
-                              style: const TextStyle(fontSize: 14),
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                         if (estate["Type"] == "2")
                           ListTile(
-                            title: Text(
-                                getTranslated(context, "Is there music"),
-                                style: const TextStyle(fontSize: 14)),
+                            title:
+                                Text(getTranslated(context, "Is there music"),
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                    )),
                             subtitle: Text(estate["Lstmusic"],
                                 style: const TextStyle(fontSize: 12)),
                           ),
@@ -745,10 +760,6 @@ class _ProfileEstateState extends State<ProfileEstate> {
                     ),
                   ),
 
-                  Container(
-                    margin: const EdgeInsets.only(left: 35, right: 35),
-                    child: const Text("Post", style: TextStyle(fontSize: 14)),
-                  ),
                   FirebaseAnimatedList(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
