@@ -1,5 +1,3 @@
-// ignore_for_file: non_constant_identifier_names
-
 import 'package:diamond_booking/constants/colors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -20,46 +18,51 @@ class _State extends State<UpgradeAccount> {
   final GlobalKey<ScaffoldState> _scaffoldKey1 = new GlobalKey<ScaffoldState>();
   List<TypeCustomersPayment> LstTypeCustomersPayment = [];
   DatabaseReference ref = FirebaseDatabase.instance.ref("App").child("User");
+  String? selectedTypeAccount;
 
   @override
   void initState() {
+    super.initState();
     LstTypeCustomersPayment.add(TypeCustomersPayment(
-        Name: "Star",
-        subtitle: "test",
-        ID: "1",
-        image: "assets/images/star.png",
-        price: "200"));
+        Name: "Star", subtitle: "", ID: "1", image: "assets/images/star.png"));
     LstTypeCustomersPayment.add(TypeCustomersPayment(
-        Name: "Vip",
-        subtitle: "test",
-        ID: "2",
-        image: "assets/images/vip.png",
-        price: "500"));
+        Name: "Vip", subtitle: "", ID: "2", image: "assets/images/vip.png"));
     LstTypeCustomersPayment.add(TypeCustomersPayment(
         Name: "Diamond",
-        subtitle: "test",
+        subtitle: "",
         ID: "3",
-        image: "assets/images/dia.png",
-        price: "700"));
-    super.initState();
+        image: "assets/images/dia.png"));
+
+    fetchCurrentAccountType();
   }
 
+  Future<void> fetchCurrentAccountType() async {
+    String? id = FirebaseAuth.instance.currentUser?.uid;
+    if (id != null) {
+      DatabaseReference userRef = ref.child(id);
+      DataSnapshot snapshot = await userRef.child("TypeAccount").get();
+      setState(() {
+        selectedTypeAccount = snapshot.value as String?;
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final objProvider = Provider.of<GeneralProvider>(context, listen: false);
     objProvider.CheckLang();
     return Scaffold(
-        key: _scaffoldKey1,
-        body: SafeArea(
-            child: Container(
+      key: _scaffoldKey1,
+      body: SafeArea(
+        child: Container(
           width: MediaQuery.of(context).size.width,
           height: MediaQuery.of(context).size.height,
+          padding: EdgeInsets.symmetric(horizontal: 20),
           child: ListView(
             children: [
               Container(
                 margin: EdgeInsets.only(
-                  right: objProvider.CheckLangValue ? 80 : 10,
                   top: 30,
-                  left: objProvider.CheckLangValue ? 10 : 80,
                 ),
                 child: RichText(
                   text: TextSpan(
@@ -95,44 +98,86 @@ class _State extends State<UpgradeAccount> {
               CardTypes(LstTypeCustomersPayment[2], objProvider),
             ],
           ),
-        )));
+        ),
+      ),
+    );
   }
 
   CardTypes(TypeCustomersPayment obj, GeneralProvider objProvider) {
+    bool isSelected = obj.ID == selectedTypeAccount;
+
     return InkWell(
-      child: Container(
-        height: 15.h,
-        margin: EdgeInsets.only(left: 40, right: 40),
-        width: MediaQuery.of(context).size.width - 100,
-        child: ListTile(
-          title: Text(
-            getTranslated(context, obj.Name),
-            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-          ),
-          leading: Image(image: AssetImage(obj.image)),
-          subtitle: Text(obj.subtitle),
-          trailing: Text(
-            obj.price,
-            style: const TextStyle(
-                fontSize: 15, fontWeight: FontWeight.bold, color: Colors.green),
-          ),
-        ),
-      ),
       onTap: () async {
         String? id = FirebaseAuth.instance.currentUser?.uid;
-        await ref.child(id!).update({"TypeAccount": obj.ID});
-        objProvider.FunSnackBarPage("Updated", context);
+        if (id != null) {
+          await ref.child(id).update({"TypeAccount": obj.ID});
+          setState(() {
+            selectedTypeAccount = obj.ID;
+          });
+          objProvider.FunSnackBarPage("Updated", context);
+        }
       },
+      child: Container(
+        height: 15.h,
+        margin: EdgeInsets.only(bottom: 20),
+        width: MediaQuery.of(context).size.width,
+        decoration: BoxDecoration(
+          color: isSelected ? kPrimaryColor.withOpacity(0.2) : Colors.white,
+          border: Border.all(
+            color: isSelected ? kPrimaryColor : Colors.grey[300]!,
+            width: 2,
+          ),
+          borderRadius: BorderRadius.circular(15),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black12,
+              blurRadius: 10,
+              offset: Offset(0, 5),
+            ),
+          ],
+        ),
+        child: ListTile(
+          contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          title: Text(
+            getTranslated(context, obj.Name),
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          leading: Container(
+            width: 50,
+            height: 50,
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage(obj.image),
+                fit: BoxFit.cover,
+              ),
+              borderRadius: BorderRadius.circular(25),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black26,
+                  blurRadius: 10,
+                  offset: Offset(0, 5),
+                ),
+              ],
+            ),
+          ),
+          subtitle: Text(
+            obj.subtitle,
+            style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+          ),
+          trailing: isSelected
+              ? Icon(Icons.check_circle, color: kPrimaryColor, size: 30)
+              : null,
+        ),
+      ),
     );
   }
 }
 
 class TypeCustomersPayment {
-  late String Name, subtitle, ID, image, price;
+  late String Name, subtitle, ID, image;
   TypeCustomersPayment(
       {required this.Name,
       required this.subtitle,
       required this.ID,
-      required this.image,
-      required this.price});
+      required this.image});
 }
