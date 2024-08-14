@@ -349,8 +349,9 @@ class _AddPostScreenState extends State<AddPostScreen> {
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   children: [
-                    if (userType == "2" ||
-                        (userType == "1" && typeAccount == "2"))
+                    if (userType == "2")
+                      // ||
+                      // (userType == "1" && typeAccount == "2")
                       DropdownButtonFormField<String>(
                         value: _selectedEstate,
                         hint: Text(getTranslated(context, "Select Estate")),
