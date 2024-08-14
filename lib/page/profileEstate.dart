@@ -571,7 +571,7 @@ class _ProfileEstateState extends State<ProfileEstate> {
                       itemBuilder: (context, snapshot, animation, index) {
                         Map map = snapshot.value as Map;
                         map['Key'] = snapshot.key;
-                        LstRooms.add(Rooms(
+                        Rooms room = Rooms(
                           id: map['ID'],
                           name: map['Name'],
                           nameEn: map['Name'],
@@ -579,50 +579,66 @@ class _ProfileEstateState extends State<ProfileEstate> {
                           bio: map['BioAr'],
                           bioEn: map['BioEn'],
                           color: Colors.white,
-                        ));
+                        );
 
-                        return Container(
-                          width: MediaQuery.of(context).size.width,
-                          height: 70,
-                          color: LstRooms[index].color,
-                          child: ListTile(
-                            title: Text(
-                                getTranslated(context, LstRooms[index].name)),
-                            subtitle: Text(objProvider.CheckLangValue
-                                ? LstRooms[index].bioEn
-                                : LstRooms[index].bio),
-                            leading: const Icon(Icons.single_bed,
-                                color: Color(0xFF84A5FA)),
-                            trailing: Text(
-                              LstRooms[index].price,
-                              style: const TextStyle(
-                                  color: Colors.green, fontSize: 18),
-                            ),
-                            onTap: () async {
-                              int index = LstRoomsSelected.indexWhere(
-                                  (element) => element.name == map['Name']);
-                              if (index == -1) {
-                                LstRoomsSelected.add(Rooms(
-                                  id: map['ID'],
-                                  name: map['Name'],
-                                  nameEn: map['Name'],
-                                  price: map['Price'],
-                                  bio: map['BioAr'],
-                                  bioEn: map['BioEn'],
-                                  color: Colors.white,
-                                ));
-                                setState(() {
-                                  LstRooms[index].color = Colors.blue;
-                                  count++;
-                                });
+                        bool isSelected = LstRoomsSelected.any(
+                            (element) => element.id == room.id);
+
+                        return GestureDetector(
+                          onTap: () async {
+                            setState(() {
+                              if (isSelected) {
+                                LstRoomsSelected.removeWhere(
+                                    (element) => element.id == room.id);
                               } else {
-                                LstRoomsSelected.removeAt(index);
-                                setState(() {
-                                  LstRooms[index].color = Colors.white;
-                                  count--;
-                                });
+                                LstRoomsSelected.add(room);
                               }
-                            },
+                            });
+                          },
+                          child: Container(
+                            width: MediaQuery.of(context).size.width,
+                            height: 70,
+                            color: isSelected ? Colors.blue[100] : Colors.white,
+                            child: ListTile(
+                              title: Text(
+                                getTranslated(context, room.name),
+                                style: TextStyle(
+                                  color:
+                                      isSelected ? kPrimaryColor : Colors.black,
+                                  fontWeight: isSelected
+                                      ? FontWeight.bold
+                                      : FontWeight.normal,
+                                ),
+                              ),
+                              subtitle: Text(
+                                objProvider.CheckLangValue
+                                    ? room.bioEn
+                                    : room.bio,
+                                style: TextStyle(
+                                  color: isSelected
+                                      ? kPrimaryColor
+                                      : Colors.black54,
+                                ),
+                              ),
+                              leading: const Icon(Icons.single_bed,
+                                  color: Colors.black,),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    room.price,
+                                    style: const TextStyle(
+                                        color: Colors.green, fontSize: 18),
+                                  ),
+                                  if (isSelected)
+                                    const Icon(
+                                      Icons.check_circle,
+                                      color: kPrimaryColor,
+                                      size: 24,
+                                    ),
+                                ],
+                              ),
+                            ),
                           ),
                         );
                       },
@@ -632,6 +648,7 @@ class _ProfileEstateState extends State<ProfileEstate> {
                           .child(estate['IDEstate'].toString()),
                     ),
                   ),
+
                   if (estate.containsKey("MenuLink") &&
                       estate["MenuLink"].isNotEmpty)
                     ListTile(
