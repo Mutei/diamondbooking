@@ -125,7 +125,14 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   void showNotification(RemoteNotification? notification) async {
-    var androidDetails = const AndroidNotificationDetails('1', 'channelName');
+    var androidDetails = const AndroidNotificationDetails(
+      '1', // Channel ID
+      'channelName', // Channel name
+      importance: Importance.max,
+      priority: Priority.high,
+      icon:
+          'ic_notification', // The name of your icon file (without the .png extension)
+    );
     var iosDetails = const DarwinNotificationDetails();
     var generalNotificationDetails =
         NotificationDetails(android: androidDetails, iOS: iosDetails);

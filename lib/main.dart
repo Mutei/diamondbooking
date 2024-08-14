@@ -1,6 +1,8 @@
 import 'package:diamond_booking/constants/colors.dart';
 import 'package:diamond_booking/screen/splash_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -15,6 +17,7 @@ import 'localization/language_constants.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+
   SystemChrome.setPreferredOrientations(
       [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
 
@@ -30,6 +33,7 @@ void main() async {
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
   static void setLocale(BuildContext context, Locale newLocale) async {
     _MyAppState? state = context.findAncestorStateOfType<_MyAppState>();
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
@@ -48,10 +52,18 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   Locale? _locale;
+  late FirebaseAnalytics analytics;
+
   setLocale(Locale locale) {
     setState(() {
       _locale = locale;
     });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    analytics = FirebaseAnalytics.instance;
   }
 
   @override
@@ -66,10 +78,8 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    // ignore: unnecessary_null_comparison
     if (_locale == null) {
       return const Center(
-        // ignore: prefer_const_constructors
         child: CircularProgressIndicator(
           valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
         ),
@@ -80,22 +90,19 @@ class _MyAppState extends State<MyApp> {
           return MaterialApp(
             debugShowCheckedModeBanner: false,
             title: "Flutter Localization Demo",
-
             theme: ThemeData(
-                useMaterial3: true,
-                colorScheme: ColorScheme.fromSeed(seedColor: kPrimaryColor),
-                fontFamily: 'CODE_Light',
-                textTheme:
-                    GoogleFonts.lailaTextTheme(Theme.of(context).textTheme)),
+              useMaterial3: true,
+              colorScheme: ColorScheme.fromSeed(seedColor: kPrimaryColor),
+              fontFamily: 'CODE_Light',
+              textTheme:
+                  GoogleFonts.lailaTextTheme(Theme.of(context).textTheme),
+            ),
             locale: _locale,
-            // ignore: prefer_const_literals_to_create_immutables
-            supportedLocales: [
-              const Locale("en", "US"),
-              // ignore: prefer_const_constructors
-              const Locale("ar", "SA"),
+            supportedLocales: const [
+              Locale("en", "US"),
+              Locale("ar", "SA"),
             ],
-            // ignore: prefer_const_literals_to_create_immutables
-            localizationsDelegates: [
+            localizationsDelegates: const [
               DemoLocalization.delegate,
               GlobalMaterialLocalizations.delegate,
               GlobalWidgetsLocalizations.delegate,
@@ -110,6 +117,9 @@ class _MyAppState extends State<MyApp> {
               }
               return supportedLocales.first;
             },
+            navigatorObservers: [
+              FirebaseAnalyticsObserver(analytics: analytics),
+            ],
             home: const Splashscreen(),
           );
         },
