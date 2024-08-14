@@ -147,6 +147,9 @@ class _State extends State<CardEstate> {
                   objProvider.CheckLangValue
                       ? (obj['NameEn'] ?? 'Unknown')
                       : (obj['NameAr'] ?? 'Unknown'),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 subtitle: !Visimage
                     ? Wrap(
