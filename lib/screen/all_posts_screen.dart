@@ -103,6 +103,9 @@ class _AllPostsScreenState extends State<AllPostsScreen> {
           postsList.add(post);
         }
 
+        // Sort the posts list by Date in descending order (latest post first)
+        postsList.sort((a, b) => b['Date'].compareTo(a['Date']));
+
         setState(() {
           _posts = postsList;
         });
@@ -209,11 +212,29 @@ class _AllPostsScreenState extends State<AllPostsScreen> {
       body: RefreshIndicator(
         onRefresh: _refreshPosts,
         child: _posts.isEmpty
-            ? Center(
-                child: Text(
-                  getTranslated(context, "No Posts Available"),
-                  style: TextStyle(fontSize: 18, color: Colors.grey),
-                ),
+            ? FutureBuilder(
+                future: _fetchPosts(), // Ensure posts are fetched
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  } else if (_posts.isEmpty) {
+                    return Center(
+                      child: Text(
+                        getTranslated(context, "No Posts Available"),
+                        style: TextStyle(fontSize: 18, color: Colors.grey),
+                      ),
+                    );
+                  } else {
+                    return ListView(
+                      children: [
+                        Container(height: 20),
+                        _buildPostsList(),
+                      ],
+                    );
+                  }
+                },
               )
             : ListView(
                 children: [
