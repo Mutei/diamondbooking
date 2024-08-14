@@ -152,14 +152,28 @@ class _ProfileEstateState extends State<ProfileEstate> {
       String uniqueID = generateUniqueID();
       String IDBook = uniqueID;
 
-      DatabaseReference ref =
-          FirebaseDatabase.instance.ref("App").child("Booking");
+      DatabaseReference ref = FirebaseDatabase.instance.ref("App").child("Booking").child("Book");
       String? id = FirebaseAuth.instance.currentUser?.uid;
+
+      // Fetch user information directly before creating the booking
+      DatabaseReference userRef = FirebaseDatabase.instance.ref("App").child("User").child(id!);
+      DataSnapshot snapshot = await userRef.get();
+      String firstName = "";
+      String secondName = "";
+      String lastName = "";
+
+      if (snapshot.exists) {
+        firstName = snapshot.child("FirstName").value?.toString() ?? "";
+        secondName = snapshot.child("SecondName").value?.toString() ?? "";
+        lastName = snapshot.child("LastName").value?.toString() ?? "";
+      }
+
+      String fullName = "$firstName $secondName $lastName";
 
       String? hour = sTime?.hour.toString().padLeft(2, '0');
       String? minute = sTime?.minute.toString().padLeft(2, '0');
 
-      await ref.child("Book").child(IDBook.toString()).set({
+      await ref.child(IDBook.toString()).set({
         "IDEstate": estate['IDEstate'].toString(),
         "IDBook": IDBook,
         "NameEn": estate['NameEn'],
@@ -167,16 +181,14 @@ class _ProfileEstateState extends State<ProfileEstate> {
         "Status": "1",
         "IDUser": id,
         "IDOwner": estate['IDUser'],
-        "StartDate":
-            "${selectedDate.year}-${selectedDate.month}-${selectedDate.day}",
+        "StartDate": "${selectedDate.year}-${selectedDate.month}-${selectedDate.day}",
         "Clock": "${hour!}:${minute!}",
         "EndDate": "",
         "Type": estate['Type'],
         "Country": estate["Country"],
         "State": estate["State"],
         "City": estate["City"],
-        "NameUser":
-            "${estate['FirstName']} ${estate['SecondName']} ${estate['LastName']}",
+        "NameUser": fullName,
       });
 
       Provider.of<GeneralProvider>(context, listen: false).FunSnackBarPage(
@@ -185,6 +197,7 @@ class _ProfileEstateState extends State<ProfileEstate> {
       );
     }
   }
+
 
   Future<void> getData() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
@@ -197,7 +210,7 @@ class _ProfileEstateState extends State<ProfileEstate> {
 
     if (ID.isNotEmpty) {
       DatabaseReference userRef =
-          FirebaseDatabase.instance.ref("App").child("User").child(ID);
+      FirebaseDatabase.instance.ref("App").child("User").child(ID);
       DataSnapshot snapshot = await userRef.get();
       if (snapshot.exists) {
         setState(() {
@@ -207,10 +220,20 @@ class _ProfileEstateState extends State<ProfileEstate> {
               snapshot.child("SecondName").value as String? ?? "";
           estate["LastName"] =
               snapshot.child("LastName").value as String? ?? "";
+
+          // Debugging output
+          print("FirstName: ${estate["FirstName"]}");
+          print("SecondName: ${estate["SecondName"]}");
+          print("LastName: ${estate["LastName"]}");
         });
+      } else {
+        print("User snapshot does not exist");
       }
+    } else {
+      print("ID is empty");
     }
   }
+
 
   void _launchMaps() async {
     String googleUrl =
