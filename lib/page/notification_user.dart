@@ -276,7 +276,10 @@ class _State extends State<NotificationUser> {
         iconColor: Colors.black,
         title: Text(
           label,
-          style: TextStyle(fontSize: 12),
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         subtitle: Text(
           data,
