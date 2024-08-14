@@ -513,7 +513,7 @@ class _RequestState extends State<Request> {
         iconColor: kPrimaryColor,
         title: Text(
           label,
-          style: TextStyle(fontSize: 12),
+          style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
         ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

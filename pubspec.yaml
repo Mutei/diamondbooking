@@ -81,6 +81,8 @@ dependencies:
   url_launcher: ^6.3.0
   video_player: ^2.9.1
   firebase_analytics: ^10.10.7
+  http: ^1.2.2
+
 
 
 dev_dependencies:
