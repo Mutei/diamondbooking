@@ -1,8 +1,6 @@
 import 'dart:math';
 import 'package:diamond_booking/constants/colors.dart';
 import 'package:diamond_booking/extension/sized_box_extension.dart';
-import 'package:diamond_booking/page/points_helper.dart';
-import 'package:diamond_booking/page/qrViewScan.dart';
 import 'package:diamond_booking/page/qr_image.dart';
 import 'package:diamond_booking/widgets/text_header.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -23,7 +21,6 @@ import '../localization/language_constants.dart';
 import '../models/rooms.dart';
 import '../screen/customer_points.dart';
 import './chat.dart';
-import 'add_posts.dart';
 import 'additionalfacility.dart';
 import 'chat_group.dart';
 import 'editEstate.dart';
