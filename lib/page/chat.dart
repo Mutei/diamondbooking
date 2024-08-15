@@ -756,27 +756,27 @@ class _State extends State<Chat> {
                               ),
                             ),
                             if (userType == "1")
-                              IconButton(
-                                icon: const Icon(Icons.qr_code_scanner),
-                                color: kPrimaryColor,
-                                onPressed: scanQRCode,
+                              // IconButton(
+                              //   icon: const Icon(Icons.qr_code_scanner),
+                              //   color: kPrimaryColor,
+                              //   onPressed: scanQRCode,
+                              // ),
+                              ValueListenableBuilder<String>(
+                                valueListenable: _messageNotifier,
+                                builder: (context, value, child) {
+                                  return IconButton(
+                                    icon: const Icon(Icons.send),
+                                    color: value.isEmpty || !hasAccess
+                                        ? Colors.grey
+                                        : kPrimaryColor,
+                                    onPressed: (value.isEmpty || !hasAccess)
+                                        ? null
+                                        : () {
+                                            sendMessage(_textController.text);
+                                          },
+                                  );
+                                },
                               ),
-                            ValueListenableBuilder<String>(
-                              valueListenable: _messageNotifier,
-                              builder: (context, value, child) {
-                                return IconButton(
-                                  icon: const Icon(Icons.send),
-                                  color: value.isEmpty || !hasAccess
-                                      ? Colors.grey
-                                      : kPrimaryColor,
-                                  onPressed: (value.isEmpty || !hasAccess)
-                                      ? null
-                                      : () {
-                                          sendMessage(_textController.text);
-                                        },
-                                );
-                              },
-                            ),
                           ],
                         ),
                       ],
