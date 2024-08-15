@@ -149,11 +149,13 @@ class _ProfileEstateState extends State<ProfileEstate> {
       String uniqueID = generateUniqueID();
       String IDBook = uniqueID;
 
-      DatabaseReference ref = FirebaseDatabase.instance.ref("App").child("Booking").child("Book");
+      DatabaseReference ref =
+          FirebaseDatabase.instance.ref("App").child("Booking").child("Book");
       String? id = FirebaseAuth.instance.currentUser?.uid;
 
       // Fetch user information directly before creating the booking
-      DatabaseReference userRef = FirebaseDatabase.instance.ref("App").child("User").child(id!);
+      DatabaseReference userRef =
+          FirebaseDatabase.instance.ref("App").child("User").child(id!);
       DataSnapshot snapshot = await userRef.get();
       String firstName = "";
       String secondName = "";
@@ -178,7 +180,8 @@ class _ProfileEstateState extends State<ProfileEstate> {
         "Status": "1",
         "IDUser": id,
         "IDOwner": estate['IDUser'],
-        "StartDate": "${selectedDate.year}-${selectedDate.month}-${selectedDate.day}",
+        "StartDate":
+            "${selectedDate.year}-${selectedDate.month}-${selectedDate.day}",
         "Clock": "${hour!}:${minute!}",
         "EndDate": "",
         "Type": estate['Type'],
@@ -195,7 +198,6 @@ class _ProfileEstateState extends State<ProfileEstate> {
     }
   }
 
-
   Future<void> getData() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     setState(() {
@@ -207,7 +209,7 @@ class _ProfileEstateState extends State<ProfileEstate> {
 
     if (ID.isNotEmpty) {
       DatabaseReference userRef =
-      FirebaseDatabase.instance.ref("App").child("User").child(ID);
+          FirebaseDatabase.instance.ref("App").child("User").child(ID);
       DataSnapshot snapshot = await userRef.get();
       if (snapshot.exists) {
         setState(() {
@@ -230,7 +232,6 @@ class _ProfileEstateState extends State<ProfileEstate> {
       print("ID is empty");
     }
   }
-
 
   void _launchMaps() async {
     String googleUrl =
@@ -492,7 +493,13 @@ class _ProfileEstateState extends State<ProfileEstate> {
             ),
             25.kW,
             InkWell(
-              child: const Icon(Icons.star),
+              child: Text(
+                getTranslated(context, "Rate"),
+                style: TextStyle(
+                  color: kPrimaryColor,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
               onTap: () {
                 _showRatingSnackbar(context);
               },
@@ -643,8 +650,10 @@ class _ProfileEstateState extends State<ProfileEstate> {
                                       : Colors.black54,
                                 ),
                               ),
-                              leading: const Icon(Icons.single_bed,
-                                  color: Colors.black,),
+                              leading: const Icon(
+                                Icons.single_bed,
+                                color: Colors.black,
+                              ),
                               trailing: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
