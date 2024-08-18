@@ -53,7 +53,7 @@ class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
   String _selectedFilter = 'All';
   TextEditingController _searchController = TextEditingController();
-  bool _isSearching = false; // Add this line
+  bool _isSearching = false;
 
   @override
   void initState() {
