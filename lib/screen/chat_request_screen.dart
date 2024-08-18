@@ -31,48 +31,144 @@ class _PrivateChatRequestState extends State<PrivateChatRequest>
     _fetchChatRequestCount();
   }
 
+  Future<void> sendChatRequest(String receiverId, String receiverName) async {
+    final senderId = FirebaseAuth.instance.currentUser?.uid ?? '';
+    final databaseReference = FirebaseDatabase.instance;
+
+    if (senderId.isEmpty) return;
+
+    // Fetch the current user's name
+    DatabaseReference senderRef = databaseReference.ref("App/User/$senderId");
+    DataSnapshot senderSnapshot = await senderRef.get();
+    String senderName = "Unknown User";
+
+    if (senderSnapshot.exists) {
+      String firstName = senderSnapshot.child("FirstName").value?.toString() ?? '';
+      String lastName = senderSnapshot.child("LastName").value?.toString() ?? '';
+      senderName = "$firstName $lastName".trim();
+    }
+
+    // Debugging: Print the names before storing
+    print("Storing Chat Request:");
+    print("SenderId: $senderId, SenderName: $senderName");
+    print("ReceiverId: $receiverId, ReceiverName: $receiverName");
+
+    // Create chat request
+    DatabaseReference refChatRequestReceiver = databaseReference
+        .ref("App/PrivateChatRequest")
+        .child(receiverId)
+        .child(senderId);
+
+    await refChatRequestReceiver.set({
+      'SenderId': senderId,
+      'SenderName': senderName,
+      'ReceiverId': receiverId,
+      'ReceiverName': receiverName,
+    });
+
+    // Debugging: Confirm the data was set
+    print("Chat request data stored in Firebase:");
+    print({
+      'SenderId': senderId,
+      'SenderName': senderName,
+      'ReceiverId': receiverId,
+      'ReceiverName': receiverName,
+    });
+  }
+
+
+
   Future<void> acceptChatRequest(String senderId, String senderName) async {
     DatabaseReference refChatRequest = databaseReference
         .ref("App/PrivateChatRequest")
         .child(id!)
         .child(senderId);
 
-    DatabaseReference refChatListSender =
-        databaseReference.ref("App/PrivateChatList").child(senderId);
-
-    DatabaseReference refChatListReceiver =
-        databaseReference.ref("App/PrivateChatList").child(id!);
-
     DataSnapshot snapshot = await refChatRequest.get();
     if (snapshot.exists) {
       Map<String, dynamic> requestData =
-          Map<String, dynamic>.from(snapshot.value as Map);
+      Map<String, dynamic>.from(snapshot.value as Map);
 
-      await refChatListSender.child(id!).set({
+      // Try to fetch ReceiverName from requestData
+      String receiverName = requestData["ReceiverName"] ?? "Unknown User";
+      String requestSenderName = requestData["SenderName"] ?? senderName;
+
+      // If ReceiverName is "Unknown User", fetch it directly from the user's data
+      if (receiverName == "Unknown User") {
+        DatabaseReference receiverRef = databaseReference.ref("App/User/$id");
+        DataSnapshot receiverSnapshot = await receiverRef.get();
+        if (receiverSnapshot.exists) {
+          String firstName = receiverSnapshot.child("FirstName").value?.toString() ?? '';
+          String secondName = receiverSnapshot.child("SecondName").value?.toString() ?? '';
+          String lastName = receiverSnapshot.child("LastName").value?.toString() ?? '';
+          receiverName = "$firstName $secondName $lastName".trim();
+          print("Fetched Receiver Name from User Data: $receiverName");
+        } else {
+          print("Receiver data does not exist for ID: $id");
+        }
+      }
+
+      // Debugging: Ensure correct values are being retrieved
+      print("Final Receiver Name: $receiverName");
+      print("Fetched Sender Name: $requestSenderName");
+
+      // Now use these values to update the chat lists
+      await databaseReference
+          .ref("App/PrivateChatList")
+          .child(senderId)
+          .child(id!)
+          .set({
         "ReceiverId": id,
-        "Name": requestData["ReceiverName"],
+        "Name": receiverName,
       });
 
-      await refChatListReceiver.child(senderId).set({
+      await databaseReference
+          .ref("App/PrivateChatList")
+          .child(id!)
+          .child(senderId)
+          .set({
         "ReceiverId": senderId,
-        "Name": requestData["SenderName"],
+        "Name": requestSenderName,
       });
 
+      // Double-check the stored data in PrivateChatList
+      print("Updated PrivateChatList for SenderId:");
+      print({
+        "ReceiverId": id,
+        "Name": receiverName,
+      });
+
+      print("Updated PrivateChatList for ReceiverId:");
+      print({
+        "ReceiverId": senderId,
+        "Name": requestSenderName,
+      });
+
+      // Remove the chat request after accepting it
       await refChatRequest.remove();
 
-      // Update the request count
+      // Update the request count in the UI
       setState(() {
         _requestCount--;
       });
 
+      // Log the acceptance
+      print("Chat request accepted from $requestSenderName ($senderId)");
+
+      // Delay before navigating to ensure everything is updated
+      await Future.delayed(Duration(milliseconds: 500));
+
       // Navigate to the PrivateChatScreen
       Navigator.of(context).push(MaterialPageRoute(
           builder: (context) => PrivateChatScreen(
-                userId: senderId,
-                fullName: senderName,
-              )));
+            userId: senderId,
+            fullName: requestSenderName,
+          )));
+    } else {
+      print("No chat request found for $senderId");
     }
   }
+
 
   Future<void> rejectChatRequest(String senderId) async {
     DatabaseReference refChatRequest = databaseReference
@@ -86,11 +182,13 @@ class _PrivateChatRequestState extends State<PrivateChatRequest>
     setState(() {
       _requestCount--;
     });
+
+    print("Chat request rejected from $senderId");
   }
 
   Future<void> _fetchChatRequestCount() async {
     DatabaseReference refChatRequest =
-        databaseReference.ref("App/PrivateChatRequest").child(id!);
+    databaseReference.ref("App/PrivateChatRequest").child(id!);
 
     refChatRequest.onValue.listen((DatabaseEvent event) {
       if (event.snapshot.exists) {
@@ -108,7 +206,7 @@ class _PrivateChatRequestState extends State<PrivateChatRequest>
 
   Widget _buildChatRequests() {
     DatabaseReference refChatRequest =
-        databaseReference.ref("App/PrivateChatRequest").child(id!);
+    databaseReference.ref("App/PrivateChatRequest").child(id!);
 
     return StreamBuilder(
       stream: refChatRequest.onValue
@@ -136,8 +234,8 @@ class _PrivateChatRequestState extends State<PrivateChatRequest>
           itemBuilder: (context, index) {
             Map map = items[index].value as Map;
             map['Key'] = items[index].key;
-            String senderId = map['SenderId'];
-            String senderName = map['SenderName'];
+            String senderId = map['SenderId'] ?? 'Unknown User';
+            String senderName = map['SenderName'] ?? 'Unknown User';
 
             return ListTile(
               title: Text(senderName),
@@ -169,7 +267,7 @@ class _PrivateChatRequestState extends State<PrivateChatRequest>
 
   Widget _buildChatList() {
     DatabaseReference refChatList =
-        databaseReference.ref("App/PrivateChatList").child(id!);
+    databaseReference.ref("App/PrivateChatList").child(id!);
 
     return StreamBuilder(
       stream: refChatList.onValue
@@ -196,17 +294,17 @@ class _PrivateChatRequestState extends State<PrivateChatRequest>
           itemBuilder: (context, index) {
             Map map = items[index].value as Map;
             map['Key'] = items[index].key;
-            String receiverId = map['ReceiverId'];
-            String receiverName = map['Name'];
+            String receiverId = map['ReceiverId'] ?? 'Unknown User';
+            String receiverName = map['Name'] ?? 'Unknown User';
 
             return ListTile(
               title: Text(receiverName),
               onTap: () {
                 Navigator.of(context).push(MaterialPageRoute(
                     builder: (context) => PrivateChatScreen(
-                          userId: receiverId,
-                          fullName: receiverName,
-                        )));
+                      userId: receiverId,
+                      fullName: receiverName,
+                    )));
               },
             );
           },
@@ -232,12 +330,12 @@ class _PrivateChatRequestState extends State<PrivateChatRequest>
               text: getTranslated(context, "Requests"),
               icon: _requestCount > 0
                   ? badges.Badge(
-                      badgeContent: Text(
-                        _requestCount.toString(),
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      child: const Icon(Icons.message),
-                    )
+                badgeContent: Text(
+                  _requestCount.toString(),
+                  style: TextStyle(color: Colors.white),
+                ),
+                child: const Icon(Icons.message),
+              )
                   : const Icon(Icons.message),
             ),
             Tab(text: getTranslated(context, "Chats")),

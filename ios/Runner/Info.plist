@@ -52,5 +52,7 @@
 		<string>fetch</string>
 		<string>remote-notification</string>
 	</array>
+	<key>NSCameraUsageDescription</key>
+	<string>This app requires access to the camera to allow you to take photos for your profile.</string>
 </dict>
 </plist>

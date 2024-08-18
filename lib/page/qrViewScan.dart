@@ -16,22 +16,26 @@ class QRViewExample extends State<QRViewScan> {
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
   Barcode? result;
   QRViewController? controller;
+  bool _isNavigating = false; // Prevents multiple pops
 
   QRViewExample(this.expectedID);
 
   @override
   void reassemble() {
     super.reassemble();
-    if (Platform.isAndroid) {
-      controller!.pauseCamera();
-    } else if (Platform.isIOS) {
-      controller!.resumeCamera();
+    if (controller != null) {
+      if (Platform.isAndroid) {
+        controller!.pauseCamera();
+      } else if (Platform.isIOS) {
+        controller!.resumeCamera();
+      }
     }
   }
 
   void _onQRViewCreated(QRViewController controller) {
     this.controller = controller;
     controller.scannedDataStream.listen((scanData) {
+      if (_isNavigating) return; // Prevent multiple navigations
       setState(() {
         result = scanData;
       });
@@ -60,10 +64,13 @@ class QRViewExample extends State<QRViewScan> {
         print('Scanned Estate ID: $scannedEstateID');
         print('Expected Estate ID: $expectedID');
 
-        if (scannedEstateID == expectedID) {
-          Navigator.pop(context, true);
-        } else {
-          Navigator.pop(context, false);
+        if (mounted) {
+          _isNavigating = true;
+          if (scannedEstateID == expectedID) {
+            Navigator.pop(context, true);
+          } else {
+            Navigator.pop(context, false);
+          }
         }
       }
     });
@@ -86,7 +93,7 @@ class QRViewExample extends State<QRViewScan> {
             child: Center(
               child: (result != null)
                   ? Text(
-                      'Barcode Type: ${result!.format}   Data: ${result!.code}')
+                  'Barcode Type: ${result!.format}   Data: ${result!.code}')
                   : Text('Scan a code'),
             ),
           ),
