@@ -101,13 +101,13 @@ class _PrivateChatScreenState extends State<PrivateChatScreen> {
     DatabaseReference refChatListReceiver =
         databaseReference.ref("App/PrivateChatList").child(widget.userId);
 
-    // Log and store the chat list updates
+    // Here we explicitly set the receiver's name to the correct one
     await refChatListSender.child(widget.userId).set({
       "ReceiverId": widget.userId,
-      "Name": widget.fullName,
+      "Name": widget.fullName, // Ensure we use the correct receiver name
     });
 
-    print("Updated ChatList for Sender:");
+    print("Updated PrivateChatList for SenderId:");
     print({
       "ReceiverId": widget.userId,
       "Name": widget.fullName,
@@ -115,10 +115,10 @@ class _PrivateChatScreenState extends State<PrivateChatScreen> {
 
     await refChatListReceiver.child(id!).set({
       "ReceiverId": id,
-      "Name": currentUserName,
+      "Name": currentUserName, // Ensure we use the correct sender name
     });
 
-    print("Updated ChatList for Receiver:");
+    print("Updated PrivateChatList for ReceiverId:");
     print({
       "ReceiverId": id,
       "Name": currentUserName,

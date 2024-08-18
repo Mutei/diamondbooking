@@ -31,6 +31,53 @@ class _PrivateChatRequestState extends State<PrivateChatRequest>
     _fetchChatRequestCount();
   }
 
+  Future<void> sendChatRequest(String receiverId, String receiverName) async {
+    final senderId = FirebaseAuth.instance.currentUser?.uid ?? '';
+    final databaseReference = FirebaseDatabase.instance;
+
+    if (senderId.isEmpty) return;
+
+    // Fetch the current user's name
+    DatabaseReference senderRef = databaseReference.ref("App/User/$senderId");
+    DataSnapshot senderSnapshot = await senderRef.get();
+    String senderName = "Unknown User";
+
+    if (senderSnapshot.exists) {
+      String firstName =
+          senderSnapshot.child("FirstName").value?.toString() ?? '';
+      String lastName =
+          senderSnapshot.child("LastName").value?.toString() ?? '';
+      senderName = "$firstName $lastName".trim();
+    }
+
+    // Debugging: Print the names before storing
+    print("Storing Chat Request:");
+    print("SenderId: $senderId, SenderName: $senderName");
+    print("ReceiverId: $receiverId, ReceiverName: $receiverName");
+
+    // Create chat request
+    DatabaseReference refChatRequestReceiver = databaseReference
+        .ref("App/PrivateChatRequest")
+        .child(receiverId)
+        .child(senderId);
+
+    await refChatRequestReceiver.set({
+      'SenderId': senderId,
+      'SenderName': senderName,
+      'ReceiverId': receiverId,
+      'ReceiverName': receiverName,
+    });
+
+    // Debugging: Confirm the data was set
+    print("Chat request data stored in Firebase:");
+    print({
+      'SenderId': senderId,
+      'SenderName': senderName,
+      'ReceiverId': receiverId,
+      'ReceiverName': receiverName,
+    });
+  }
+
   Future<void> acceptChatRequest(String senderId, String senderName) async {
     DatabaseReference refChatRequest = databaseReference
         .ref("App/PrivateChatRequest")
@@ -42,12 +89,30 @@ class _PrivateChatRequestState extends State<PrivateChatRequest>
       Map<String, dynamic> requestData =
           Map<String, dynamic>.from(snapshot.value as Map);
 
-      // Fetching the ReceiverName correctly
+      // Try to fetch ReceiverName from requestData
       String receiverName = requestData["ReceiverName"] ?? "Unknown User";
       String requestSenderName = requestData["SenderName"] ?? senderName;
 
+      // If ReceiverName is "Unknown User", fetch it directly from the user's data
+      if (receiverName == "Unknown User") {
+        DatabaseReference receiverRef = databaseReference.ref("App/User/$id");
+        DataSnapshot receiverSnapshot = await receiverRef.get();
+        if (receiverSnapshot.exists) {
+          String firstName =
+              receiverSnapshot.child("FirstName").value?.toString() ?? '';
+          String secondName =
+              receiverSnapshot.child("SecondName").value?.toString() ?? '';
+          String lastName =
+              receiverSnapshot.child("LastName").value?.toString() ?? '';
+          receiverName = "$firstName $secondName $lastName".trim();
+          print("Fetched Receiver Name from User Data: $receiverName");
+        } else {
+          print("Receiver data does not exist for ID: $id");
+        }
+      }
+
       // Debugging: Ensure correct values are being retrieved
-      print("Fetched Receiver Name: $receiverName");
+      print("Final Receiver Name: $receiverName");
       print("Fetched Sender Name: $requestSenderName");
 
       // Now use these values to update the chat lists
@@ -119,6 +184,8 @@ class _PrivateChatRequestState extends State<PrivateChatRequest>
     setState(() {
       _requestCount--;
     });
+
+    print("Chat request rejected from $senderId");
   }
 
   Future<void> _fetchChatRequestCount() async {
@@ -169,17 +236,8 @@ class _PrivateChatRequestState extends State<PrivateChatRequest>
           itemBuilder: (context, index) {
             Map map = items[index].value as Map;
             map['Key'] = items[index].key;
-            dynamic senderId = map['SenderId'] ?? "";
-
-            // Fetch SenderName from Firebase if it's not provided in the request
-            dynamic senderName = map['SenderName'] ?? "";
-            if (senderName == "Unknown Sender") {
-              _fetchSenderName(senderId).then((name) {
-                setState(() {
-                  senderName = name;
-                });
-              });
-            }
+            String senderId = map['SenderId'] ?? 'Unknown User';
+            String senderName = map['SenderName'] ?? 'Unknown User';
 
             return ListTile(
               title: Text(senderName),
@@ -207,20 +265,6 @@ class _PrivateChatRequestState extends State<PrivateChatRequest>
         );
       },
     );
-  }
-
-  Future<String> _fetchSenderName(String senderId) async {
-    // Fetch the sender's name from the Firebase database
-    DatabaseReference refUser =
-        databaseReference.ref("App/User").child(senderId);
-    DataSnapshot snapshot = await refUser.get();
-
-    if (snapshot.exists) {
-      String firstName = snapshot.child("FirstName").value?.toString() ?? "";
-      String lastName = snapshot.child("LastName").value?.toString() ?? "";
-      return "$firstName $lastName";
-    }
-    return "Unknown Sender";
   }
 
   Widget _buildChatList() {
@@ -252,8 +296,8 @@ class _PrivateChatRequestState extends State<PrivateChatRequest>
           itemBuilder: (context, index) {
             Map map = items[index].value as Map;
             map['Key'] = items[index].key;
-            String receiverId = map['ReceiverId'] ?? "";
-            String receiverName = map['Name'] ?? map['Name'];
+            String receiverId = map['ReceiverId'] ?? 'Unknown User';
+            String receiverName = map['Name'] ?? 'Unknown User';
 
             return ListTile(
               title: Text(receiverName),
