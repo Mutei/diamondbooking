@@ -508,6 +508,132 @@ class _State extends State<Chat> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
+              // Expanded(
+              //   child: StreamBuilder(
+              //     stream: refChat.onValue,
+              //     builder: (context, AsyncSnapshot<DatabaseEvent> snapshot) {
+              //       if (!snapshot.hasData) {
+              //         return const Center(child: CircularProgressIndicator());
+              //       }
+              //       if (snapshot.hasError) {
+              //         return Text('Error: ${snapshot.error}');
+              //       }
+              //       if (snapshot.connectionState == ConnectionState.waiting) {
+              //         return const Center(child: CircularProgressIndicator());
+              //       }
+              //
+              //       List<DataSnapshot> items =
+              //           snapshot.data!.snapshot.children.toList();
+              //
+              //       // Reverse the list to show the latest message first
+              //       items = items.reversed.toList();
+              //
+              //       if (items.isEmpty) {
+              //         return const Center(child: Text('No messages yet'));
+              //       }
+              //
+              //       return ListView.builder(
+              //         reverse: true, // Start the list from the bottom
+              //         itemCount: items.length,
+              //         itemBuilder: (context, index) {
+              //           Map map = items[index].value as Map;
+              //           map['Key'] = items[index].key;
+              //
+              //           // You can add additional filtering or processing here as needed.
+              //
+              //           return Column(
+              //             crossAxisAlignment: map['SenderId'] == id
+              //                 ? CrossAxisAlignment.end
+              //                 : CrossAxisAlignment.start,
+              //             children: <Widget>[
+              //               Container(
+              //                 constraints: BoxConstraints(
+              //                   maxWidth:
+              //                       MediaQuery.of(context).size.width * 0.75,
+              //                 ),
+              //                 margin: const EdgeInsets.all(5),
+              //                 decoration: BoxDecoration(
+              //                   color: map['SenderId'] == id
+              //                       ? kPrimaryColor
+              //                       : Colors.grey[300],
+              //                   borderRadius: map['SenderId'] == id
+              //                       ? kMessageBorderRadius2
+              //                       : kMessageBorderRadius,
+              //                 ),
+              //                 padding: const EdgeInsets.symmetric(
+              //                     vertical: 10.0, horizontal: 16.0),
+              //                 child: IntrinsicWidth(
+              //                   child: Column(
+              //                     crossAxisAlignment: CrossAxisAlignment.start,
+              //                     children: <Widget>[
+              //                       Text(
+              //                         map['Name'] ?? 'Unknown',
+              //                         style: TextStyle(
+              //                           fontWeight: FontWeight.w900,
+              //                           color: map['SenderId'] == id
+              //                               ? Colors.white
+              //                               : Colors.black,
+              //                           fontSize: 10,
+              //                         ),
+              //                       ),
+              //                       const SizedBox(height: 5),
+              //                       Row(
+              //                         crossAxisAlignment:
+              //                             CrossAxisAlignment.end,
+              //                         children: [
+              //                           Expanded(
+              //                             child: Text(
+              //                               map['message'] ?? '[No message]',
+              //                               style: TextStyle(
+              //                                 color: map['SenderId'] == id
+              //                                     ? kSenderTextMessage
+              //                                     : kReceiverTextMessage,
+              //                                 fontSize: 15.0,
+              //                               ),
+              //                               softWrap: true,
+              //                             ),
+              //                           ),
+              //                           const SizedBox(width: 10),
+              //                           Column(
+              //                             crossAxisAlignment:
+              //                                 CrossAxisAlignment.end,
+              //                             children: [
+              //                               Text(
+              //                                 formatTimestamp(
+              //                                     map['timestamp'] ?? 0),
+              //                                 style: TextStyle(
+              //                                   fontWeight: FontWeight.w400,
+              //                                   color: map['SenderId'] == id
+              //                                       ? kSenderTextMessage
+              //                                       : kReceiverTextMessage,
+              //                                   fontSize: 10,
+              //                                 ),
+              //                               ),
+              //                               Text(
+              //                                 map['time'] ?? '00:00',
+              //                                 style: TextStyle(
+              //                                   fontWeight: FontWeight.w400,
+              //                                   color: map['SenderId'] == id
+              //                                       ? kSenderTextMessage
+              //                                       : kReceiverTextMessage,
+              //                                   fontSize: 10,
+              //                                 ),
+              //                               ),
+              //                             ],
+              //                           ),
+              //                         ],
+              //                       ),
+              //                     ],
+              //                   ),
+              //                 ),
+              //               ),
+              //             ],
+              //           );
+              //         },
+              //       );
+              //     },
+              //   ),
+              // ),
               Expanded(
                 child: StreamBuilder(
                   stream: refChat.onValue,
