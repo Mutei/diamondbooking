@@ -37,40 +37,73 @@ class _PrivateChatRequestState extends State<PrivateChatRequest>
         .child(id!)
         .child(senderId);
 
-    DatabaseReference refChatListSender =
-        databaseReference.ref("App/PrivateChatList").child(senderId);
-
-    DatabaseReference refChatListReceiver =
-        databaseReference.ref("App/PrivateChatList").child(id!);
-
     DataSnapshot snapshot = await refChatRequest.get();
     if (snapshot.exists) {
       Map<String, dynamic> requestData =
           Map<String, dynamic>.from(snapshot.value as Map);
 
-      await refChatListSender.child(id!).set({
+      // Fetching the ReceiverName correctly
+      String receiverName = requestData["ReceiverName"] ?? "Unknown User";
+      String requestSenderName = requestData["SenderName"] ?? senderName;
+
+      // Debugging: Ensure correct values are being retrieved
+      print("Fetched Receiver Name: $receiverName");
+      print("Fetched Sender Name: $requestSenderName");
+
+      // Now use these values to update the chat lists
+      await databaseReference
+          .ref("App/PrivateChatList")
+          .child(senderId)
+          .child(id!)
+          .set({
         "ReceiverId": id,
-        "Name": requestData["ReceiverName"],
+        "Name": receiverName,
       });
 
-      await refChatListReceiver.child(senderId).set({
+      await databaseReference
+          .ref("App/PrivateChatList")
+          .child(id!)
+          .child(senderId)
+          .set({
         "ReceiverId": senderId,
-        "Name": requestData["SenderName"],
+        "Name": requestSenderName,
       });
 
+      // Double-check the stored data in PrivateChatList
+      print("Updated PrivateChatList for SenderId:");
+      print({
+        "ReceiverId": id,
+        "Name": receiverName,
+      });
+
+      print("Updated PrivateChatList for ReceiverId:");
+      print({
+        "ReceiverId": senderId,
+        "Name": requestSenderName,
+      });
+
+      // Remove the chat request after accepting it
       await refChatRequest.remove();
 
-      // Update the request count
+      // Update the request count in the UI
       setState(() {
         _requestCount--;
       });
+
+      // Log the acceptance
+      print("Chat request accepted from $requestSenderName ($senderId)");
+
+      // Delay before navigating to ensure everything is updated
+      await Future.delayed(Duration(milliseconds: 500));
 
       // Navigate to the PrivateChatScreen
       Navigator.of(context).push(MaterialPageRoute(
           builder: (context) => PrivateChatScreen(
                 userId: senderId,
-                fullName: senderName,
+                fullName: requestSenderName,
               )));
+    } else {
+      print("No chat request found for $senderId");
     }
   }
 
@@ -136,8 +169,17 @@ class _PrivateChatRequestState extends State<PrivateChatRequest>
           itemBuilder: (context, index) {
             Map map = items[index].value as Map;
             map['Key'] = items[index].key;
-            String senderId = map['SenderId'];
-            String senderName = map['SenderName'];
+            dynamic senderId = map['SenderId'] ?? "";
+
+            // Fetch SenderName from Firebase if it's not provided in the request
+            dynamic senderName = map['SenderName'] ?? "";
+            if (senderName == "Unknown Sender") {
+              _fetchSenderName(senderId).then((name) {
+                setState(() {
+                  senderName = name;
+                });
+              });
+            }
 
             return ListTile(
               title: Text(senderName),
@@ -165,6 +207,20 @@ class _PrivateChatRequestState extends State<PrivateChatRequest>
         );
       },
     );
+  }
+
+  Future<String> _fetchSenderName(String senderId) async {
+    // Fetch the sender's name from the Firebase database
+    DatabaseReference refUser =
+        databaseReference.ref("App/User").child(senderId);
+    DataSnapshot snapshot = await refUser.get();
+
+    if (snapshot.exists) {
+      String firstName = snapshot.child("FirstName").value?.toString() ?? "";
+      String lastName = snapshot.child("LastName").value?.toString() ?? "";
+      return "$firstName $lastName";
+    }
+    return "Unknown Sender";
   }
 
   Widget _buildChatList() {
@@ -196,8 +252,8 @@ class _PrivateChatRequestState extends State<PrivateChatRequest>
           itemBuilder: (context, index) {
             Map map = items[index].value as Map;
             map['Key'] = items[index].key;
-            String receiverId = map['ReceiverId'];
-            String receiverName = map['Name'];
+            String receiverId = map['ReceiverId'] ?? "";
+            String receiverName = map['Name'] ?? map['Name'];
 
             return ListTile(
               title: Text(receiverName),
