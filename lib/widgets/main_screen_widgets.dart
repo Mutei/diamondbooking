@@ -22,7 +22,7 @@ class CustomWidgets {
     Future<Map<String, dynamic>> Function(String) getRatings,
     String selectedFilter,
     String searchQuery,
-    List<Map> Function(List<Map>) sortEstates, // Add sortEstates as a parameter
+    List<Map> Function(List<Map>) sortEstates,
   ) {
     return StreamBuilder<DatabaseEvent>(
       stream: query.onValue,
@@ -103,9 +103,20 @@ class CustomWidgets {
                         } else {
                           String imageUrl = snapshot.data ??
                               'assets/images/default_image.png';
+
+                          // Translate estate name based on locale
+                          String locale =
+                              Localizations.localeOf(context).languageCode;
+                          String estateName = locale == 'ar'
+                              ? estate["NameAr"] ?? "غير معروف"
+                              : estate["NameEn"] ?? "Unknown";
+
                           return CardEstate(
                             context: context,
-                            obj: estate,
+                            obj: {
+                              ...estate,
+                              'NameEn': estateName,
+                            },
                             icon: icon,
                             VisEdit: false,
                             image: imageUrl,
