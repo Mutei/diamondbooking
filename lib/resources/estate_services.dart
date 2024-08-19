@@ -65,6 +65,10 @@ class BackendService {
     required String ownerFirstName,
     required String ownerLastName,
     required String menuLink,
+
+    // New valet fields
+    required bool hasValet,
+    required bool valetWithFees,
   }) async {
     await ref.child(childType).child(idEstate).set({
       "NameAr": nameAr,
@@ -89,6 +93,10 @@ class BackendService {
       "Price": price,
       "PriceLast": priceLast,
       "MenuLink": menuLink,
+
+      // New valet fields
+      "HasValet": hasValet ? "1" : "0",
+      "ValetWithFees": valetWithFees ? "1" : "0",
     });
   }
 

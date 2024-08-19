@@ -322,6 +322,10 @@
     "Order ID": "Order ID",
     "Confirm Your Booking": "Confirm Your Booking",
     "Menu Link": "Menu Link",
-    "Rate": "Rate"
+    "Rate": "Rate",
+    "Is there valet?": "Is there valet?",
+    "Valet with fees": "Valet with fees",
+    "Valet Options": "Valet Options",
+    "If valet with fees is not selected, valet service is free.": "If valet with fees is not selected, valet service is free."
 }
  

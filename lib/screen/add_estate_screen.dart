@@ -88,6 +88,10 @@ class _AddEstatesScreenState extends State<AddEstatesScreen> {
   int? idEstate;
   late Widget btnLogin;
 
+  // New valet variables
+  bool hasValet = false;
+  bool valetWithFees = false;
+
   @override
   void initState() {
     super.initState();
@@ -438,6 +442,70 @@ class _AddEstatesScreenState extends State<AddEstatesScreen> {
                         ),
                       )),
                   40.kH,
+
+                  // New Valet Section
+                  Visibility(
+                    visible: widget.userType == "3" || widget.userType == "2",
+                    child: const ReusedProviderEstateContainer(
+                      hint: "Valet Options",
+                    ),
+                  ),
+                  Container(
+                    margin: const EdgeInsets.only(left: 50),
+                    child: Column(
+                      children: [
+                        CheckboxListTile(
+                          title:
+                              Text(getTranslated(context, "Is there valet?")),
+                          value: hasValet,
+                          onChanged: (bool? value) {
+                            setState(() {
+                              hasValet = value ?? false;
+                              valetWithFees = false; // Reset valet fees option
+                            });
+                          },
+                          activeColor: kPrimaryColor,
+                          controlAffinity: ListTileControlAffinity.leading,
+                        ),
+                        Visibility(
+                          visible: hasValet,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              CheckboxListTile(
+                                title: Text(
+                                    getTranslated(context, "Valet with fees")),
+                                value: valetWithFees,
+                                onChanged: (bool? value) {
+                                  setState(() {
+                                    valetWithFees = value ?? false;
+                                  });
+                                },
+                                activeColor: kPrimaryColor,
+                                controlAffinity:
+                                    ListTileControlAffinity.leading,
+                              ),
+                              Visibility(
+                                visible: !valetWithFees,
+                                child: Padding(
+                                  padding: const EdgeInsets.only(left: 16.0),
+                                  child: Text(
+                                    getTranslated(context,
+                                        "If valet with fees is not selected, valet service is free."),
+                                    style: TextStyle(
+                                      color: Colors.red,
+                                      fontSize: 12.sp,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
                   const ReusedProviderEstateContainer(
                     hint: "Location information",
                   ),
@@ -595,6 +663,10 @@ class _AddEstatesScreenState extends State<AddEstatesScreen> {
                                       widget.userType == "3"
                                   ? menuLinkController.text
                                   : "", // Send empty string for Coffee
+
+                              // New valet fields
+                              hasValet: hasValet,
+                              valetWithFees: valetWithFees,
                             );
 
                             ID = idEstate.toString();
