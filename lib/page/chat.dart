@@ -8,16 +8,16 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:provider/provider.dart';
+import 'package:provider/provider.dart'; // Add this import
 import '../screen/active_customer_screen.dart';
 import '../constants/colors.dart';
 import '../constants/styles.dart';
 import '../global/censor_message.dart';
 import '../resources/user_services.dart';
-import '../screen/private_chat_screen.dart';
+import '../screen/private_chat_screen.dart'; // Import the PrivateChatScreen
 import 'qrViewScan.dart';
-import 'package:intl/intl.dart';
-import '../general_provider.dart';
+import 'package:intl/intl.dart'; // Import for date formatting
+import '../general_provider.dart'; // Add this import
 
 class Chat extends StatefulWidget {
   final String idEstate;
@@ -219,10 +219,12 @@ class _State extends State<Chat> {
         });
 
         if (!activeUsers.containsKey(id)) {
+          // User has been removed from active customers
           setState(() {
             hasAccess = false;
           });
 
+          // Clear access time and last scan time from shared preferences
           SharedPreferences sharedPreferences =
               await SharedPreferences.getInstance();
           sharedPreferences.remove('access_time_${widget.idEstate}_$id');
@@ -234,6 +236,7 @@ class _State extends State<Chat> {
           hasAccess = false;
         });
 
+        // Clear access time and last scan time from shared preferences
         SharedPreferences sharedPreferences =
             await SharedPreferences.getInstance();
         sharedPreferences.remove('access_time_${widget.idEstate}_$id');
@@ -279,31 +282,10 @@ class _State extends State<Chat> {
     return {};
   }
 
-  Future<bool> checkIfRequestAccepted(String senderId) async {
-    try {
-      // Assuming 'id' is the current user's ID
-      DatabaseReference chatRequestRef = FirebaseDatabase.instance
-          .ref("App/PrivateChatList")
-          .child(id!)
-          .child(senderId);
-
-      DataSnapshot snapshot = await chatRequestRef.get();
-
-      // Debug: Print the fetched data for verification
-      print("Fetched data for $senderId: ${snapshot.value}");
-
-      // Check if the snapshot exists and contains the expected data
-      return snapshot.exists && snapshot.hasChild('ReceiverId');
-    } catch (e) {
-      print("Error checking request acceptance: $e");
-      return false;
-    }
-  }
-
   void sendMessage(String message) async {
-    if (!hasAccess) return;
+    if (!hasAccess) return; // Prevent sending messages if no access
 
-    if (userType == "2") return;
+    if (userType == "2") return; // Prevent Providers from sending messages
 
     _textController.clear();
     _messageNotifier.value = "";
@@ -366,14 +348,16 @@ class _State extends State<Chat> {
 
   void _showProfileDialog(String userId) async {
     if (userType == "2") {
-      return;
+      return; // Prevent userType 2 from viewing profiles
     }
 
+    // Only allow TypeAccount 3 and 4 users to proceed
     if (typeAccount != '2' && typeAccount != '3') {
       return;
     }
 
     if (userId == id) {
+      // Do nothing if the clicked user is the current user
       return;
     }
 
@@ -405,26 +389,9 @@ class _State extends State<Chat> {
                 ElevatedButton.icon(
                   icon: Icon(Icons.message),
                   label: Text('Message'),
-                  onPressed: () async {
-                    Navigator.of(context).pop();
-
-                    // Debug: Print to see if request is checked
-                    print("Checking if request was accepted for user: $userId");
-
-                    bool isAccepted = await checkIfRequestAccepted(userId);
-
-                    // Debug: Print result of acceptance check
-                    print("Is request accepted: $isAccepted");
-
-                    if (isAccepted) {
-                      print("Navigating to PrivateChatScreen with $fullName");
-                      Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => PrivateChatScreen(
-                              userId: userId, fullName: fullName)));
-                    } else {
-                      print("Sending chat request to $fullName");
-                      _sendChatRequest(userId, fullName);
-                    }
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Close the dialog
+                    _sendChatRequest(userId, fullName);
                   },
                 ),
               ],
@@ -436,10 +403,12 @@ class _State extends State<Chat> {
   }
 
   Future<void> _sendChatRequest(String receiverId, String receiverName) async {
+    // Only allow TypeAccount 3 and 4 users to send chat requests
     if (typeAccount != '2' && typeAccount != '3') {
       return;
     }
 
+    // Prevent userType 2 from sending chat requests
     if (userType == "2") {
       return;
     }
@@ -488,7 +457,8 @@ class _State extends State<Chat> {
         .child(widget.idEstate)
         .child(widget.Key);
 
-    final objProvider = Provider.of<GeneralProvider>(context, listen: true);
+    final objProvider =
+        Provider.of<GeneralProvider>(context, listen: true); // Add this line
 
     return Scaffold(
       appBar: AppBar(
@@ -500,7 +470,7 @@ class _State extends State<Chat> {
                   right: 55,
                 ),
                 child: Text(
-                  '${objProvider.CheckLangValue ? widget.Name : widget.Name} ${getTranslated(context, "Chat")}',
+                  '${objProvider.CheckLangValue ? widget.Name : widget.Name} ${getTranslated(context, "Chat")}', // Updated this line
                   style: const TextStyle(color: kPrimaryColor),
                 ),
               ),
@@ -538,6 +508,132 @@ class _State extends State<Chat> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
+              // Expanded(
+              //   child: StreamBuilder(
+              //     stream: refChat.onValue,
+              //     builder: (context, AsyncSnapshot<DatabaseEvent> snapshot) {
+              //       if (!snapshot.hasData) {
+              //         return const Center(child: CircularProgressIndicator());
+              //       }
+              //       if (snapshot.hasError) {
+              //         return Text('Error: ${snapshot.error}');
+              //       }
+              //       if (snapshot.connectionState == ConnectionState.waiting) {
+              //         return const Center(child: CircularProgressIndicator());
+              //       }
+              //
+              //       List<DataSnapshot> items =
+              //           snapshot.data!.snapshot.children.toList();
+              //
+              //       // Reverse the list to show the latest message first
+              //       items = items.reversed.toList();
+              //
+              //       if (items.isEmpty) {
+              //         return const Center(child: Text('No messages yet'));
+              //       }
+              //
+              //       return ListView.builder(
+              //         reverse: true, // Start the list from the bottom
+              //         itemCount: items.length,
+              //         itemBuilder: (context, index) {
+              //           Map map = items[index].value as Map;
+              //           map['Key'] = items[index].key;
+              //
+              //           // You can add additional filtering or processing here as needed.
+              //
+              //           return Column(
+              //             crossAxisAlignment: map['SenderId'] == id
+              //                 ? CrossAxisAlignment.end
+              //                 : CrossAxisAlignment.start,
+              //             children: <Widget>[
+              //               Container(
+              //                 constraints: BoxConstraints(
+              //                   maxWidth:
+              //                       MediaQuery.of(context).size.width * 0.75,
+              //                 ),
+              //                 margin: const EdgeInsets.all(5),
+              //                 decoration: BoxDecoration(
+              //                   color: map['SenderId'] == id
+              //                       ? kPrimaryColor
+              //                       : Colors.grey[300],
+              //                   borderRadius: map['SenderId'] == id
+              //                       ? kMessageBorderRadius2
+              //                       : kMessageBorderRadius,
+              //                 ),
+              //                 padding: const EdgeInsets.symmetric(
+              //                     vertical: 10.0, horizontal: 16.0),
+              //                 child: IntrinsicWidth(
+              //                   child: Column(
+              //                     crossAxisAlignment: CrossAxisAlignment.start,
+              //                     children: <Widget>[
+              //                       Text(
+              //                         map['Name'] ?? 'Unknown',
+              //                         style: TextStyle(
+              //                           fontWeight: FontWeight.w900,
+              //                           color: map['SenderId'] == id
+              //                               ? Colors.white
+              //                               : Colors.black,
+              //                           fontSize: 10,
+              //                         ),
+              //                       ),
+              //                       const SizedBox(height: 5),
+              //                       Row(
+              //                         crossAxisAlignment:
+              //                             CrossAxisAlignment.end,
+              //                         children: [
+              //                           Expanded(
+              //                             child: Text(
+              //                               map['message'] ?? '[No message]',
+              //                               style: TextStyle(
+              //                                 color: map['SenderId'] == id
+              //                                     ? kSenderTextMessage
+              //                                     : kReceiverTextMessage,
+              //                                 fontSize: 15.0,
+              //                               ),
+              //                               softWrap: true,
+              //                             ),
+              //                           ),
+              //                           const SizedBox(width: 10),
+              //                           Column(
+              //                             crossAxisAlignment:
+              //                                 CrossAxisAlignment.end,
+              //                             children: [
+              //                               Text(
+              //                                 formatTimestamp(
+              //                                     map['timestamp'] ?? 0),
+              //                                 style: TextStyle(
+              //                                   fontWeight: FontWeight.w400,
+              //                                   color: map['SenderId'] == id
+              //                                       ? kSenderTextMessage
+              //                                       : kReceiverTextMessage,
+              //                                   fontSize: 10,
+              //                                 ),
+              //                               ),
+              //                               Text(
+              //                                 map['time'] ?? '00:00',
+              //                                 style: TextStyle(
+              //                                   fontWeight: FontWeight.w400,
+              //                                   color: map['SenderId'] == id
+              //                                       ? kSenderTextMessage
+              //                                       : kReceiverTextMessage,
+              //                                   fontSize: 10,
+              //                                 ),
+              //                               ),
+              //                             ],
+              //                           ),
+              //                         ],
+              //                       ),
+              //                     ],
+              //                   ),
+              //                 ),
+              //               ),
+              //             ],
+              //           );
+              //         },
+              //       );
+              //     },
+              //   ),
+              // ),
               Expanded(
                 child: StreamBuilder(
                   stream: refChat.onValue,
@@ -555,6 +651,7 @@ class _State extends State<Chat> {
                     List<DataSnapshot> items =
                         snapshot.data!.snapshot.children.toList();
 
+                    // Reverse the list to show the latest message first
                     items = items.reversed.toList();
 
                     if (items.isEmpty) {
@@ -562,16 +659,17 @@ class _State extends State<Chat> {
                     }
 
                     return ListView.builder(
-                      reverse: true,
+                      reverse: true, // Start the list from the bottom
                       itemCount: items.length,
                       itemBuilder: (context, index) {
                         Map map = items[index].value as Map;
                         map['Key'] = items[index].key;
 
+                        // Filter messages based on last scan time
                         if (lastScanTime != null &&
                             map['timestamp'] <
                                 lastScanTime!.millisecondsSinceEpoch) {
-                          return const SizedBox.shrink();
+                          return const SizedBox.shrink(); // Hide old messages
                         }
 
                         return GestureDetector(
@@ -768,7 +866,7 @@ class _State extends State<Chat> {
                                   hintText: getTranslated(
                                       context, 'Type a message...'),
                                   border: InputBorder.none,
-                                  counterText: "",
+                                  counterText: "", // Hide the counter text
                                 ),
                                 onChanged: (text) {
                                   _messageNotifier.value = text;
@@ -779,10 +877,16 @@ class _State extends State<Chat> {
                                     sendMessage(text);
                                   }
                                 },
-                                enabled: hasAccess,
+                                enabled:
+                                    hasAccess, // Disable typing if no access
                               ),
                             ),
                             if (userType == "1")
+                              // IconButton(
+                              //   icon: const Icon(Icons.qr_code_scanner),
+                              //   color: kPrimaryColor,
+                              //   onPressed: scanQRCode,
+                              // ),
                               ValueListenableBuilder<String>(
                                 valueListenable: _messageNotifier,
                                 builder: (context, value, child) {
