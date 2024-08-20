@@ -64,6 +64,7 @@ class _ProfileEstateState extends State<ProfileEstate> {
   final TextEditingController feedbackController = TextEditingController();
   ScaffoldFeatureController<SnackBar, SnackBarClosedReason>? snackBarController;
   bool isOwner = false;
+  bool isRateAvailable = false;
 
   _ProfileEstateState(this.estate, this.icon, this.VisEdit);
 
@@ -73,6 +74,12 @@ class _ProfileEstateState extends State<ProfileEstate> {
     getData();
     fetchUserType();
     checkIfOwner();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    checkRateAvailability(); // Check rate availability every time dependencies change
   }
 
   @override
@@ -106,6 +113,28 @@ class _ProfileEstateState extends State<ProfileEstate> {
     if (user != null) {
       setState(() {
         isOwner = estate['IDUser'] == user.uid;
+      });
+    }
+  }
+
+  Future<void> checkRateAvailability() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    String? accessEndTimeString = sharedPreferences.getString(
+        'access_time_${estate['IDEstate']}_${FirebaseAuth.instance.currentUser?.uid}');
+    if (accessEndTimeString != null) {
+      DateTime accessEndTime = DateTime.parse(accessEndTimeString);
+      if (DateTime.now().isBefore(accessEndTime)) {
+        setState(() {
+          isRateAvailable = true;
+        });
+      } else {
+        setState(() {
+          isRateAvailable = false;
+        });
+      }
+    } else {
+      setState(() {
+        isRateAvailable = false;
       });
     }
   }
@@ -496,13 +525,16 @@ class _ProfileEstateState extends State<ProfileEstate> {
               child: Text(
                 getTranslated(context, "Rate"),
                 style: TextStyle(
-                  color: kPrimaryColor,
-                  fontWeight: FontWeight.bold,
+                  color: isRateAvailable ? kPrimaryColor : Colors.grey,
+                  fontWeight:
+                      isRateAvailable ? FontWeight.bold : FontWeight.normal,
                 ),
               ),
-              onTap: () {
-                _showRatingSnackbar(context);
-              },
+              onTap: isRateAvailable
+                  ? () {
+                      _showRatingSnackbar(context);
+                    }
+                  : null,
             ),
             25.kW,
           ],
