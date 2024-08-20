@@ -46,6 +46,12 @@ class _ReusedEstatePageState extends State<ReusedEstatePage> {
     'healthy': false,
   };
 
+  Map<String, bool> coffeeMusicFilters = {
+    'Oud': false,
+    'DJ': false,
+    'Singer': false,
+  };
+
   Map<String, bool> entryAllowedFilters = {
     'Single': false,
     'Familial': false,
@@ -87,6 +93,9 @@ class _ReusedEstatePageState extends State<ReusedEstatePage> {
           break;
         case 'Music':
           musicFilters[filterOption] = value;
+          break;
+        case 'Coffee Music':
+          coffeeMusicFilters[filterOption] = value;
           break;
       }
     });
@@ -232,6 +241,21 @@ class _ReusedEstatePageState extends State<ReusedEstatePage> {
                   },
                 );
               }).toList(),
+              const Divider(),
+              Text(getTranslated(context, 'Coffee Music Options')),
+              ...coffeeMusicFilters.keys.map((filterOption) {
+                return CheckboxListTile(
+                  title: Text(getTranslated(context, filterOption)),
+                  value: coffeeMusicFilters[filterOption],
+                  onChanged: (bool? value) {
+                    setState(() {
+                      coffeeMusicFilters[filterOption] = value!;
+                    });
+                    _updateFilterSelection(
+                        'Coffee Music', filterOption, value!);
+                  },
+                );
+              }).toList(),
             ],
           ),
         );
@@ -374,6 +398,7 @@ class _ReusedEstatePageState extends State<ReusedEstatePage> {
       ...sessionsTypeFilters.keys
           .where((filter) => sessionsTypeFilters[filter]!),
       ...musicFilters.keys.where((filter) => musicFilters[filter]!),
+      ...coffeeMusicFilters.keys.where((filter) => coffeeMusicFilters[filter]!),
     ];
 
     estates.sort((a, b) {
@@ -396,6 +421,15 @@ class _ReusedEstatePageState extends State<ReusedEstatePage> {
     if (filter == 'There is music' && estate['Music'] == '1') {
       matches = true;
     } else if (filter == 'There is no music' && estate['Music'] == '0') {
+      matches = true;
+    } else if (filter.toLowerCase() == 'oud' &&
+        estate['Lstmusic']?.toLowerCase().contains('oud') == true) {
+      matches = true;
+    } else if (filter.toLowerCase() == 'dj' &&
+        estate['Lstmusic']?.toLowerCase().contains('dj') == true) {
+      matches = true;
+    } else if (filter.toLowerCase() == 'singer' &&
+        estate['Lstmusic']?.toLowerCase().contains('singer') == true) {
       matches = true;
     } else if (estate['TypeofRestaurant']?.contains(filter) == true) {
       matches = true;
