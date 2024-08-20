@@ -92,6 +92,15 @@ class _AddEstatesScreenState extends State<AddEstatesScreen> {
   bool hasValet = false;
   bool valetWithFees = false;
 
+  // New kids area variables
+  bool hasKidsArea = false;
+
+  // New hotel-specific variables
+  bool hasSwimmingPool = false;
+  bool hasBarber = false;
+  bool hasMassage = false;
+  bool hasGym = false;
+
   @override
   void initState() {
     super.initState();
@@ -212,22 +221,17 @@ class _AddEstatesScreenState extends State<AddEstatesScreen> {
                     hint: "Menu",
                   ),
                   // Conditionally show the menu link field based on userType
-                  Visibility(
-                    visible: widget.userType == "1" ||
-                        widget.userType ==
-                            "3", // Show only for Hotel (1) or Restaurant (3)
-                    child: TextFormFieldStyle(
-                      context: context,
-                      hint: "Enter Menu Link",
-                      icon: Icon(
-                        Icons.link,
-                        color: kPrimaryColor,
-                      ),
-                      control: menuLinkController,
-                      isObsecured: false,
-                      validate: true,
-                      textInputType: TextInputType.url,
+                  TextFormFieldStyle(
+                    context: context,
+                    hint: "Enter Menu Link",
+                    icon: Icon(
+                      Icons.link,
+                      color: kPrimaryColor,
                     ),
+                    control: menuLinkController,
+                    isObsecured: false,
+                    validate: true,
+                    textInputType: TextInputType.url,
                   ),
                   80.kH,
                   Visibility(
@@ -444,11 +448,8 @@ class _AddEstatesScreenState extends State<AddEstatesScreen> {
                   40.kH,
 
                   // New Valet Section
-                  Visibility(
-                    visible: widget.userType == "3" || widget.userType == "2",
-                    child: const ReusedProviderEstateContainer(
-                      hint: "Valet Options",
-                    ),
+                  const ReusedProviderEstateContainer(
+                    hint: "Valet Options",
                   ),
                   Container(
                     margin: const EdgeInsets.only(left: 50),
@@ -503,6 +504,104 @@ class _AddEstatesScreenState extends State<AddEstatesScreen> {
                           ),
                         ),
                       ],
+                    ),
+                  ),
+
+                  // New Kids Area Section
+                  Visibility(
+                    visible: widget.userType == "2" ||
+                        widget.userType ==
+                            "3", // Show only for Cafe (2) or Restaurant (3)
+                    child: const ReusedProviderEstateContainer(
+                      hint: "Kids Area Options",
+                    ),
+                  ),
+                  Visibility(
+                    visible: widget.userType == "2" || widget.userType == "3",
+                    child: Container(
+                      margin: const EdgeInsets.only(left: 50),
+                      child: Column(
+                        children: [
+                          CheckboxListTile(
+                            title: Text(
+                                getTranslated(context, "Is there Kids Area?")),
+                            value: hasKidsArea,
+                            onChanged: (bool? value) {
+                              setState(() {
+                                hasKidsArea = value ?? false;
+                              });
+                            },
+                            activeColor: kPrimaryColor,
+                            controlAffinity: ListTileControlAffinity.leading,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  // New Hotel-Specific Section
+                  Visibility(
+                    visible: widget.userType == "1", // Show only for Hotels
+                    child: const ReusedProviderEstateContainer(
+                      hint: "Hotel Amenities",
+                    ),
+                  ),
+                  Visibility(
+                    visible: widget.userType == "1",
+                    child: Container(
+                      margin: const EdgeInsets.only(left: 50),
+                      child: Column(
+                        children: [
+                          CheckboxListTile(
+                            title: Text(getTranslated(
+                                context, "Is there Swimming Pool?")),
+                            value: hasSwimmingPool,
+                            onChanged: (bool? value) {
+                              setState(() {
+                                hasSwimmingPool = value ?? false;
+                              });
+                            },
+                            activeColor: kPrimaryColor,
+                            controlAffinity: ListTileControlAffinity.leading,
+                          ),
+                          CheckboxListTile(
+                            title: Text(
+                                getTranslated(context, "Is there Barber?")),
+                            value: hasBarber,
+                            onChanged: (bool? value) {
+                              setState(() {
+                                hasBarber = value ?? false;
+                              });
+                            },
+                            activeColor: kPrimaryColor,
+                            controlAffinity: ListTileControlAffinity.leading,
+                          ),
+                          CheckboxListTile(
+                            title: Text(
+                                getTranslated(context, "Is there Massage?")),
+                            value: hasMassage,
+                            onChanged: (bool? value) {
+                              setState(() {
+                                hasMassage = value ?? false;
+                              });
+                            },
+                            activeColor: kPrimaryColor,
+                            controlAffinity: ListTileControlAffinity.leading,
+                          ),
+                          CheckboxListTile(
+                            title:
+                                Text(getTranslated(context, "Is there Gym?")),
+                            value: hasGym,
+                            onChanged: (bool? value) {
+                              setState(() {
+                                hasGym = value ?? false;
+                              });
+                            },
+                            activeColor: kPrimaryColor,
+                            controlAffinity: ListTileControlAffinity.leading,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
 
@@ -667,6 +766,15 @@ class _AddEstatesScreenState extends State<AddEstatesScreen> {
                               // New valet fields
                               hasValet: hasValet,
                               valetWithFees: valetWithFees,
+
+                              // New Kids Area fields
+                              hasKidsArea: hasKidsArea,
+
+                              // New hotel-specific fields
+                              hasSwimmingPool: hasSwimmingPool,
+                              hasBarber: hasBarber,
+                              hasMassage: hasMassage,
+                              hasGym: hasGym,
                             );
 
                             ID = idEstate.toString();

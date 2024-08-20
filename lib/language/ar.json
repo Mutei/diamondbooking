@@ -327,5 +327,11 @@
     "Is there valet?": "هل هناك خدمة صف سيارات؟",
     "Valet with fees": "مدفوع أو لا",
     "Valet Options": "خدمة توقيف السيارت",
-    "If valet with fees is not selected, valet service is free.": "إذا لم يتم تحديد خدمة صف السيارات برسوم، فإن خدمة صف السيارات مجانية."
+    "If valet with fees is not selected, valet service is free.": "إذا لم يتم تحديد خدمة صف السيارات برسوم، فإن خدمة صف السيارات مجانية.",
+    "Kids Area Options": "خيارات منطقة الأطفال",
+    "Is there Kids Area?": "هل هناك منطقة للأطفال؟",
+    "Is there Swimming Pool?": "هل يوجد حمام سباحة؟",
+    "Is there Barber?": "هل هناك حلاق؟",
+    "Is there Massage?": "هل هناك مساج؟",
+    "Is there Gym?": "هل هناك صالة ألعاب رياضية؟"
 }          
