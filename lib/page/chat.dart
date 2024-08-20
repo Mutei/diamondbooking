@@ -167,30 +167,30 @@ class _State extends State<Chat> {
   Future<void> scanQRCode() async {
     final result = await Navigator.of(context).push(MaterialPageRoute(
         builder: (context) => QRViewScan(expectedID: idEstate)));
+    print('QR Scan Result: $result');
     if (result == true) {
       SharedPreferences sharedPreferences =
           await SharedPreferences.getInstance();
+      String accessTimeKey = 'access_time_${widget.idEstate}_$id';
+      DateTime accessEndTime = DateTime.now()
+          .add(isHotel ? const Duration(hours: 24) : const Duration(hours: 3));
+      sharedPreferences.setString(
+          accessTimeKey, accessEndTime.toIso8601String());
 
-      // Set access end time based on user type (Hotel: 24 hours, others: 3 hours)
-      DateTime accessEndTime = DateTime.now().add(
-          isHotel ? const Duration(hours: 24) : const Duration(minutes: 1));
-      sharedPreferences.setString('access_time_${widget.idEstate}_$id',
-          accessEndTime.toIso8601String());
-
-      // Store last scan time
-      sharedPreferences.setString('last_scan_time_${widget.idEstate}_$id',
-          DateTime.now().toIso8601String());
-
-      // Enable access
+      String lastScanTimeKey = 'last_scan_time_${widget.idEstate}_$id';
+      DateTime now = DateTime.now();
+      sharedPreferences.setString(lastScanTimeKey, now.toIso8601String());
       setState(() {
+        lastScanTime = now;
         hasAccess = true;
-        lastScanTime = DateTime.now();
       });
-
       startAccessTimer(
-          isHotel ? const Duration(hours: 24) : const Duration(minutes: 1));
-
+        isHotel ? const Duration(hours: 24) : const Duration(hours: 3),
+      );
+      print('Access granted');
       addActiveCustomer();
+    } else {
+      print('Access denied');
     }
   }
 
