@@ -69,6 +69,15 @@ class BackendService {
     // New valet fields
     required bool hasValet,
     required bool valetWithFees,
+
+    // New Kids Area fields
+    required bool hasKidsArea,
+
+    // New hotel-specific fields
+    required bool hasSwimmingPool,
+    required bool hasBarber,
+    required bool hasMassage,
+    required bool hasGym,
   }) async {
     await ref.child(childType).child(idEstate).set({
       "NameAr": nameAr,
@@ -97,6 +106,15 @@ class BackendService {
       // New valet fields
       "HasValet": hasValet ? "1" : "0",
       "ValetWithFees": valetWithFees ? "1" : "0",
+
+      // New Kids Area field
+      "HasKidsArea": hasKidsArea ? "1" : "0",
+
+      // New hotel-specific fields
+      "HasSwimmingPool": hasSwimmingPool ? "1" : "0",
+      "HasBarber": hasBarber ? "1" : "0",
+      "HasMassage": hasMassage ? "1" : "0",
+      "HasGym": hasGym ? "1" : "0",
     });
   }
 
