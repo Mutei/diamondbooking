@@ -417,6 +417,7 @@ class _ProfileEstateState extends State<ProfileEstate> {
     return Scaffold(
       key: _scaffoldKey1,
       appBar: AppBar(
+        automaticallyImplyLeading: Theme.of(context).platform == TargetPlatform.iOS ? false : true,
         elevation: 0,
         iconTheme: kIconTheme,
         actions: [

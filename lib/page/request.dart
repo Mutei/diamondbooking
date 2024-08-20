@@ -35,7 +35,7 @@ class _RequestState extends State<Request> {
 
     if (snapshot.exists) {
       Map<dynamic, dynamic> ratingsData =
-          snapshot.value as Map<dynamic, dynamic>;
+      snapshot.value as Map<dynamic, dynamic>;
       int totalRatings = ratingsData.length;
       double sumRatings = 0;
 
@@ -89,8 +89,8 @@ class _RequestState extends State<Request> {
                       color: value["Status"] == "1"
                           ? Colors.white
                           : value["Status"] == "2"
-                              ? Colors.lightGreen
-                              : Colors.red[100],
+                          ? Colors.lightGreen
+                          : Colors.red[100],
                       child: InkWell(
                         onTap: () {
                           if (value["Status"] == "1") {
@@ -114,9 +114,9 @@ class _RequestState extends State<Request> {
                                 Expanded(
                                   child: value["EndDate"].toString() != ""
                                       ? ItemInCard(
-                                          Icon(Icons.calendar_month),
-                                          value["EndDate"].toString(),
-                                          getTranslated(context, "ToDate"))
+                                      Icon(Icons.calendar_month),
+                                      value["EndDate"].toString(),
+                                      getTranslated(context, "ToDate"))
                                       : Container(),
                                 )
                               ],
@@ -153,9 +153,9 @@ class _RequestState extends State<Request> {
                                 Expanded(
                                   child: value["NetTotal"].toString() != "null"
                                       ? ItemInCard(
-                                          Icon(Icons.money),
-                                          value["NetTotal"].toString(),
-                                          getTranslated(context, "Total"))
+                                      Icon(Icons.money),
+                                      value["NetTotal"].toString(),
+                                      getTranslated(context, "Total"))
                                       : Container(),
                                 )
                               ],

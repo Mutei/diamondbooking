@@ -95,7 +95,7 @@ class _MyAppState extends State<MyApp> {
               colorScheme: ColorScheme.fromSeed(seedColor: kPrimaryColor),
               fontFamily: 'CODE_Light',
               textTheme:
-                  GoogleFonts.lailaTextTheme(Theme.of(context).textTheme),
+              GoogleFonts.lailaTextTheme(Theme.of(context).textTheme),
             ),
             locale: _locale,
             supportedLocales: const [
