@@ -82,6 +82,11 @@ class _ReusedEstatePageState extends State<ReusedEstatePage> {
     'Valet with no fees': false,
   };
 
+  Map<String, bool> kidsAreaFilters = {
+    'Has Kids Area': false,
+    'No Kids Area': false,
+  };
+
   void _updateFilterSelection(
       String filterType, String filterOption, bool value) {
     setState(() {
@@ -106,6 +111,9 @@ class _ReusedEstatePageState extends State<ReusedEstatePage> {
           break;
         case 'Valet':
           valetFilters[filterOption] = value;
+          break;
+        case 'Kids Area':
+          kidsAreaFilters[filterOption] = value;
           break;
       }
     });
@@ -209,6 +217,20 @@ class _ReusedEstatePageState extends State<ReusedEstatePage> {
                   },
                 );
               }).toList(),
+              const Divider(),
+              Text(getTranslated(context, 'Kids Area Options')),
+              ...kidsAreaFilters.keys.map((filterOption) {
+                return CheckboxListTile(
+                  title: Text(getTranslated(context, filterOption)),
+                  value: kidsAreaFilters[filterOption],
+                  onChanged: (bool? value) {
+                    setState(() {
+                      kidsAreaFilters[filterOption] = value!;
+                    });
+                    _updateFilterSelection('Kids Area', filterOption, value!);
+                  },
+                );
+              }).toList(),
             ],
           ),
         );
@@ -291,6 +313,20 @@ class _ReusedEstatePageState extends State<ReusedEstatePage> {
                       valetFilters[filterOption] = value!;
                     });
                     _updateFilterSelection('Valet', filterOption, value!);
+                  },
+                );
+              }).toList(),
+              const Divider(),
+              Text(getTranslated(context, 'Kids Area Options')),
+              ...kidsAreaFilters.keys.map((filterOption) {
+                return CheckboxListTile(
+                  title: Text(getTranslated(context, filterOption)),
+                  value: kidsAreaFilters[filterOption],
+                  onChanged: (bool? value) {
+                    setState(() {
+                      kidsAreaFilters[filterOption] = value!;
+                    });
+                    _updateFilterSelection('Kids Area', filterOption, value!);
                   },
                 );
               }).toList(),
@@ -452,6 +488,7 @@ class _ReusedEstatePageState extends State<ReusedEstatePage> {
       ...musicFilters.keys.where((filter) => musicFilters[filter]!),
       ...coffeeMusicFilters.keys.where((filter) => coffeeMusicFilters[filter]!),
       ...valetFilters.keys.where((filter) => valetFilters[filter]!),
+      ...kidsAreaFilters.keys.where((filter) => kidsAreaFilters[filter]!),
     ];
 
     estates.sort((a, b) {
@@ -498,6 +535,10 @@ class _ReusedEstatePageState extends State<ReusedEstatePage> {
       matches = true;
     } else if (filter == 'Valet with no fees' &&
         estate['ValetWithFees'] == '0') {
+      matches = true;
+    } else if (filter == 'Has Kids Area' && estate['HasKidsArea'] == '1') {
+      matches = true;
+    } else if (filter == 'No Kids Area' && estate['HasKidsArea'] == '0') {
       matches = true;
     }
 
