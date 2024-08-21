@@ -65,6 +65,13 @@ class _ReusedEstatePageState extends State<ReusedEstatePage> {
     'Family': false,
   };
 
+  Map<String, bool> hotelAmenitiesFilters = {
+    'Has Barber': false,
+    'Has Gym': false,
+    'Has Swimming Pool': false,
+    'Has Massage': false,
+  };
+
   Map<String, bool> sessionsTypeFilters = {
     'internal sessions': false,
     'External sessions': false,
@@ -99,6 +106,9 @@ class _ReusedEstatePageState extends State<ReusedEstatePage> {
           break;
         case 'Entry Hotel':
           entryHotelFilters[filterOption] = value;
+          break;
+        case 'Hotel Amenities':
+          hotelAmenitiesFilters[filterOption] = value;
           break;
         case 'Sessions Type':
           sessionsTypeFilters[filterOption] = value;
@@ -357,6 +367,21 @@ class _ReusedEstatePageState extends State<ReusedEstatePage> {
                 );
               }).toList(),
               const Divider(),
+              Text(getTranslated(context, 'Hotel Amenities')),
+              ...hotelAmenitiesFilters.keys.map((filterOption) {
+                return CheckboxListTile(
+                  title: Text(getTranslated(context, filterOption)),
+                  value: hotelAmenitiesFilters[filterOption],
+                  onChanged: (bool? value) {
+                    setState(() {
+                      hotelAmenitiesFilters[filterOption] = value!;
+                    });
+                    _updateFilterSelection(
+                        'Hotel Amenities', filterOption, value!);
+                  },
+                );
+              }).toList(),
+              const Divider(),
               Text(getTranslated(context, 'Valet Options')),
               ...valetFilters.keys.map((filterOption) {
                 return CheckboxListTile(
@@ -483,6 +508,8 @@ class _ReusedEstatePageState extends State<ReusedEstatePage> {
       ...entryAllowedFilters.keys
           .where((filter) => entryAllowedFilters[filter]!),
       ...entryHotelFilters.keys.where((filter) => entryHotelFilters[filter]!),
+      ...hotelAmenitiesFilters.keys
+          .where((filter) => hotelAmenitiesFilters[filter]!),
       ...sessionsTypeFilters.keys
           .where((filter) => sessionsTypeFilters[filter]!),
       ...musicFilters.keys.where((filter) => musicFilters[filter]!),
@@ -539,6 +566,15 @@ class _ReusedEstatePageState extends State<ReusedEstatePage> {
     } else if (filter == 'Has Kids Area' && estate['HasKidsArea'] == '1') {
       matches = true;
     } else if (filter == 'No Kids Area' && estate['HasKidsArea'] == '0') {
+      matches = true;
+    } else if (filter == 'Has Barber' && estate['HasBarber'] == '1') {
+      matches = true;
+    } else if (filter == 'Has Gym' && estate['HasGym'] == '1') {
+      matches = true;
+    } else if (filter == 'Has Swimming Pool' &&
+        estate['HasSwimmingPool'] == '1') {
+      matches = true;
+    } else if (filter == 'Has Massage' && estate['HasMassage'] == '1') {
       matches = true;
     }
 

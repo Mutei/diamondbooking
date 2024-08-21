@@ -329,6 +329,7 @@
     "Valet Options": "خدمة توقيف السيارت",
     "If valet with fees is not selected, valet service is free.": "إذا لم يتم تحديد خدمة صف السيارات برسوم، فإن خدمة صف السيارات مجانية.",
     "Kids Area Options": "خيارات منطقة الأطفال",
+    "Hotel Amenities": "وسائل الراحة بالفندق",
     "Is there Kids Area?": "هل هناك منطقة للأطفال؟",
     "Is there Swimming Pool?": "هل يوجد حمام سباحة؟",
     "Is there Barber?": "هل هناك حلاق؟",
@@ -338,5 +339,10 @@
     "No valet": "لا يوجد مصف",
     "Valet with no fees": "موقف من دون رسوم",
     "Has Kids Area": "يوجد منطقة للأطفال",
-    "No Kids Area": "لا توجد منطقة للأطفال"
+    "No Kids Area": "لا توجد منطقة للأطفال",
+    "Has Barber": "هل يوجد حلاق",
+    "Has Gym": "هل يوجد صالة ألعاب رياضية",
+    "Has Swimming Pool": "هل يوجد حمام سباحة",
+    "Has Massage": "هل يوجد مزاج",
+    "Coffee Music Options": "خيارات موسيقى القهوة"
 }          
