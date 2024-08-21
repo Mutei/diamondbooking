@@ -49,7 +49,7 @@ class _ReusedEstatePageState extends State<ReusedEstatePage> {
   Map<String, bool> coffeeMusicFilters = {
     'Oud': false,
     'DJ': false,
-    'Singer': false,
+    'singer': false,
   };
 
   Map<String, bool> entryAllowedFilters = {
