@@ -75,6 +75,13 @@ class _ReusedEstatePageState extends State<ReusedEstatePage> {
     'There is music': false,
   };
 
+  Map<String, bool> valetFilters = {
+    'Has valet': false,
+    'No valet': false,
+    'Valet with fees': false,
+    'Valet with no fees': false,
+  };
+
   void _updateFilterSelection(
       String filterType, String filterOption, bool value) {
     setState(() {
@@ -96,6 +103,9 @@ class _ReusedEstatePageState extends State<ReusedEstatePage> {
           break;
         case 'Coffee Music':
           coffeeMusicFilters[filterOption] = value;
+          break;
+        case 'Valet':
+          valetFilters[filterOption] = value;
           break;
       }
     });
@@ -185,6 +195,20 @@ class _ReusedEstatePageState extends State<ReusedEstatePage> {
                   },
                 );
               }).toList(),
+              const Divider(),
+              Text(getTranslated(context, 'Valet Options')),
+              ...valetFilters.keys.map((filterOption) {
+                return CheckboxListTile(
+                  title: Text(getTranslated(context, filterOption)),
+                  value: valetFilters[filterOption],
+                  onChanged: (bool? value) {
+                    setState(() {
+                      valetFilters[filterOption] = value!;
+                    });
+                    _updateFilterSelection('Valet', filterOption, value!);
+                  },
+                );
+              }).toList(),
             ],
           ),
         );
@@ -256,6 +280,20 @@ class _ReusedEstatePageState extends State<ReusedEstatePage> {
                   },
                 );
               }).toList(),
+              const Divider(),
+              Text(getTranslated(context, 'Valet Options')),
+              ...valetFilters.keys.map((filterOption) {
+                return CheckboxListTile(
+                  title: Text(getTranslated(context, filterOption)),
+                  value: valetFilters[filterOption],
+                  onChanged: (bool? value) {
+                    setState(() {
+                      valetFilters[filterOption] = value!;
+                    });
+                    _updateFilterSelection('Valet', filterOption, value!);
+                  },
+                );
+              }).toList(),
             ],
           ),
         );
@@ -279,6 +317,20 @@ class _ReusedEstatePageState extends State<ReusedEstatePage> {
                       entryHotelFilters[filterOption] = value!;
                     });
                     _updateFilterSelection('Entry Hotel', filterOption, value!);
+                  },
+                );
+              }).toList(),
+              const Divider(),
+              Text(getTranslated(context, 'Valet Options')),
+              ...valetFilters.keys.map((filterOption) {
+                return CheckboxListTile(
+                  title: Text(getTranslated(context, filterOption)),
+                  value: valetFilters[filterOption],
+                  onChanged: (bool? value) {
+                    setState(() {
+                      valetFilters[filterOption] = value!;
+                    });
+                    _updateFilterSelection('Valet', filterOption, value!);
                   },
                 );
               }).toList(),
@@ -399,6 +451,7 @@ class _ReusedEstatePageState extends State<ReusedEstatePage> {
           .where((filter) => sessionsTypeFilters[filter]!),
       ...musicFilters.keys.where((filter) => musicFilters[filter]!),
       ...coffeeMusicFilters.keys.where((filter) => coffeeMusicFilters[filter]!),
+      ...valetFilters.keys.where((filter) => valetFilters[filter]!),
     ];
 
     estates.sort((a, b) {
@@ -436,6 +489,15 @@ class _ReusedEstatePageState extends State<ReusedEstatePage> {
     } else if (estate['Entry']?.contains(filter) == true) {
       matches = true;
     } else if (estate['Sessions']?.contains(filter) == true) {
+      matches = true;
+    } else if (filter == 'Has valet' && estate['HasValet'] == '1') {
+      matches = true;
+    } else if (filter == 'No valet' && estate['HasValet'] == '0') {
+      matches = true;
+    } else if (filter == 'Valet with fees' && estate['ValetWithFees'] == '1') {
+      matches = true;
+    } else if (filter == 'Valet with no fees' &&
+        estate['ValetWithFees'] == '0') {
       matches = true;
     }
 

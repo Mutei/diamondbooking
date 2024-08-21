@@ -325,7 +325,7 @@
     "Menu Link": "رابط القائمة",
     "Rate": "التقيم",
     "Is there valet?": "هل هناك خدمة صف سيارات؟",
-    "Valet with fees": "مدفوع أو لا",
+    "Valet with fees": "موقف مع رسوم",
     "Valet Options": "خدمة توقيف السيارت",
     "If valet with fees is not selected, valet service is free.": "إذا لم يتم تحديد خدمة صف السيارات برسوم، فإن خدمة صف السيارات مجانية.",
     "Kids Area Options": "خيارات منطقة الأطفال",
@@ -333,5 +333,8 @@
     "Is there Swimming Pool?": "هل يوجد حمام سباحة؟",
     "Is there Barber?": "هل هناك حلاق؟",
     "Is there Massage?": "هل هناك مساج؟",
-    "Is there Gym?": "هل هناك صالة ألعاب رياضية؟"
+    "Is there Gym?": "هل هناك صالة ألعاب رياضية؟",
+    "Has valet": "يوجد مصف",
+    "No valet": "لا يوجد مصف",
+    "Valet with no fees": "موقف من دون رسوم"
 }          
