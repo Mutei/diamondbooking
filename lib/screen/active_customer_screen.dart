@@ -39,7 +39,11 @@ class ActiveCustomersScreenState extends State<ActiveCustomersScreen> {
         Map activeUsers = event.snapshot.value as Map;
         setState(() {
           activeCustomers = activeUsers.entries.map((entry) {
-            return {"id": entry.key, "timestamp": entry.value['timestamp']};
+            return {
+              "id": entry.key,
+              "StartTime": entry.value['StartTime'],
+              "EndTime": entry.value['EndTime'],
+            };
           }).toList();
         });
       } else {
@@ -185,6 +189,8 @@ class ActiveCustomersScreenState extends State<ActiveCustomersScreen> {
         itemCount: activeCustomers.length,
         itemBuilder: (context, index) {
           String userId = activeCustomers[index]['id'];
+          DateTime endTime = DateTime.parse(activeCustomers[index]['EndTime']);
+
           return FutureBuilder<String>(
             future: getUserFullName(userId),
             builder: (context, snapshot) {
@@ -206,7 +212,7 @@ class ActiveCustomersScreenState extends State<ActiveCustomersScreen> {
                   ),
                 ),
                 subtitle: Text(
-                  'Active since: ${DateTime.fromMillisecondsSinceEpoch(activeCustomers[index]['timestamp'])}',
+                  'Active until: ${DateTime.fromMillisecondsSinceEpoch(endTime.millisecondsSinceEpoch)}',
                   style: const TextStyle(
                     color: kPrimaryColor,
                   ),
@@ -233,12 +239,10 @@ class ActiveCustomersScreenState extends State<ActiveCustomersScreen> {
                                   color: Colors.amber,
                                 ),
                                 onRatingUpdate: (rating) {
-                                  // store rating temporarily
                                   setState(() {
                                     ratedCustomers.add(userId);
                                   });
                                   Navigator.of(context).pop();
-                                  // show comment dialog
                                   showDialog(
                                     context: context,
                                     builder: (context) {

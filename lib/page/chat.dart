@@ -172,8 +172,8 @@ class _State extends State<Chat> {
       SharedPreferences sharedPreferences =
           await SharedPreferences.getInstance();
       String accessTimeKey = 'access_time_${widget.idEstate}_$id';
-      DateTime accessEndTime = DateTime.now()
-          .add(isHotel ? const Duration(hours: 24) : const Duration(hours: 3));
+      DateTime accessEndTime = DateTime.now().add(
+          isHotel ? const Duration(hours: 24) : const Duration(minutes: 1));
       sharedPreferences.setString(
           accessTimeKey, accessEndTime.toIso8601String());
 
@@ -185,7 +185,7 @@ class _State extends State<Chat> {
         hasAccess = true;
       });
       startAccessTimer(
-        isHotel ? const Duration(hours: 24) : const Duration(hours: 3),
+        isHotel ? const Duration(hours: 24) : const Duration(minutes: 1),
       );
       print('Access granted');
       addActiveCustomer();
@@ -196,15 +196,34 @@ class _State extends State<Chat> {
 
   Future<void> addActiveCustomer() async {
     if (id != null) {
-      await databaseReference
-          .ref("App/ActiveCustomers/$idEstate/$id")
-          .set({"timestamp": DateTime.now().millisecondsSinceEpoch});
+      DateTime now = DateTime.now();
+      DateTime endTime = isHotel
+          ? now.add(Duration(hours: 24))
+          : now.add(Duration(minutes: 1));
+
+      await databaseReference.ref("App/ActiveCustomers/$idEstate/$id").set({
+        "StartTime": now.toIso8601String(),
+        "EndTime": endTime.toIso8601String(),
+      });
     }
   }
 
   Future<void> removeActiveCustomer() async {
     if (id != null) {
-      await databaseReference.ref("App/ActiveCustomers/$idEstate/$id").remove();
+      DatabaseReference customerRef =
+          databaseReference.ref("App/ActiveCustomers/$idEstate/$id");
+      DataSnapshot snapshot = await customerRef.get();
+
+      if (snapshot.exists) {
+        // Ensure the value is treated as a String before parsing
+        String? endTimeString = snapshot.child("EndTime").value as String?;
+        if (endTimeString != null) {
+          DateTime endTime = DateTime.parse(endTimeString);
+          if (DateTime.now().isAfter(endTime)) {
+            await customerRef.remove();
+          }
+        }
+      }
     }
   }
 
@@ -244,12 +263,7 @@ class _State extends State<Chat> {
 
   void checkAccessPeriodically() {
     Timer.periodic(const Duration(seconds: 5), (timer) async {
-      if (!hasAccess) {
-        SharedPreferences sharedPreferences =
-            await SharedPreferences.getInstance();
-        sharedPreferences.remove('access_time_${widget.idEstate}_$id');
-        sharedPreferences.remove('last_scan_time_${widget.idEstate}_$id');
-      }
+      await removeActiveCustomer();
     });
   }
 
@@ -281,7 +295,6 @@ class _State extends State<Chat> {
 
   Future<bool> checkIfRequestAccepted(String senderId) async {
     try {
-      // Assuming 'id' is the current user's ID
       DatabaseReference chatRequestRef = FirebaseDatabase.instance
           .ref("App/PrivateChatList")
           .child(id!)
@@ -289,10 +302,6 @@ class _State extends State<Chat> {
 
       DataSnapshot snapshot = await chatRequestRef.get();
 
-      // Debug: Print the fetched data for verification
-      print("Fetched data for $senderId: ${snapshot.value}");
-
-      // Check if the snapshot exists and contains the expected data
       return snapshot.exists && snapshot.hasChild('ReceiverId');
     } catch (e) {
       print("Error checking request acceptance: $e");
@@ -408,21 +417,13 @@ class _State extends State<Chat> {
                   onPressed: () async {
                     Navigator.of(context).pop();
 
-                    // Debug: Print to see if request is checked
-                    print("Checking if request was accepted for user: $userId");
-
                     bool isAccepted = await checkIfRequestAccepted(userId);
 
-                    // Debug: Print result of acceptance check
-                    print("Is request accepted: $isAccepted");
-
                     if (isAccepted) {
-                      print("Navigating to PrivateChatScreen with $fullName");
                       Navigator.of(context).push(MaterialPageRoute(
                           builder: (context) => PrivateChatScreen(
                               userId: userId, fullName: fullName)));
                     } else {
-                      print("Sending chat request to $fullName");
                       _sendChatRequest(userId, fullName);
                     }
                   },
