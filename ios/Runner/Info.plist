@@ -47,12 +47,21 @@
 	<true/>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>We need access to your photo library to allow you to upload images.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>This app requires access to the camera to allow you to take photos for your profile.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Your location is used to show relevant information based on where you are.</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>
 		<string>remote-notification</string>
 	</array>
-	<key>NSCameraUsageDescription</key>
-	<string>This app requires access to the camera to allow you to take photos for your profile.</string>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+	</dict>
+	<key>FirebaseAppDelegateProxyEnabled</key>
+	<false/>
 </dict>
 </plist>

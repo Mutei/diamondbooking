@@ -14,6 +14,8 @@ class GeneralProvider with ChangeNotifier, DiagnosticableTreeMixin {
   Map UserMap = {};
   int _newRequestCount = 0;
   int _chatRequestCount = 0;
+  Map<String, bool> _chatAccessPerEstate =
+  {}; // Map to track chat access per estate
 
   int get newRequestCount => _newRequestCount;
   int get chatRequestCount => _chatRequestCount;
@@ -133,7 +135,7 @@ class GeneralProvider with ChangeNotifier, DiagnosticableTreeMixin {
     String? id = FirebaseAuth.instance.currentUser?.uid;
     if (id != null) {
       DatabaseReference refChatRequest =
-          FirebaseDatabase.instance.ref("App/PrivateChatRequest").child(id);
+      FirebaseDatabase.instance.ref("App/PrivateChatRequest").child(id);
 
       refChatRequest.onChildAdded.listen((DatabaseEvent event) {
         if (event.snapshot.exists) {
@@ -179,13 +181,24 @@ class GeneralProvider with ChangeNotifier, DiagnosticableTreeMixin {
       },
     );
   }
+
+  // Check if the user has chat access for a specific estate
+  bool hasChatAccessForEstate(String estateId) {
+    return _chatAccessPerEstate[estateId] ?? false;
+  }
+
+  // Update chat access for a specific estate
+  void updateChatAccessForEstate(String estateId, bool access) {
+    _chatAccessPerEstate[estateId] = access;
+    notifyListeners();
+  }
 }
 
 class CustomerType {
   late String name, image, type, subtext;
   CustomerType(
       {required this.image,
-      required this.name,
-      required this.type,
-      required this.subtext});
+        required this.name,
+        required this.type,
+        required this.subtext});
 }

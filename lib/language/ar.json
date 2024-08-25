@@ -351,5 +351,7 @@
     "Coffee Music Options": "خيارات موسيقى القهوة",
     "You entered a wrong password.": "لقد قمت بإدخال كلمة مرور خاطئة.",
     "User is not found.": "لم يتم العثور على المستخدم.",
-    "An error occurred. Please try again.": "حدث خطأ. يرجى المحاولة مرة أخرى."
+    "An error occurred. Please try again.": "حدث خطأ. يرجى المحاولة مرة أخرى.",
+    "Rate Access has Expired.": "انتهى وقت التقييم"
+
 }          
