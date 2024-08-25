@@ -344,5 +344,8 @@
     "Has Gym": "هل يوجد صالة ألعاب رياضية",
     "Has Swimming Pool": "هل يوجد حمام سباحة",
     "Has Massage": "هل يوجد مزاج",
-    "Coffee Music Options": "خيارات موسيقى القهوة"
+    "Coffee Music Options": "خيارات موسيقى القهوة",
+    "You entered a wrong password.": "لقد قمت بإدخال كلمة مرور خاطئة.",
+    "User is not found.": "لم يتم العثور على المستخدم.",
+    "An error occurred. Please try again.": "حدث خطأ. يرجى المحاولة مرة أخرى."
 }          

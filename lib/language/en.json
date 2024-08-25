@@ -343,6 +343,9 @@
     "Has Gym": "Has Gym",
     "Has Swimming Pool": "Has Swimming Pool",
     "Has Massage": "Has Massage",
-    "Coffee Music Options": "Coffee Music Options"
+    "Coffee Music Options": "Coffee Music Options",
+    "You entered a wrong password.": "You entered a wrong password.",
+    "User is not found.": "User is not found.",
+    "An error occurred. Please try again.": "An error occurred. Please try again."
 }
  
