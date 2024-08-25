@@ -83,7 +83,7 @@ class _RoomTypeVisibilityState extends State<RoomTypeVisibility> {
         ),
         _buildRoomType(
           context,
-          'Swite',
+          'Suite',
           widget.suite,
           widget.suiteHotelRoomController,
           widget.suiteHotelRoomControllerBioAr,

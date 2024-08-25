@@ -46,6 +46,12 @@ class _ReusedEstatePageState extends State<ReusedEstatePage> {
     'healthy': false,
   };
 
+  Map<String, bool> coffeeMusicFilters = {
+    'Oud': false,
+    'DJ': false,
+    'singer': false,
+  };
+
   Map<String, bool> entryAllowedFilters = {
     'Single': false,
     'Familial': false,
@@ -59,6 +65,13 @@ class _ReusedEstatePageState extends State<ReusedEstatePage> {
     'Family': false,
   };
 
+  Map<String, bool> hotelAmenitiesFilters = {
+    'Has Barber': false,
+    'Has Gym': false,
+    'Has Swimming Pool': false,
+    'Has Massage': false,
+  };
+
   Map<String, bool> sessionsTypeFilters = {
     'internal sessions': false,
     'External sessions': false,
@@ -67,6 +80,18 @@ class _ReusedEstatePageState extends State<ReusedEstatePage> {
   Map<String, bool> musicFilters = {
     'There is no music': false,
     'There is music': false,
+  };
+
+  Map<String, bool> valetFilters = {
+    'Has valet': false,
+    'No valet': false,
+    'Valet with fees': false,
+    'Valet with no fees': false,
+  };
+
+  Map<String, bool> kidsAreaFilters = {
+    'Has Kids Area': false,
+    'No Kids Area': false,
   };
 
   void _updateFilterSelection(
@@ -82,11 +107,23 @@ class _ReusedEstatePageState extends State<ReusedEstatePage> {
         case 'Entry Hotel':
           entryHotelFilters[filterOption] = value;
           break;
+        case 'Hotel Amenities':
+          hotelAmenitiesFilters[filterOption] = value;
+          break;
         case 'Sessions Type':
           sessionsTypeFilters[filterOption] = value;
           break;
         case 'Music':
           musicFilters[filterOption] = value;
+          break;
+        case 'Coffee Music':
+          coffeeMusicFilters[filterOption] = value;
+          break;
+        case 'Valet':
+          valetFilters[filterOption] = value;
+          break;
+        case 'Kids Area':
+          kidsAreaFilters[filterOption] = value;
           break;
       }
     });
@@ -176,6 +213,34 @@ class _ReusedEstatePageState extends State<ReusedEstatePage> {
                   },
                 );
               }).toList(),
+              const Divider(),
+              Text(getTranslated(context, 'Valet Options')),
+              ...valetFilters.keys.map((filterOption) {
+                return CheckboxListTile(
+                  title: Text(getTranslated(context, filterOption)),
+                  value: valetFilters[filterOption],
+                  onChanged: (bool? value) {
+                    setState(() {
+                      valetFilters[filterOption] = value!;
+                    });
+                    _updateFilterSelection('Valet', filterOption, value!);
+                  },
+                );
+              }).toList(),
+              const Divider(),
+              Text(getTranslated(context, 'Kids Area Options')),
+              ...kidsAreaFilters.keys.map((filterOption) {
+                return CheckboxListTile(
+                  title: Text(getTranslated(context, filterOption)),
+                  value: kidsAreaFilters[filterOption],
+                  onChanged: (bool? value) {
+                    setState(() {
+                      kidsAreaFilters[filterOption] = value!;
+                    });
+                    _updateFilterSelection('Kids Area', filterOption, value!);
+                  },
+                );
+              }).toList(),
             ],
           ),
         );
@@ -232,6 +297,49 @@ class _ReusedEstatePageState extends State<ReusedEstatePage> {
                   },
                 );
               }).toList(),
+              const Divider(),
+              Text(getTranslated(context, 'Coffee Music Options')),
+              ...coffeeMusicFilters.keys.map((filterOption) {
+                return CheckboxListTile(
+                  title: Text(getTranslated(context, filterOption)),
+                  value: coffeeMusicFilters[filterOption],
+                  onChanged: (bool? value) {
+                    setState(() {
+                      coffeeMusicFilters[filterOption] = value!;
+                    });
+                    _updateFilterSelection(
+                        'Coffee Music', filterOption, value!);
+                  },
+                );
+              }).toList(),
+              const Divider(),
+              Text(getTranslated(context, 'Valet Options')),
+              ...valetFilters.keys.map((filterOption) {
+                return CheckboxListTile(
+                  title: Text(getTranslated(context, filterOption)),
+                  value: valetFilters[filterOption],
+                  onChanged: (bool? value) {
+                    setState(() {
+                      valetFilters[filterOption] = value!;
+                    });
+                    _updateFilterSelection('Valet', filterOption, value!);
+                  },
+                );
+              }).toList(),
+              const Divider(),
+              Text(getTranslated(context, 'Kids Area Options')),
+              ...kidsAreaFilters.keys.map((filterOption) {
+                return CheckboxListTile(
+                  title: Text(getTranslated(context, filterOption)),
+                  value: kidsAreaFilters[filterOption],
+                  onChanged: (bool? value) {
+                    setState(() {
+                      kidsAreaFilters[filterOption] = value!;
+                    });
+                    _updateFilterSelection('Kids Area', filterOption, value!);
+                  },
+                );
+              }).toList(),
             ],
           ),
         );
@@ -255,6 +363,35 @@ class _ReusedEstatePageState extends State<ReusedEstatePage> {
                       entryHotelFilters[filterOption] = value!;
                     });
                     _updateFilterSelection('Entry Hotel', filterOption, value!);
+                  },
+                );
+              }).toList(),
+              const Divider(),
+              Text(getTranslated(context, 'Hotel Amenities')),
+              ...hotelAmenitiesFilters.keys.map((filterOption) {
+                return CheckboxListTile(
+                  title: Text(getTranslated(context, filterOption)),
+                  value: hotelAmenitiesFilters[filterOption],
+                  onChanged: (bool? value) {
+                    setState(() {
+                      hotelAmenitiesFilters[filterOption] = value!;
+                    });
+                    _updateFilterSelection(
+                        'Hotel Amenities', filterOption, value!);
+                  },
+                );
+              }).toList(),
+              const Divider(),
+              Text(getTranslated(context, 'Valet Options')),
+              ...valetFilters.keys.map((filterOption) {
+                return CheckboxListTile(
+                  title: Text(getTranslated(context, filterOption)),
+                  value: valetFilters[filterOption],
+                  onChanged: (bool? value) {
+                    setState(() {
+                      valetFilters[filterOption] = value!;
+                    });
+                    _updateFilterSelection('Valet', filterOption, value!);
                   },
                 );
               }).toList(),
@@ -371,9 +508,14 @@ class _ReusedEstatePageState extends State<ReusedEstatePage> {
       ...entryAllowedFilters.keys
           .where((filter) => entryAllowedFilters[filter]!),
       ...entryHotelFilters.keys.where((filter) => entryHotelFilters[filter]!),
+      ...hotelAmenitiesFilters.keys
+          .where((filter) => hotelAmenitiesFilters[filter]!),
       ...sessionsTypeFilters.keys
           .where((filter) => sessionsTypeFilters[filter]!),
       ...musicFilters.keys.where((filter) => musicFilters[filter]!),
+      ...coffeeMusicFilters.keys.where((filter) => coffeeMusicFilters[filter]!),
+      ...valetFilters.keys.where((filter) => valetFilters[filter]!),
+      ...kidsAreaFilters.keys.where((filter) => kidsAreaFilters[filter]!),
     ];
 
     estates.sort((a, b) {
@@ -397,11 +539,42 @@ class _ReusedEstatePageState extends State<ReusedEstatePage> {
       matches = true;
     } else if (filter == 'There is no music' && estate['Music'] == '0') {
       matches = true;
+    } else if (filter.toLowerCase() == 'oud' &&
+        estate['Lstmusic']?.toLowerCase().contains('oud') == true) {
+      matches = true;
+    } else if (filter.toLowerCase() == 'dj' &&
+        estate['Lstmusic']?.toLowerCase().contains('dj') == true) {
+      matches = true;
+    } else if (filter.toLowerCase() == 'singer' &&
+        estate['Lstmusic']?.toLowerCase().contains('singer') == true) {
+      matches = true;
     } else if (estate['TypeofRestaurant']?.contains(filter) == true) {
       matches = true;
     } else if (estate['Entry']?.contains(filter) == true) {
       matches = true;
     } else if (estate['Sessions']?.contains(filter) == true) {
+      matches = true;
+    } else if (filter == 'Has valet' && estate['HasValet'] == '1') {
+      matches = true;
+    } else if (filter == 'No valet' && estate['HasValet'] == '0') {
+      matches = true;
+    } else if (filter == 'Valet with fees' && estate['ValetWithFees'] == '1') {
+      matches = true;
+    } else if (filter == 'Valet with no fees' &&
+        estate['ValetWithFees'] == '0') {
+      matches = true;
+    } else if (filter == 'Has Kids Area' && estate['HasKidsArea'] == '1') {
+      matches = true;
+    } else if (filter == 'No Kids Area' && estate['HasKidsArea'] == '0') {
+      matches = true;
+    } else if (filter == 'Has Barber' && estate['HasBarber'] == '1') {
+      matches = true;
+    } else if (filter == 'Has Gym' && estate['HasGym'] == '1') {
+      matches = true;
+    } else if (filter == 'Has Swimming Pool' &&
+        estate['HasSwimmingPool'] == '1') {
+      matches = true;
+    } else if (filter == 'Has Massage' && estate['HasMassage'] == '1') {
       matches = true;
     }
 

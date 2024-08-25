@@ -8,16 +8,16 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:provider/provider.dart'; // Add this import
+import 'package:provider/provider.dart';
 import '../screen/active_customer_screen.dart';
 import '../constants/colors.dart';
 import '../constants/styles.dart';
 import '../global/censor_message.dart';
 import '../resources/user_services.dart';
-import '../screen/private_chat_screen.dart'; // Import the PrivateChatScreen
+import '../screen/private_chat_screen.dart';
 import 'qrViewScan.dart';
-import 'package:intl/intl.dart'; // Import for date formatting
-import '../general_provider.dart'; // Add this import
+import 'package:intl/intl.dart';
+import '../general_provider.dart';
 
 class Chat extends StatefulWidget {
   final String idEstate;
@@ -172,8 +172,8 @@ class _State extends State<Chat> {
       SharedPreferences sharedPreferences =
           await SharedPreferences.getInstance();
       String accessTimeKey = 'access_time_${widget.idEstate}_$id';
-      DateTime accessEndTime = DateTime.now()
-          .add(isHotel ? const Duration(hours: 24) : const Duration(hours: 3));
+      DateTime accessEndTime = DateTime.now().add(
+          isHotel ? const Duration(hours: 24) : const Duration(minutes: 1));
       sharedPreferences.setString(
           accessTimeKey, accessEndTime.toIso8601String());
 
@@ -185,7 +185,7 @@ class _State extends State<Chat> {
         hasAccess = true;
       });
       startAccessTimer(
-        isHotel ? const Duration(hours: 24) : const Duration(hours: 3),
+        isHotel ? const Duration(hours: 24) : const Duration(minutes: 1),
       );
       print('Access granted');
       addActiveCustomer();
@@ -196,15 +196,34 @@ class _State extends State<Chat> {
 
   Future<void> addActiveCustomer() async {
     if (id != null) {
-      await databaseReference
-          .ref("App/ActiveCustomers/$idEstate/$id")
-          .set({"timestamp": DateTime.now().millisecondsSinceEpoch});
+      DateTime now = DateTime.now();
+      DateTime endTime = isHotel
+          ? now.add(Duration(hours: 24))
+          : now.add(Duration(minutes: 1));
+
+      await databaseReference.ref("App/ActiveCustomers/$idEstate/$id").set({
+        "StartTime": now.toIso8601String(),
+        "EndTime": endTime.toIso8601String(),
+      });
     }
   }
 
   Future<void> removeActiveCustomer() async {
     if (id != null) {
-      await databaseReference.ref("App/ActiveCustomers/$idEstate/$id").remove();
+      DatabaseReference customerRef =
+          databaseReference.ref("App/ActiveCustomers/$idEstate/$id");
+      DataSnapshot snapshot = await customerRef.get();
+
+      if (snapshot.exists) {
+        // Ensure the value is treated as a String before parsing
+        String? endTimeString = snapshot.child("EndTime").value as String?;
+        if (endTimeString != null) {
+          DateTime endTime = DateTime.parse(endTimeString);
+          if (DateTime.now().isAfter(endTime)) {
+            await customerRef.remove();
+          }
+        }
+      }
     }
   }
 
@@ -219,12 +238,10 @@ class _State extends State<Chat> {
         });
 
         if (!activeUsers.containsKey(id)) {
-          // User has been removed from active customers
           setState(() {
             hasAccess = false;
           });
 
-          // Clear access time and last scan time from shared preferences
           SharedPreferences sharedPreferences =
               await SharedPreferences.getInstance();
           sharedPreferences.remove('access_time_${widget.idEstate}_$id');
@@ -236,7 +253,6 @@ class _State extends State<Chat> {
           hasAccess = false;
         });
 
-        // Clear access time and last scan time from shared preferences
         SharedPreferences sharedPreferences =
             await SharedPreferences.getInstance();
         sharedPreferences.remove('access_time_${widget.idEstate}_$id');
@@ -247,12 +263,7 @@ class _State extends State<Chat> {
 
   void checkAccessPeriodically() {
     Timer.periodic(const Duration(seconds: 5), (timer) async {
-      if (!hasAccess) {
-        SharedPreferences sharedPreferences =
-            await SharedPreferences.getInstance();
-        sharedPreferences.remove('access_time_${widget.idEstate}_$id');
-        sharedPreferences.remove('last_scan_time_${widget.idEstate}_$id');
-      }
+      await removeActiveCustomer();
     });
   }
 
@@ -282,10 +293,26 @@ class _State extends State<Chat> {
     return {};
   }
 
-  void sendMessage(String message) async {
-    if (!hasAccess) return; // Prevent sending messages if no access
+  Future<bool> checkIfRequestAccepted(String senderId) async {
+    try {
+      DatabaseReference chatRequestRef = FirebaseDatabase.instance
+          .ref("App/PrivateChatList")
+          .child(id!)
+          .child(senderId);
 
-    if (userType == "2") return; // Prevent Providers from sending messages
+      DataSnapshot snapshot = await chatRequestRef.get();
+
+      return snapshot.exists && snapshot.hasChild('ReceiverId');
+    } catch (e) {
+      print("Error checking request acceptance: $e");
+      return false;
+    }
+  }
+
+  void sendMessage(String message) async {
+    if (!hasAccess) return;
+
+    if (userType == "2") return;
 
     _textController.clear();
     _messageNotifier.value = "";
@@ -348,16 +375,14 @@ class _State extends State<Chat> {
 
   void _showProfileDialog(String userId) async {
     if (userType == "2") {
-      return; // Prevent userType 2 from viewing profiles
+      return;
     }
 
-    // Only allow TypeAccount 3 and 4 users to proceed
     if (typeAccount != '2' && typeAccount != '3') {
       return;
     }
 
     if (userId == id) {
-      // Do nothing if the clicked user is the current user
       return;
     }
 
@@ -389,9 +414,18 @@ class _State extends State<Chat> {
                 ElevatedButton.icon(
                   icon: Icon(Icons.message),
                   label: Text('Message'),
-                  onPressed: () {
-                    Navigator.of(context).pop(); // Close the dialog
-                    _sendChatRequest(userId, fullName);
+                  onPressed: () async {
+                    Navigator.of(context).pop();
+
+                    bool isAccepted = await checkIfRequestAccepted(userId);
+
+                    if (isAccepted) {
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => PrivateChatScreen(
+                              userId: userId, fullName: fullName)));
+                    } else {
+                      _sendChatRequest(userId, fullName);
+                    }
                   },
                 ),
               ],
@@ -403,12 +437,10 @@ class _State extends State<Chat> {
   }
 
   Future<void> _sendChatRequest(String receiverId, String receiverName) async {
-    // Only allow TypeAccount 3 and 4 users to send chat requests
     if (typeAccount != '2' && typeAccount != '3') {
       return;
     }
 
-    // Prevent userType 2 from sending chat requests
     if (userType == "2") {
       return;
     }
@@ -457,8 +489,7 @@ class _State extends State<Chat> {
         .child(widget.idEstate)
         .child(widget.Key);
 
-    final objProvider =
-        Provider.of<GeneralProvider>(context, listen: true); // Add this line
+    final objProvider = Provider.of<GeneralProvider>(context, listen: true);
 
     return Scaffold(
       appBar: AppBar(
@@ -470,7 +501,7 @@ class _State extends State<Chat> {
                   right: 55,
                 ),
                 child: Text(
-                  '${objProvider.CheckLangValue ? widget.Name : widget.Name} ${getTranslated(context, "Chat")}', // Updated this line
+                  '${objProvider.CheckLangValue ? widget.Name : widget.Name} ${getTranslated(context, "Chat")}',
                   style: const TextStyle(color: kPrimaryColor),
                 ),
               ),
@@ -525,7 +556,6 @@ class _State extends State<Chat> {
                     List<DataSnapshot> items =
                         snapshot.data!.snapshot.children.toList();
 
-                    // Reverse the list to show the latest message first
                     items = items.reversed.toList();
 
                     if (items.isEmpty) {
@@ -533,17 +563,16 @@ class _State extends State<Chat> {
                     }
 
                     return ListView.builder(
-                      reverse: true, // Start the list from the bottom
+                      reverse: true,
                       itemCount: items.length,
                       itemBuilder: (context, index) {
                         Map map = items[index].value as Map;
                         map['Key'] = items[index].key;
 
-                        // Filter messages based on last scan time
                         if (lastScanTime != null &&
                             map['timestamp'] <
                                 lastScanTime!.millisecondsSinceEpoch) {
-                          return const SizedBox.shrink(); // Hide old messages
+                          return const SizedBox.shrink();
                         }
 
                         return GestureDetector(
@@ -740,7 +769,7 @@ class _State extends State<Chat> {
                                   hintText: getTranslated(
                                       context, 'Type a message...'),
                                   border: InputBorder.none,
-                                  counterText: "", // Hide the counter text
+                                  counterText: "",
                                 ),
                                 onChanged: (text) {
                                   _messageNotifier.value = text;
@@ -751,16 +780,10 @@ class _State extends State<Chat> {
                                     sendMessage(text);
                                   }
                                 },
-                                enabled:
-                                    hasAccess, // Disable typing if no access
+                                enabled: hasAccess,
                               ),
                             ),
                             if (userType == "1")
-                              // IconButton(
-                              //   icon: const Icon(Icons.qr_code_scanner),
-                              //   color: kPrimaryColor,
-                              //   onPressed: scanQRCode,
-                              // ),
                               ValueListenableBuilder<String>(
                                 valueListenable: _messageNotifier,
                                 builder: (context, value, child) {

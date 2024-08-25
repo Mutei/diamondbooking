@@ -454,12 +454,31 @@ class _LoginScreenState extends State<LoginScreen>
           }
         }
       } on FirebaseAuthException catch (e) {
+        // Show snackbar for wrong password
         if (e.code == 'wrong-password') {
-          print('You entered a wrong password');
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                getTranslated(context, 'You entered a wrong password.'),
+              ),
+            ),
+          );
         } else if (e.code == 'user-not-found') {
-          print('User is not found');
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                getTranslated(context, 'User is not found.'),
+              ),
+            ),
+          );
         } else {
-          print('Log-in successful');
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                getTranslated(context, 'An error occurred. Please try again.'),
+              ),
+            ),
+          );
         }
       } catch (e) {
         print(e.toString());
