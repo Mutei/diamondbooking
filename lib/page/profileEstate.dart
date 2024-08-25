@@ -236,7 +236,8 @@ class _ProfileEstateState extends State<ProfileEstate> {
   }
 
   // Check chat access state from SharedPreferences
-  Future<void> checkChatAccess() async {
+  // Check chat access state from SharedPreferences
+  Future<bool> checkChatAccess() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     String accessTimeKey = 'access_time_${estate['IDEstate']}_$ID';
     String? accessEndTimeString = sharedPreferences.getString(accessTimeKey);
@@ -247,15 +248,18 @@ class _ProfileEstateState extends State<ProfileEstate> {
         setState(() {
           hasChatAccess = true;
         });
+        return true; // Access is still valid
       } else {
         setState(() {
           hasChatAccess = false;
         });
+        return false; // Access has expired
       }
     } else {
       setState(() {
         hasChatAccess = false;
       });
+      return false; // No valid access time found
     }
   }
 
@@ -539,9 +543,29 @@ class _ProfileEstateState extends State<ProfileEstate> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              onTap: hasChatAccess
-                  ? () => _showRatingSnackbar(context)
-                  : null, // Enable or disable based on access
+              onTap: () async {
+                if (hasChatAccess) {
+                  bool isValid =
+                      await checkChatAccess(); // Check if chat access is still valid
+                  if (isValid) {
+                    // If access is valid, show the rating snackbar
+                    _showRatingSnackbar(context);
+                  } else {
+                    // If access is no longer valid, update the state
+                    setState(() {
+                      hasChatAccess = false;
+                    });
+                    // Optionally, show a message that access has expired
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          getTranslated(context, "Rate Access has Expired."),
+                        ),
+                      ),
+                    );
+                  }
+                }
+              },
             ),
             25.kW,
           ],
