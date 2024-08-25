@@ -173,7 +173,7 @@ class _State extends State<Chat> {
           await SharedPreferences.getInstance();
       String accessTimeKey = 'access_time_${widget.idEstate}_$id';
       DateTime accessEndTime = DateTime.now().add(
-          isHotel ? const Duration(hours: 24) : const Duration(minutes: 1));
+          isHotel ? const Duration(minutes: 10 ) : const Duration(minutes: 10));
       sharedPreferences.setString(
           accessTimeKey, accessEndTime.toIso8601String());
 
@@ -185,7 +185,7 @@ class _State extends State<Chat> {
         hasAccess = true;
       });
       startAccessTimer(
-        isHotel ? const Duration(hours: 24) : const Duration(minutes: 1),
+        isHotel ? const Duration(minutes: 10) : const Duration(minutes: 10),
       );
       print('Access granted');
       addActiveCustomer();
@@ -196,36 +196,78 @@ class _State extends State<Chat> {
 
   Future<void> addActiveCustomer() async {
     if (id != null) {
-      DateTime now = DateTime.now();
-      DateTime endTime = isHotel
-          ? now.add(Duration(hours: 24))
-          : now.add(Duration(minutes: 1));
+      try {
+        DateTime now = DateTime.now();
+        DateTime endTime = isHotel
+            ? now.add(const Duration(minutes: 5))
+            : now.add(const Duration(minutes: 5));
 
-      await databaseReference.ref("App/ActiveCustomers/$idEstate/$id").set({
-        "StartTime": now.toIso8601String(),
-        "EndTime": endTime.toIso8601String(),
-      });
-    }
-  }
-
-  Future<void> removeActiveCustomer() async {
-    if (id != null) {
-      DatabaseReference customerRef =
-          databaseReference.ref("App/ActiveCustomers/$idEstate/$id");
-      DataSnapshot snapshot = await customerRef.get();
-
-      if (snapshot.exists) {
-        // Ensure the value is treated as a String before parsing
-        String? endTimeString = snapshot.child("EndTime").value as String?;
-        if (endTimeString != null) {
-          DateTime endTime = DateTime.parse(endTimeString);
-          if (DateTime.now().isAfter(endTime)) {
-            await customerRef.remove();
-          }
-        }
+        await databaseReference.ref("App/ActiveCustomers/$idEstate/$id").set({
+          "StartTime": now.toIso8601String(),
+          "EndTime": endTime.toIso8601String(),
+        }).timeout(Duration(seconds: 10), onTimeout: () {
+          // Handle timeout
+          print("Timeout while adding active customer.");
+        });
+      } catch (e) {
+        print("Failed to add active customer: $e");
       }
     }
   }
+
+
+  Future<void> removeActiveCustomer() async {
+    if (id != null) {
+      try {
+        print("Attempting to remove customer with ID: $id");
+        print("Estate ID: $idEstate");
+
+        DatabaseReference customerRef =
+        databaseReference.ref("App/ActiveCustomers/$idEstate/$id");
+        DataSnapshot snapshot = await customerRef.get();
+
+        print("Snapshot: ${snapshot.value}");
+
+        if (snapshot.exists) {
+          // Access the nested data without casting directly to a specific type
+          Map<dynamic, dynamic>? customerData = snapshot.value as Map?;
+          if (customerData != null) {
+            Map<dynamic, dynamic>? userEntry = customerData[id];
+            if (userEntry != null) {
+              String? endTimeString = userEntry['EndTime'];
+              print("EndTime: $endTimeString");
+
+              if (endTimeString != null) {
+                DateTime endTime = DateTime.parse(endTimeString);
+                if (DateTime.now().isAfter(endTime)) {
+                  await customerRef.remove();
+
+                } else {
+                  print("End time has not passed yet; customer not removed.");
+                }
+              } else {
+                print("End time is null, cannot remove customer.");
+              }
+            } else {
+              print("User entry does not exist, cannot remove customer.");
+            }
+          } else {
+            print("Customer data is null or not a map, cannot remove customer.");
+          }
+        } else {
+          print("No customer data exists at the specified reference.");
+        }
+      } catch (e) {
+        print("Failed to remove customer: $e");
+      }
+    } else {
+      print("User ID is null, cannot proceed with removal.");
+    }
+  }
+
+
+
+
 
   void listenToActiveCustomers() {
     DatabaseReference activeCustomersRef =
@@ -821,7 +863,7 @@ class _State extends State<Chat> {
                         Text(
                           getTranslated(
                               context, "Scan the QR code to access chat"),
-                          style: TextStyle(
+                          style: const TextStyle(
                               color: Colors.white,
                               fontSize: 18,
                               fontWeight: FontWeight.bold),
