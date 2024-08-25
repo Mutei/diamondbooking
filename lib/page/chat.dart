@@ -24,6 +24,7 @@ class Chat extends StatefulWidget {
   final String Name;
   final String Key;
 
+
   Chat({required this.idEstate, required this.Name, required this.Key});
 
   @override
