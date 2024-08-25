@@ -14,6 +14,8 @@ class GeneralProvider with ChangeNotifier, DiagnosticableTreeMixin {
   Map UserMap = {};
   int _newRequestCount = 0;
   int _chatRequestCount = 0;
+  Map<String, bool> _chatAccessPerEstate =
+      {}; // Map to track chat access per estate
 
   int get newRequestCount => _newRequestCount;
   int get chatRequestCount => _chatRequestCount;
@@ -178,6 +180,17 @@ class GeneralProvider with ChangeNotifier, DiagnosticableTreeMixin {
         );
       },
     );
+  }
+
+  // Check if the user has chat access for a specific estate
+  bool hasChatAccessForEstate(String estateId) {
+    return _chatAccessPerEstate[estateId] ?? false;
+  }
+
+  // Update chat access for a specific estate
+  void updateChatAccessForEstate(String estateId, bool access) {
+    _chatAccessPerEstate[estateId] = access;
+    notifyListeners();
   }
 }
 

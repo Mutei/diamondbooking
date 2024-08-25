@@ -23,11 +23,18 @@ class Chat extends StatefulWidget {
   final String idEstate;
   final String Name;
   final String Key;
+  final Function(bool)?
+      onAccessChange; // Callback function to notify access changes
 
-  Chat({required this.idEstate, required this.Name, required this.Key});
+  Chat({
+    required this.idEstate,
+    required this.Name,
+    required this.Key,
+    this.onAccessChange,
+  });
 
   @override
-  _State createState() => new _State(idEstate, Name, Key);
+  _State createState() => new _State(idEstate, Name, Key, onAccessChange!);
 }
 
 class _State extends State<Chat> {
@@ -49,12 +56,15 @@ class _State extends State<Chat> {
   int activeCustomers = 0;
   String? typeAccount = "";
   bool isHotel = false;
+  final Function(bool) onAccessChange;
 
   HttpsCallable callable = FirebaseFunctions.instance.httpsCallable(
       'sendNotificationsadmin',
       options: HttpsCallableOptions(timeout: const Duration(seconds: 5)));
 
-  _State(this.idEstate, this.Name, this.Key);
+  List<DataSnapshot> messageList = []; // Local list to store messages
+
+  _State(this.idEstate, this.Name, this.Key, this.onAccessChange);
 
   @override
   void initState() {
@@ -66,6 +76,28 @@ class _State extends State<Chat> {
     listenToActiveCustomers();
     checkAccessPeriodically();
     checkIfHotel();
+    checkAccess(); // Check access state on initialization
+
+    // Initialize message list from Firebase
+    DatabaseReference refChat = FirebaseDatabase.instance
+        .ref("App")
+        .child("Chat")
+        .child(widget.idEstate)
+        .child(widget.Key);
+
+    refChat.onValue.listen((event) {
+      if (event.snapshot.exists) {
+        final newMessages = event.snapshot.children.toList().reversed.toList();
+
+        // Update only if there is a change in message list
+        if (messageList.isEmpty ||
+            newMessages.first.key != messageList.first.key) {
+          setState(() {
+            messageList = newMessages;
+          });
+        }
+      }
+    });
   }
 
   @override
@@ -90,6 +122,7 @@ class _State extends State<Chat> {
             userType = snapshot.value.toString();
             if (userType == "2") {
               hasAccess = true;
+              widget.onAccessChange!(true); // Notify access change
             } else {
               checkAccess();
             }
@@ -142,6 +175,7 @@ class _State extends State<Chat> {
         setState(() {
           hasAccess = true;
         });
+        widget.onAccessChange!(true); // Notify access change
         startAccessTimer(accessEndTime.difference(DateTime.now()));
       }
     }
@@ -160,6 +194,7 @@ class _State extends State<Chat> {
       setState(() {
         hasAccess = false;
       });
+      widget.onAccessChange!(false); // Notify access change
       removeActiveCustomer();
     });
   }
@@ -184,6 +219,7 @@ class _State extends State<Chat> {
         lastScanTime = now;
         hasAccess = true;
       });
+      widget.onAccessChange!(true); // Notify access change
       startAccessTimer(
         isHotel ? const Duration(hours: 24) : const Duration(minutes: 1),
       );
@@ -215,7 +251,6 @@ class _State extends State<Chat> {
       DataSnapshot snapshot = await customerRef.get();
 
       if (snapshot.exists) {
-        // Ensure the value is treated as a String before parsing
         String? endTimeString = snapshot.child("EndTime").value as String?;
         if (endTimeString != null) {
           DateTime endTime = DateTime.parse(endTimeString);
@@ -241,6 +276,7 @@ class _State extends State<Chat> {
           setState(() {
             hasAccess = false;
           });
+          widget.onAccessChange!(false); // Notify access change
 
           SharedPreferences sharedPreferences =
               await SharedPreferences.getInstance();
@@ -252,6 +288,7 @@ class _State extends State<Chat> {
           activeCustomers = 0;
           hasAccess = false;
         });
+        widget.onAccessChange!(false); // Notify access change
 
         SharedPreferences sharedPreferences =
             await SharedPreferences.getInstance();
@@ -483,12 +520,6 @@ class _State extends State<Chat> {
 
   @override
   Widget build(BuildContext context) {
-    DatabaseReference refChat = FirebaseDatabase.instance
-        .ref("App")
-        .child("Chat")
-        .child(widget.idEstate)
-        .child(widget.Key);
-
     final objProvider = Provider.of<GeneralProvider>(context, listen: true);
 
     return Scaffold(
@@ -540,54 +571,32 @@ class _State extends State<Chat> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
               Expanded(
-                child: StreamBuilder(
-                  stream: refChat.onValue,
-                  builder: (context, AsyncSnapshot<DatabaseEvent> snapshot) {
-                    if (!snapshot.hasData) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
-                    if (snapshot.hasError) {
-                      return Text('Error: ${snapshot.error}');
-                    }
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
+                child: messageList.isEmpty
+                    ? const Center(child: Text('No messages yet'))
+                    : ListView.builder(
+                        reverse: true,
+                        itemCount: messageList.length,
+                        itemBuilder: (context, index) {
+                          Map map = messageList[index].value as Map;
+                          map['Key'] = messageList[index].key;
 
-                    List<DataSnapshot> items =
-                        snapshot.data!.snapshot.children.toList();
+                          // Only show messages after the last scan time
+                          if (lastScanTime != null &&
+                              map['timestamp'] <
+                                  lastScanTime!.millisecondsSinceEpoch) {
+                            return const SizedBox.shrink();
+                          }
 
-                    items = items.reversed.toList();
-
-                    if (items.isEmpty) {
-                      return const Center(child: Text('No messages yet'));
-                    }
-
-                    return ListView.builder(
-                      reverse: true,
-                      itemCount: items.length,
-                      itemBuilder: (context, index) {
-                        Map map = items[index].value as Map;
-                        map['Key'] = items[index].key;
-
-                        if (lastScanTime != null &&
-                            map['timestamp'] <
-                                lastScanTime!.millisecondsSinceEpoch) {
-                          return const SizedBox.shrink();
-                        }
-
-                        return GestureDetector(
-                          onTap: () => _showProfileDialog(map['SenderId']),
-                          child: FutureBuilder<String>(
+                          return FutureBuilder<String>(
                             future: getUserFullName(map['SenderId']),
                             builder: (context, asyncSnapshot) {
                               if (asyncSnapshot.connectionState ==
                                   ConnectionState.waiting) {
-                                return const Center(
-                                    child: CircularProgressIndicator());
+                                return const Center(child: Text(' '));
                               }
                               if (asyncSnapshot.hasError ||
                                   !asyncSnapshot.hasData) {
-                                return const Text('Error fetching user name');
+                                return const Text('');
                               }
                               String fullName = asyncSnapshot.data!;
                               return FutureBuilder<Map<String, dynamic>>(
@@ -596,12 +605,12 @@ class _State extends State<Chat> {
                                   if (detailsSnapshot.connectionState ==
                                       ConnectionState.waiting) {
                                     return const Center(
-                                        child: CircularProgressIndicator());
+                                      child: Text(' '),
+                                    );
                                   }
                                   if (detailsSnapshot.hasError ||
                                       !detailsSnapshot.hasData) {
-                                    return const Text(
-                                        'Error fetching user details');
+                                    return const Text('');
                                   }
                                   String gender =
                                       detailsSnapshot.data!['Gender'];
@@ -656,12 +665,17 @@ class _State extends State<Chat> {
                                             crossAxisAlignment:
                                                 CrossAxisAlignment.start,
                                             children: <Widget>[
-                                              Text(
-                                                fullName,
-                                                style: TextStyle(
-                                                    fontWeight: FontWeight.w900,
-                                                    color: nameColor,
-                                                    fontSize: 10),
+                                              GestureDetector(
+                                                onTap: () => _showProfileDialog(
+                                                    map['SenderId']),
+                                                child: Text(
+                                                  fullName,
+                                                  style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.w900,
+                                                      color: nameColor,
+                                                      fontSize: 10),
+                                                ),
                                               ),
                                               const SizedBox(height: 5),
                                               Row(
@@ -725,12 +739,9 @@ class _State extends State<Chat> {
                                 },
                               );
                             },
-                          ),
-                        );
-                      },
-                    );
-                  },
-                ),
+                          );
+                        },
+                      ),
               ),
               if (userType == "1")
                 Container(
@@ -795,7 +806,9 @@ class _State extends State<Chat> {
                                     onPressed: (value.isEmpty || !hasAccess)
                                         ? null
                                         : () {
-                                            sendMessage(_textController.text);
+                                            setState(() {
+                                              sendMessage(_textController.text);
+                                            });
                                           },
                                   );
                                 },

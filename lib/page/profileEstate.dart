@@ -64,6 +64,7 @@ class _ProfileEstateState extends State<ProfileEstate> {
   final TextEditingController feedbackController = TextEditingController();
   ScaffoldFeatureController<SnackBar, SnackBarClosedReason>? snackBarController;
   bool isOwner = false;
+  bool hasChatAccess = false; // Added variable to track chat access
 
   _ProfileEstateState(this.estate, this.icon, this.VisEdit);
 
@@ -73,6 +74,7 @@ class _ProfileEstateState extends State<ProfileEstate> {
     getData();
     fetchUserType();
     checkIfOwner();
+    checkChatAccess(); // Check chat access state on initialization
   }
 
   @override
@@ -230,6 +232,30 @@ class _ProfileEstateState extends State<ProfileEstate> {
       }
     } else {
       print("ID is empty");
+    }
+  }
+
+  // Check chat access state from SharedPreferences
+  Future<void> checkChatAccess() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    String accessTimeKey = 'access_time_${estate['IDEstate']}_$ID';
+    String? accessEndTimeString = sharedPreferences.getString(accessTimeKey);
+
+    if (accessEndTimeString != null) {
+      DateTime accessEndTime = DateTime.parse(accessEndTimeString);
+      if (accessEndTime.isAfter(DateTime.now())) {
+        setState(() {
+          hasChatAccess = true;
+        });
+      } else {
+        setState(() {
+          hasChatAccess = false;
+        });
+      }
+    } else {
+      setState(() {
+        hasChatAccess = false;
+      });
     }
   }
 
@@ -414,6 +440,7 @@ class _ProfileEstateState extends State<ProfileEstate> {
   @override
   Widget build(BuildContext context) {
     final objProvider = Provider.of<GeneralProvider>(context, listen: true);
+
     return Scaffold(
       key: _scaffoldKey1,
       appBar: AppBar(
@@ -430,6 +457,11 @@ class _ProfileEstateState extends State<ProfileEstate> {
                             idEstate: estate['IDEstate'].toString(),
                             Name: estate['NameEn'],
                             Key: estate['IDUser'],
+                            onAccessChange: (access) {
+                              setState(() {
+                                hasChatAccess = access;
+                              });
+                            },
                           )));
                 } else {
                   objProvider.FunSnackBarPage(
@@ -472,6 +504,11 @@ class _ProfileEstateState extends State<ProfileEstate> {
                             idEstate: estate['IDEstate'].toString(),
                             Name: estate['NameEn'],
                             Key: estate['IDUser'],
+                            onAccessChange: (access) {
+                              setState(() {
+                                hasChatAccess = access;
+                              });
+                            },
                           )));
                 } else {
                   objProvider.FunSnackBarPage(
@@ -496,13 +533,15 @@ class _ProfileEstateState extends State<ProfileEstate> {
               child: Text(
                 getTranslated(context, "Rate"),
                 style: TextStyle(
-                  color: kPrimaryColor,
+                  color: hasChatAccess
+                      ? kPrimaryColor
+                      : Colors.grey, // Change color based on access
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              onTap: () {
-                _showRatingSnackbar(context);
-              },
+              onTap: hasChatAccess
+                  ? () => _showRatingSnackbar(context)
+                  : null, // Enable or disable based on access
             ),
             25.kW,
           ],
@@ -680,7 +719,6 @@ class _ProfileEstateState extends State<ProfileEstate> {
                           .child(estate['IDEstate'].toString()),
                     ),
                   ),
-
                   if (estate.containsKey("MenuLink") &&
                       estate["MenuLink"].isNotEmpty)
                     ListTile(
@@ -808,7 +846,6 @@ class _ProfileEstateState extends State<ProfileEstate> {
                       ],
                     ),
                   ),
-
                   FirebaseAnimatedList(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
@@ -1055,6 +1092,11 @@ class _ProfileEstateState extends State<ProfileEstate> {
                               idEstate: estate['IDEstate'].toString(),
                               Name: estate['NameEn'],
                               Key: estate['IDUser'],
+                              onAccessChange: (access) {
+                                setState(() {
+                                  hasChatAccess = access;
+                                });
+                              },
                             ),
                           ));
                         },
