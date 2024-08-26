@@ -323,7 +323,7 @@
     "Order ID": "رقم الطلب",
     "Confirm Your Booking": "تأكيد حجزك",
     "Menu Link": "رابط القائمة",
-    "Rate": "التقيم",
+    "Rate": "تقييم العميل",
     "Is there valet?": "هل هناك خدمة صف سيارات؟",
     "Valet with fees": "موقف مع رسوم",
     "Valet Options": "خدمة توقيف السيارت",
@@ -348,5 +348,7 @@
     "You entered a wrong password.": "لقد قمت بإدخال كلمة مرور خاطئة.",
     "User is not found.": "لم يتم العثور على المستخدم.",
     "An error occurred. Please try again.": "حدث خطأ. يرجى المحاولة مرة أخرى.",
-    "Rate Access has Expired.": "انتهى وقت التقييم"
+    "Rate Access has Expired.": "انتهى وقت التقييم",
+    "Smoker": "مدخن",
+    "Allergies": "الحساسية"
 }          

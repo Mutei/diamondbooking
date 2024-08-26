@@ -162,17 +162,24 @@ class _ProfileEstateState extends State<ProfileEstate> {
       String firstName = "";
       String secondName = "";
       String lastName = "";
+      String smokerStatus = "No";
+      String allergies = "";
 
       if (snapshot.exists) {
         firstName = snapshot.child("FirstName").value?.toString() ?? "";
         secondName = snapshot.child("SecondName").value?.toString() ?? "";
         lastName = snapshot.child("LastName").value?.toString() ?? "";
+        smokerStatus = snapshot.child("IsSmoker").value?.toString() ?? "No";
+        allergies = snapshot.child("Allergies").value?.toString() ?? "";
       }
 
       String fullName = "$firstName $secondName $lastName";
 
       String? hour = sTime?.hour.toString().padLeft(2, '0');
       String? minute = sTime?.minute.toString().padLeft(2, '0');
+
+      // Fetch user rating from ProviderFeedbackToCustomer
+      double? userRating = await fetchUserRating(id);
 
       await ref.child(IDBook.toString()).set({
         "IDEstate": estate['IDEstate'].toString(),
@@ -191,6 +198,9 @@ class _ProfileEstateState extends State<ProfileEstate> {
         "State": estate["State"],
         "City": estate["City"],
         "NameUser": fullName,
+        "Smoker": smokerStatus,
+        "Allergies": allergies,
+        "Rating": userRating ?? 0.0,
       });
 
       Provider.of<GeneralProvider>(context, listen: false).FunSnackBarPage(
@@ -198,6 +208,27 @@ class _ProfileEstateState extends State<ProfileEstate> {
         context,
       );
     }
+  }
+
+  Future<double?> fetchUserRating(String userId) async {
+    DatabaseReference ratingsRef = FirebaseDatabase.instance
+        .ref("App")
+        .child("ProviderFeedbackToCustomer")
+        .child(userId)
+        .child("averageRating");
+
+    DataSnapshot snapshot = await ratingsRef.get();
+    if (snapshot.exists) {
+      var ratingValue = snapshot.value;
+      if (ratingValue is int) {
+        return ratingValue.toDouble(); // Convert int to double
+      } else if (ratingValue is double) {
+        return ratingValue;
+      } else {
+        return null; // Return null if the value is not int or double
+      }
+    }
+    return null;
   }
 
   Future<void> getData() async {
@@ -235,8 +266,6 @@ class _ProfileEstateState extends State<ProfileEstate> {
     }
   }
 
-  // Check chat access state from SharedPreferences
-  // Check chat access state from SharedPreferences
   Future<bool> checkChatAccess() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     String accessTimeKey = 'access_time_${estate['IDEstate']}_$ID';

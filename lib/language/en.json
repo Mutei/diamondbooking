@@ -322,7 +322,7 @@
     "Order ID": "Order ID",
     "Confirm Your Booking": "Confirm Your Booking",
     "Menu Link": "Menu Link",
-    "Rate": "Rate",
+    "Rate": "User's Rating",
     "Is there valet?": "Is there valet?",
     "Valet with fees": "Valet with fees",
     "Valet Options": "Valet Options",
@@ -347,6 +347,8 @@
     "You entered a wrong password.": "You entered a wrong password.",
     "User is not found.": "User is not found.",
     "An error occurred. Please try again.": "An error occurred. Please try again.",
-    "Rate Access has Expired.": "Rate Access has Expired."
+    "Rate Access has Expired.": "Rate Access has Expired.",
+    "Smoker": "Smoker",
+    "Allergies": "Allergies"
 }
  

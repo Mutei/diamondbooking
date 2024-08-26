@@ -24,29 +24,64 @@ class _RequestState extends State<Request> {
     Provider.of<GeneralProvider>(context, listen: false).resetNewRequestCount();
   }
 
+  Future<void> updateBookingWithRating(String bookingId, String userId) async {
+    double? userRating = await fetchUserRating(userId);
+    String smokerStatus = await fetchSmokerStatus(userId);
+    String allergies = await fetchAllergies(userId);
+
+    DatabaseReference bookingRef = FirebaseDatabase.instance
+        .ref("App")
+        .child("Booking")
+        .child("Book")
+        .child(bookingId);
+
+    await bookingRef.update({
+      "Rating": userRating ?? 0.0,
+      "Smoker": smokerStatus,
+      "Allergies": allergies,
+    });
+  }
+
   Future<double?> fetchUserRating(String userId) async {
     DatabaseReference ratingsRef = FirebaseDatabase.instance
         .ref("App")
         .child("ProviderFeedbackToCustomer")
         .child(userId)
-        .child("ratings");
+        .child("averageRating");
 
     DataSnapshot snapshot = await ratingsRef.get();
-
     if (snapshot.exists) {
-      Map<dynamic, dynamic> ratingsData =
-          snapshot.value as Map<dynamic, dynamic>;
-      int totalRatings = ratingsData.length;
-      double sumRatings = 0;
-
-      ratingsData.forEach((key, value) {
-        sumRatings += value['rating'] ?? 0;
-      });
-
-      double averageRating = sumRatings / totalRatings;
-      return averageRating;
+      return snapshot.value as double?;
     }
     return null;
+  }
+
+  Future<String> fetchSmokerStatus(String userId) async {
+    DatabaseReference smokerRef = FirebaseDatabase.instance
+        .ref("App")
+        .child("User")
+        .child(userId)
+        .child("IsSmoker");
+
+    DataSnapshot snapshot = await smokerRef.get();
+    if (snapshot.exists) {
+      return snapshot.value == "yes" ? "Yes" : "No";
+    }
+    return "No";
+  }
+
+  Future<String> fetchAllergies(String userId) async {
+    DatabaseReference allergiesRef = FirebaseDatabase.instance
+        .ref("App")
+        .child("User")
+        .child(userId)
+        .child("Allergies");
+
+    DataSnapshot snapshot = await allergiesRef.get();
+    if (snapshot.exists) {
+      return snapshot.value?.toString() ?? "";
+    }
+    return "";
   }
 
   @override
@@ -67,14 +102,13 @@ class _RequestState extends State<Request> {
             value['Key'] = snapshot.key;
             String? id = FirebaseAuth.instance.currentUser?.uid;
             if (value["IDOwner"] == id) {
-              return FutureBuilder<double?>(
-                future: fetchUserRating(value['IDUser']),
-                builder: (context, ratingSnapshot) {
-                  if (ratingSnapshot.connectionState ==
-                      ConnectionState.waiting) {
+              return FutureBuilder<void>(
+                future:
+                    updateBookingWithRating(value['IDBook'], value['IDUser']),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
                     return Container(); // or any loading indicator
                   }
-                  double? userRating = ratingSnapshot.data;
 
                   // Determine the estate name based on the app's current locale
                   String locale = Localizations.localeOf(context).languageCode;
@@ -160,24 +194,28 @@ class _RequestState extends State<Request> {
                                 )
                               ],
                             ),
-                            Expanded(
-                              child: Padding(
-                                padding: const EdgeInsets.only(
-                                  left: 16,
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: ItemInCard(
+                                    Icon(Icons.star),
+                                    value["Rating"]?.toString() ?? "0.0",
+                                    getTranslated(context, "Rate"),
+                                  ),
                                 ),
-                                child: Row(
-                                  children: [
-                                    const Icon(
-                                      Icons.star,
-                                      color: kPrimaryColor,
-                                    ),
-                                    const SizedBox(width: 20),
-                                    Text(userRating.toString(),
-                                        style: const TextStyle(fontSize: 12)),
-                                  ],
+                                Expanded(
+                                  child: ItemInCard(
+                                    Icon(Icons.smoking_rooms),
+                                    value["Smoker"] ?? "No",
+                                    getTranslated(context, "Smoker"),
+                                  ),
                                 ),
-                              ),
+                              ],
                             ),
+                            ItemInCard(
+                                Icon(Icons.notes),
+                                value["Allergies"] ?? "",
+                                getTranslated(context, "Allergies")),
                             ItemInCard(Icon(Icons.business), estateName,
                                 getTranslated(context, "Hottel Name")),
                           ],
