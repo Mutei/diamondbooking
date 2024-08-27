@@ -174,7 +174,7 @@ class _State extends State<Chat> {
           await SharedPreferences.getInstance();
       String accessTimeKey = 'access_time_${widget.idEstate}_$id';
       DateTime accessEndTime = DateTime.now().add(
-          isHotel ? const Duration(minutes: 10 ) : const Duration(minutes: 10));
+          isHotel ? const Duration(minutes: 1 ) : const Duration(minutes: 1));
       sharedPreferences.setString(
           accessTimeKey, accessEndTime.toIso8601String());
 
@@ -186,7 +186,7 @@ class _State extends State<Chat> {
         hasAccess = true;
       });
       startAccessTimer(
-        isHotel ? const Duration(minutes: 10) : const Duration(minutes: 10),
+        isHotel ? const Duration(minutes: 1) : const Duration(minutes: 1),
       );
       print('Access granted');
       addActiveCustomer();
@@ -200,8 +200,8 @@ class _State extends State<Chat> {
       try {
         DateTime now = DateTime.now();
         DateTime endTime = isHotel
-            ? now.add(const Duration(minutes: 5))
-            : now.add(const Duration(minutes: 5));
+            ? now.add(const Duration(minutes: 1))
+            : now.add(const Duration(minutes: 1));
 
         await databaseReference.ref("App/ActiveCustomers/$idEstate/$id").set({
           "StartTime": now.toIso8601String(),

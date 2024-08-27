@@ -81,6 +81,77 @@ class _ProfileEstateState extends State<ProfileEstate> {
     feedbackController.dispose();
     super.dispose();
   }
+  void checkRatingAccess() async {
+    try {
+      // Fetch the current user's ID
+      String? id = FirebaseAuth.instance.currentUser?.uid;
+
+      if (id == null) {
+        // If the user ID is null, they might not be logged in properly
+        Provider.of<GeneralProvider>(context, listen: false).FunSnackBarPage(
+          getTranslated(context, "User is not logged in."),
+          context,
+        );
+        return;
+      }
+
+      // Construct the reference to the user's active customer entry in Firebase
+      DatabaseReference ref = FirebaseDatabase.instance
+          .ref("App/ActiveCustomers/${widget.estate['IDEstate']}/$id");
+
+      // Fetch the data from Firebase
+      DataSnapshot snapshot = await ref.get();
+
+      // Log the entire snapshot to see what it contains
+      print('Full Snapshot value: ${snapshot.value}');
+
+      if (snapshot.exists) {
+        // Since the data is nested, get the specific child first
+        DataSnapshot userSnapshot = snapshot.child(id);
+
+        // Extract the EndTime from the nested snapshot
+        String? endTimeString = userSnapshot.child('EndTime').value?.toString();
+
+        // Debug output to verify what is retrieved
+        print('Fetched EndTime from Firebase: $endTimeString');
+
+        if (endTimeString != null) {
+          DateTime endTime = DateTime.parse(endTimeString);
+
+          if (endTime.isAfter(DateTime.now())) {
+            // If access is still valid, show the rating snackbar
+            _showRatingSnackbar(context);
+          } else {
+            // Access has expired
+            Provider.of<GeneralProvider>(context, listen: false).FunSnackBarPage(
+              getTranslated(context, "Rate Access has Expired."),
+              context,
+            );
+          }
+        } else {
+          // EndTime is null, meaning access might have never been granted
+          Provider.of<GeneralProvider>(context, listen: false).FunSnackBarPage(
+            getTranslated(context, "Rate Access has Expired."),
+            context,
+          );
+        }
+      } else {
+        // Snapshot does not exist, meaning the user doesn't have access
+        Provider.of<GeneralProvider>(context, listen: false).FunSnackBarPage(
+          getTranslated(context, "Rate Access has Expired."),
+          context,
+        );
+      }
+    } catch (e) {
+      // Handle potential errors
+      print('Error checking rate access: $e');
+      Provider.of<GeneralProvider>(context, listen: false).FunSnackBarPage(
+        getTranslated(context, "An error occurred while checking access."),
+        context,
+      );
+    }
+  }
+
 
   Future<void> fetchUserType() async {
     try {
@@ -501,9 +572,7 @@ class _ProfileEstateState extends State<ProfileEstate> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              onTap: () {
-                _showRatingSnackbar(context);
-              },
+              onTap: checkRatingAccess,
             ),
             25.kW,
           ],
